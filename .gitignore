@@ -1,0 +1,7 @@
+/.build/
+/integrations/cna/*.o
+/.wiki/
+/.scratch/
+*.exe
+*.dll
+

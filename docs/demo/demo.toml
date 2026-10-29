@@ -1,0 +1,31 @@
+# rex WMIExec in a Beacon console, rendered with beaconcast.
+
+mode = "dark"
+
+[session]
+external = "203.0.113.24"
+internal = "10.0.0.10"
+listener = "https"
+user = "operator"
+computer = "OPS01"
+process = "rundll32.exe"
+pid = 4120
+arch = "x64"
+
+[[command]]
+input = 'rex WMIExec --target 10.0.0.15 --command "whoami.exe /all"'
+
+  [[command.event]]
+  at = 0.15
+  kind = "task"
+  text = "rex WMIExec against 10.0.0.15 using the active token context"
+
+  [[command.event]]
+  at = 0.9
+  kind = "checkin"
+  bytes = 18432
+
+  [[command.event]]
+  at = 1.6
+  kind = "output"
+  text = "technique=WMIExec target=10.0.0.15 status=succeeded disposition=dispatched source=win32_process_create pid=4280"
