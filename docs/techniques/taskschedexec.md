@@ -5,7 +5,7 @@
 Rex uses the Task Scheduler COM client, which connects to the remote
 `ITaskSchedulerService` RPC interface. It registers a SYSTEM task in the root
 folder and starts it. Cobalt Strike can supply the program through a
-[launcher contract](../launchers/index.md).
+[launcher contract](../launchers/README.md).
 
 ```mermaid
 sequenceDiagram

@@ -30,7 +30,7 @@ def main() -> None:
                 missing.append(f"{page.relative_to(ROOT)}: {raw}")
 
     for page in sorted((ROOT / "docs" / "techniques").glob("*.md")):
-        if page.name not in {"README.md", "index.md"} and "```mermaid" not in page.read_text(encoding="utf-8"):
+        if page.name != "README.md" and "```mermaid" not in page.read_text(encoding="utf-8"):
             missing.append(f"{page.relative_to(ROOT)}: missing Mermaid diagram")
 
     if missing:

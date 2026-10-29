@@ -19,7 +19,7 @@ Sliver integrations live separately under `integrations/`.
   linked only into techniques that need them.
 - `src/techniques/` contains one implementation and one `rex_technique`
   descriptor loader for each canonical stable selector listed in
-  `docs/techniques/index.md`.
+  `docs/techniques/README.md`.
 - Public Cobalt Strike commands use the canonical selectors from the technique
   reference. Sliver prefixes the same
   names with `rex-`. Do not add compatibility aliases. Native requests and

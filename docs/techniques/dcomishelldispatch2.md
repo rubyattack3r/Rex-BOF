@@ -4,7 +4,7 @@
 
 Rex activates the remote Shell COM class, gets `IShellDispatch2` from an
 interactive Explorer session, and calls `ShellExecute`. Cobalt Strike can
-supply the program through a [launcher contract](../launchers/index.md).
+supply the program through a [launcher contract](../launchers/README.md).
 
 An `explorer.exe` process alone is not enough. Preflight must resolve the Shell
 automation interface in a usable session.

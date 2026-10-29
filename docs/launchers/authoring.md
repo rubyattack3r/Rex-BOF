@@ -47,4 +47,4 @@ Before placing the artifact on the target:
 
 `rex preflight` checks the execution technique, not the payload ABI.
 
-See the [launcher index](index.md) and the family page matching the artifact.
+See the [launcher reference](README.md) and the family page matching the artifact.
