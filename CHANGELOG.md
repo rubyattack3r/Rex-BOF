@@ -24,8 +24,8 @@ increment the minor version.
   `dcom-shell-browser-window`.
 - Rewrite operator and developer documentation for clearer installation,
   requirements, results, and cleanup guidance. Launcher entries now link
-  directly to their LOLBAS references, and `docs/README.md` is the automatic
-  documentation landing page on GitHub.
+  directly to their LOLBAS references. Every documentation directory now uses
+  `README.md` as its automatic GitHub landing page.
 - Use Zig for reproducible x86 and x64 Windows BOF builds, with the same target
   and BOF-oriented compiler conventions as Zip-BOF. Each technique now builds
   as one translation unit and is stripped and inspected with LLVM tools.

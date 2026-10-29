@@ -3,7 +3,7 @@
 ## How it works
 
 Rex calls WMI `Win32_Process.Create` with a complete command line. Cobalt Strike
-can build that command from a [launcher contract](../launchers/index.md).
+can build that command from a [launcher contract](../launchers/README.md).
 
 ```mermaid
 sequenceDiagram

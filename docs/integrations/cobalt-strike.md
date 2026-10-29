@@ -65,7 +65,7 @@ rex wmi-exec --target 10.0.0.15 --payload-type dll \
 
 Service techniques require a service executable. `wmi-provider` loads its DLL
 directly and does not accept launcher options. See the
-[launcher reference](../launchers/index.md) for selectors and callback contracts.
+[launcher reference](../launchers/README.md) for selectors and callback contracts.
 
 ## Technique-specific boundaries
 

@@ -4,7 +4,7 @@
 
 Rex creates a WSMan session and shell, runs a program, waits for its exit
 status, and closes the command and session. Cobalt Strike can supply the program
-through a [launcher contract](../launchers/index.md).
+through a [launcher contract](../launchers/README.md).
 
 HTTP on TCP 5985 is the default. `--transport https` selects HTTPS on TCP 5986;
 `http:<port>` and `https:<port>` select an explicit listener. Rex does not

@@ -63,7 +63,7 @@ Preflight does not verify:
 - credentials other than the active implant token.
 
 Place the artifact on the target, choose the matching BOF architecture, set the
-required token context, and select the correct [launcher](launchers/index.md)
+required token context, and select the correct [launcher](launchers/README.md)
 before execution.
 
 ## Failure and release behavior
@@ -76,5 +76,5 @@ Execution may fail after a remote change. When possible, the failure includes
 the values needed for cleanup. For example, a failed service start still
 reports a preceding binary-path change.
 
-See the [technique reference](techniques/index.md), [transcript output](output.md),
+See the [technique reference](techniques/README.md), [transcript output](output.md),
 and [cleanup guide](recovery.md).

@@ -49,8 +49,8 @@ Each command targets one host and uses the active implant token. Use
 remote change. Payload files must already be on the target.
 
 See the [operator documentation](docs/README.md),
-[integration guides](docs/integrations/index.md),
-[technique reference](docs/techniques/index.md),
+[integration guides](docs/integrations/README.md),
+[technique reference](docs/techniques/README.md),
 [tested platforms](docs/platforms.md), and [cleanup guide](docs/recovery.md).
 
 ## Build from source

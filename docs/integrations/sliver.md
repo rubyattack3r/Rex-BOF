@@ -48,7 +48,7 @@ rex-wsman-exec --target 10.0.0.15 --program cmd.exe --arguments "/c whoami"
 
 The Sliver manifest exposes primitive command, program, and argument fields.
 It does not reproduce the Cobalt Strike launcher registry. Compose launcher
-commands directly using the [launcher contracts](../launchers/index.md).
+commands directly using the [launcher contracts](../launchers/README.md).
 
 ## Runtime contract
 

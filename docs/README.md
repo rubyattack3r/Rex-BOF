@@ -22,10 +22,10 @@ does not accept credentials or transfer payload files.
 
 Additional references:
 
-- [Integration guides](integrations/index.md)
-- [Technique reference](techniques/index.md)
+- [Integration guides](integrations/README.md)
+- [Technique reference](techniques/README.md)
 - [Read-only preflight](preflight.md)
-- [Launcher contracts](launchers/index.md)
+- [Launcher contracts](launchers/README.md)
 - [Transcript output](output.md)
 - [Cleanup](recovery.md)
 - [Tested platforms](platforms.md)
