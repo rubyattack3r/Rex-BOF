@@ -7,7 +7,7 @@
 REX_DECLARE_TECHNIQUE(rex_scm_create);
 
 const rex_technique rex_technique_descriptor = {
-    "SCMCreateService", "scm_service_name_available", "scm_start_service",
+    "scm-create-service", "scm_service_name_available", "scm_start_service",
     REX_DISPOSITION_DISPATCHED,
     rex_scm_create_decode, rex_scm_create_preflight,
     rex_scm_create_execute, rex_scm_create_release,

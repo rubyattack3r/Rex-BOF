@@ -8,7 +8,7 @@
 REX_DECLARE_TECHNIQUE(rex_wmi_provider);
 
 const rex_technique rex_technique_descriptor = {
-    "WMIProvider", "wmi_provider_and_registry_available", "msft_providers_load",
+    "wmi-provider", "wmi_provider_and_registry_available", "msft_providers_load",
     REX_DISPOSITION_COMPLETED,
     rex_wmi_provider_decode, rex_wmi_provider_preflight,
     rex_wmi_provider_execute, rex_wmi_provider_release,

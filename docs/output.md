@@ -5,20 +5,20 @@ Each invocation emits concise transcript records backed by typed C result, obser
 Successful execution emits one result line. Techniques that expose a remote process identifier include it:
 
 ```text
-technique=WMIExec target=10.0.0.15 status=succeeded disposition=dispatched source=win32_process_create pid=4280
+technique=wmi-exec target=10.0.0.15 status=succeeded disposition=dispatched source=win32_process_create pid=4280
 ```
 
 A successful check-only invocation reports `validated`:
 
 ```text
-technique=WMIExec target=10.0.0.15 status=succeeded disposition=validated source=wmi_cimv2_session
+technique=wmi-exec target=10.0.0.15 status=succeeded disposition=validated source=wmi_cimv2_session
 ```
 
 ## Result fields
 
 | Field | Description |
 |---|---|
-| `technique` | Stable public selector. |
+| `technique` | Canonical lowercase kebab-case public technique name. |
 | `target` | Hostname or address supplied to the invocation. |
 | `status` | `succeeded` or `failed`. |
 | `disposition` | What the remote API proved: `validated`, `dispatched`, or `completed`. |
@@ -34,7 +34,7 @@ technique=WMIExec target=10.0.0.15 status=succeeded disposition=validated source
 Input and preflight failures occur before a technique-owned persistent mutation. Execution can fail after a mutation; when that happens, the BOF emits the failure and the available recovery record:
 
 ```text
-technique=SCMChangeService target=10.0.0.15 status=failed phase=execution hresult=0x80070005
+technique=scm-change-service target=10.0.0.15 status=failed phase=execution hresult=0x80070005
 recovery target=10.0.0.15 action=restore_service service=Example original_binary=C:\Windows\System32\example.exe applied_binary=C:\ProgramData\staged-service.exe original_start_type=3 original_state=stopped
 ```
 

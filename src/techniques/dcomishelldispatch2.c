@@ -10,7 +10,7 @@
 REX_DECLARE_TECHNIQUE(rex_dcom_shell);
 
 const rex_technique rex_technique_descriptor = {
-    "DCOMIShellDispatch2", "ishelldispatch2_interface",
+    "dcom-ishell-dispatch2", "ishelldispatch2_interface",
     "ishelldispatch2_shellexecute",
     REX_DISPOSITION_DISPATCHED,
     rex_dcom_shell_decode, rex_dcom_shell_preflight,

@@ -8,7 +8,7 @@
 REX_DECLARE_TECHNIQUE(rex_scm_change);
 
 const rex_technique rex_technique_descriptor = {
-    "SCMChangeService", "scm_service_snapshot", "scm_start_service",
+    "scm-change-service", "scm_service_snapshot", "scm_start_service",
     REX_DISPOSITION_DISPATCHED,
     rex_scm_change_decode, rex_scm_change_preflight,
     rex_scm_change_execute, rex_scm_change_release,

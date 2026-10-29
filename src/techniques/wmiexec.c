@@ -4,7 +4,7 @@
 REX_DECLARE_TECHNIQUE(rex_wmiexec);
 
 const rex_technique rex_technique_descriptor = {
-    "WMIExec", "wmi_cimv2_session", "win32_process_create",
+    "wmi-exec", "wmi_cimv2_session", "win32_process_create",
     REX_DISPOSITION_DISPATCHED,
     rex_wmiexec_decode, rex_wmiexec_preflight,
     rex_wmiexec_execute, rex_wmiexec_release,

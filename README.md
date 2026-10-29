@@ -58,7 +58,7 @@ See the [operator documentation](docs/index.md),
 
 ```sh
 nix develop -c make verify
-nix develop -c make release VERSION=v0.2.0
+nix develop -c make release VERSION=v0.3.0
 ```
 
 The build writes loadable files under `integrations/cna/` and

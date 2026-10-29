@@ -11,7 +11,7 @@
 REX_DECLARE_TECHNIQUE(rex_tasksched);
 
 const rex_technique rex_technique_descriptor = {
-    "TaskSchedExec", "task_scheduler_name_available", "task_scheduler_run",
+    "task-sched-exec", "task_scheduler_name_available", "task_scheduler_run",
     REX_DISPOSITION_DISPATCHED,
     rex_tasksched_decode, rex_tasksched_preflight,
     rex_tasksched_execute, rex_tasksched_release,

@@ -28,11 +28,11 @@ dcomishelldispatch2_SOURCES := $(BASE_SOURCES) src/techniques/dcomishelldispatch
 scmchangeservice_SOURCES := $(BASE_SOURCES) $(SERVICE_SOURCES) src/techniques/scmchangeservice.c
 scmcreateservice_SOURCES := $(BASE_SOURCES) $(SERVICE_SOURCES) src/techniques/scmcreateservice.c
 
-.PHONY: all clean demo docs imports lint release sliver-entrypoints sliver-manifest verify verify-bof
+.PHONY: all clean demo docs imports lint release sliver-entrypoints sliver-manifest technique-contract verify verify-bof
 
 all: $(OUTPUTS) $(SLIVER_OUTPUTS)
 
-verify: clean lint all imports docs sliver-manifest sliver-entrypoints
+verify: clean lint all imports docs technique-contract sliver-manifest sliver-entrypoints
 
 lint:
 	cppcheck --quiet --error-exitcode=1 --std=c11 --inline-suppr \
@@ -55,6 +55,9 @@ imports: all
 
 docs:
 	python3 scripts/check_docs.py
+
+technique-contract:
+	python3 scripts/check_technique_contract.py
 
 sliver-manifest:
 	python3 scripts/check_sliver_manifest.py integrations/sliver/extension.json

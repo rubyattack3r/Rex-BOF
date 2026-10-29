@@ -36,13 +36,12 @@ The effective token must have the privileges required by the selected technique,
 
 Every executable or DLL path must already exist on the target. The BOFs do not stage files, create parent directories, or delete payloads. Delivery and file-artifact tracking remain separate operator actions.
 
-The CNA maps each public kebab-case command to its stable internal selector,
-then packs the target and selector as narrow ASCII and technique values as
-UTF-16. Legacy command aliases are not accepted. Unicode command text and
-Windows paths, including Japanese names, do not depend on the target's active
-code page. Targets accept hostnames or address literals made from letters,
-digits, `.`, `-`, `_`, and `:`. Technique values are limited to 8,191 UTF-16
-code units.
+The CNA packs the canonical kebab-case selector and target as narrow ASCII and
+technique values as UTF-16. Legacy command aliases are not accepted. Unicode
+command text and Windows paths, including Japanese names, do not depend on the
+target's active code page. Targets accept hostnames or address literals made
+from letters, digits, `.`, `-`, `_`, and `:`. Technique values are limited to
+8,191 UTF-16 code units.
 
 ## Launchers
 

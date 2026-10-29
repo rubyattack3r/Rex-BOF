@@ -40,7 +40,7 @@ preflight succeed, the shared entrypoint emits a result and releases the
 technique state without calling `execute`:
 
 ```text
-technique=WMIExec target=10.0.0.15 status=succeeded disposition=validated source=wmi_cimv2_session
+technique=wmi-exec target=10.0.0.15 status=succeeded disposition=validated source=wmi_cimv2_session
 ```
 
 Normal `rex <technique> ...` invocations pack the `execute` action and continue
