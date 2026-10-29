@@ -6,6 +6,8 @@ increment the minor version.
 
 ## [Unreleased]
 
+## [0.4.2] - 2026-10-29
+
 ### Fixed
 
 - Initialize COM security with dynamic cloaking before WMI connections and
