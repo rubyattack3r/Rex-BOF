@@ -5,6 +5,7 @@
 #include <windows.h>
 
 #include "beacon.h"
+#include "com.h"
 #include "rex.h"
 #include "wmi.h"
 
@@ -146,6 +147,11 @@ HRESULT rex_wmi_open_namespace(const char *target,
     if (result == S_OK || result == S_FALSE) {
         session->uninitialize_com = TRUE;
     } else if (result != RPC_E_CHANGED_MODE) {
+        goto cleanup;
+    }
+
+    result = rex_com_enable_dynamic_cloaking();
+    if (FAILED(result)) {
         goto cleanup;
     }
 

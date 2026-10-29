@@ -18,7 +18,8 @@ flowchart LR
 
 - `include/rex.h` defines the shared request, result, observation, recovery, state, and technique-descriptor contracts.
 - `src/common/` contains the Beacon entrypoint, registry guard, runtime helpers,
-  transcript encoding, and reusable WMI and service capabilities.
+  transcript encoding, COM security setup, and reusable WMI and service
+  capabilities.
 - `src/techniques/` contains one implementation and descriptor loader per
   stable selector.
 - `integrations/cna/rex.cna` maps selectors to objects, exposes named options,

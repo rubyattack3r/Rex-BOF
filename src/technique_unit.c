@@ -6,6 +6,10 @@
 #include "common/runtime.c"
 #include "common/text.c"
 
+#if defined(REX_WITH_COM_SECURITY)
+#include "common/com.c"
+#endif
+
 #if defined(REX_WITH_WMI)
 #include "common/wmi.c"
 #endif
