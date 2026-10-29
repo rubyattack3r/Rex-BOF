@@ -18,6 +18,7 @@ HRESULT rex_service_create_preflight(const char *, const wchar_t *,
                                      rex_created_service **);
 HRESULT rex_service_create(rex_created_service *, const wchar_t *);
 HRESULT rex_service_created_start(rex_created_service *);
+HRESULT rex_service_created_start_command(rex_created_service *);
 void rex_service_created_close(rex_created_service *);
 
 #endif

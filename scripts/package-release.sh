@@ -23,7 +23,7 @@ for required in \
     "$PROJECT_DIR/CHANGELOG.md" \
     "$PROJECT_DIR/LICENSE" \
     "$PROJECT_DIR/ACCEPTABLE_USE_POLICY.md" \
-    "$PROJECT_DIR/docs/index.md"; do
+    "$PROJECT_DIR/docs/README.md"; do
     if [ ! -f "$required" ]; then
         echo "required release input is missing: $required" >&2
         exit 1

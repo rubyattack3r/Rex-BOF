@@ -18,6 +18,7 @@ DECLSPEC_IMPORT void BeaconDataParse(datap *parser, char *buffer, int size);
 DECLSPEC_IMPORT char *BeaconDataExtract(datap *parser, int *size);
 DECLSPEC_IMPORT int BeaconDataLength(datap *parser);
 DECLSPEC_IMPORT void BeaconPrintf(int type, char *format, ...);
-DECLSPEC_IMPORT BOOL toWideChar(char *source, wchar_t *destination, int max_bytes);
+DECLSPEC_IMPORT BOOL toWideChar(char *source, wchar_t *destination,
+                                int max_bytes);
 
 #endif

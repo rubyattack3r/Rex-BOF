@@ -1,12 +1,9 @@
 # Managed .NET launchers
 
-See the [launcher index](index.md) for selector inventory and shared evidence,
-preflight, and recovery boundaries.
-
 `RegAsm.exe`, `RegSvcs.exe`, and `InstallUtil.exe` consume .NET Framework
-assemblies, but they do not share one generic managed-payload contract. The
-assembly must implement the contract for the selected launcher. It cannot be a
-native DLL, a modern .NET-only application, or an arbitrary managed library.
+assemblies through different contracts. Choose the launcher that matches the
+assembly; native DLLs and modern .NET-only applications are not supported by
+these selectors.
 
 The built-in descriptors use the 64-bit .NET Framework v4 tools under
 `C:\Windows\Microsoft.NET\Framework64\v4.0.30319`. Use
@@ -44,8 +41,7 @@ public sealed class ExampleComponent
 ```
 
 Use `RegAsm.exe` for registration and `RegAsm.exe (/U)` for unregistration.
-Callbacks should be idempotent and should fail clearly rather than leaving an
-ambiguous partial registration.
+Make registration callbacks safe to repeat and return a clear failure status.
 
 ```text
 rex wmi-exec --target 10.0.0.15 --payload-type managed \
@@ -78,7 +74,7 @@ public sealed class ExampleServicedComponent : ServicedComponent
 
 Sign the final assembly and verify the strong name before using
 `RegSvcs.exe`. The `RegSvcs.exe (/U)` selector requests unregistration, but any
-additional state created by component callbacks remains payload-defined.
+additional state created by component callbacks must be cleaned up separately.
 
 ```text
 rex wmi-exec --target 10.0.0.15 --payload-type managed \
@@ -137,23 +133,18 @@ project:
    as a pair on a disposable host.
 6. Make callbacks safe to repeat and document how partial failure is reversed.
 
-`rex preflight` validates the remote execution technique, not the managed
-assembly. It does not read the remote file, inspect CLR metadata, verify a
-strong name, or prove that the selected callback will run.
+`rex preflight` does not inspect CLR metadata, strong names, dependencies, or
+callbacks.
 
-## Operator recovery
+## Cleanup
 
-The BOF reports that the remote process was dispatched or completed according
-to the selected technique. It does not infer registry, COM+, installer,
-service, or file changes made by managed callbacks. Record and reverse those
-payload-defined changes separately, then remove the remote assembly after the
-launcher releases it.
+Reverse registry, COM+, installer, service, and file changes made by the
+assembly. Delete it after the launcher releases it.
 
-## Detection considerations
+## Detection
 
-Managed registration and installer execution are observable through process
-creation, command-line, CLR loading, registry or COM+ changes, and any
-payload-defined side effects. No selector is undetectable.
+Relevant telemetry includes process creation, command lines, CLR loading,
+registry changes, and COM+ changes.
 
 References: [`ComRegisterFunctionAttribute`](https://learn.microsoft.com/en-us/dotnet/api/system.runtime.interopservices.comregisterfunctionattribute),
 [`ServicedComponent`](https://learn.microsoft.com/en-us/dotnet/api/system.enterpriseservices.servicedcomponent),

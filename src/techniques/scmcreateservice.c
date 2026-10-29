@@ -4,17 +4,12 @@
 #include "service.h"
 #include "technique.h"
 
-REX_DECLARE_TECHNIQUE(rex_scm_create);
-
-const rex_technique rex_technique_descriptor = {
-    "scm-create-service", "scm_service_name_available", "scm_start_service",
-    REX_DISPOSITION_DISPATCHED,
-    rex_scm_create_decode, rex_scm_create_preflight,
-    rex_scm_create_execute, rex_scm_create_release,
-};
+REX_DEFINE_TECHNIQUE(rex_scm_create, "scm-create-service",
+                     "scm_service_name_available", "scm_start_service",
+                     REX_DISPOSITION_DISPATCHED);
 
 static HRESULT rex_scm_create_decode(const rex_arguments *arguments,
-                              rex_request *request) {
+                                     rex_request *request) {
     if (arguments->values[0][0] == L'\0' || arguments->values[1][0] == L'\0' ||
         arguments->values[2][0] != L'\0') {
         return E_INVALIDARG;
@@ -25,7 +20,7 @@ static HRESULT rex_scm_create_decode(const rex_arguments *arguments,
 }
 
 static HRESULT rex_scm_create_preflight(const rex_request *request,
-                                 rex_state *state) {
+                                        rex_state *state) {
     rex_created_service *created = NULL;
     HRESULT result = rex_service_create_preflight(
         request->target, request->config.service.name, &created);
@@ -36,14 +31,15 @@ static HRESULT rex_scm_create_preflight(const rex_request *request,
 }
 
 static HRESULT rex_scm_create_execute(const rex_request *request,
-                               rex_state *state,
-                               rex_observation *observation) {
+                                      rex_state *state,
+                                      rex_observation *observation) {
     rex_created_service *created = (rex_created_service *)state->private_data;
     HRESULT result;
     result = rex_service_create(created, request->config.service.binary_path);
     if (SUCCEEDED(result)) {
         observation->recovery.kind = REX_RECOVERY_DELETE_SERVICE;
-        observation->recovery.value.created_service.name = request->config.service.name;
+        observation->recovery.value.created_service.name =
+            request->config.service.name;
         observation->recovery.value.created_service.binary_path =
             request->config.service.binary_path;
         result = rex_service_created_start(created);

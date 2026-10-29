@@ -93,8 +93,9 @@ sub rex_general_help {
         "       rex techniques\n" .
         "       rex launchers\n" .
         "       rex help <technique>\n" .
-        "techniques: wmi-provider, wmi-service, wmi-exec, wsman-exec, " .
-        "task-sched-exec, dcom-ishell-dispatch2, scm-change-service, scm-create-service\n" .
+        "techniques: wmi-provider, wmi-event-subscription, wmi-service, wmi-exec, " .
+        "wsman-exec, task-sched-exec, dcom-ishell-dispatch2, " .
+        "scm-change-service, scm-create-service, scm-command\n" .
         "identity: rex uses the active Beacon token context"
     );
 }
@@ -104,6 +105,9 @@ sub rex_technique_help {
 
     if ($2 eq "wmi-exec") {
         $usage = "rex wmi-exec --target <host> (--command <command-line> | <launcher options>)";
+    }
+    else if ($2 eq "scm-command") {
+        $usage = "rex scm-command --target <host> --service-name <name> (--command <command-line> | <launcher options>)";
     }
     else if ($2 eq "wmi-service" || $2 eq "scm-change-service" || $2 eq "scm-create-service") {
         $usage = "rex " . $2 . " --target <host> --service-name <name> --remote-path <service-exe>";
@@ -115,10 +119,13 @@ sub rex_technique_help {
         $usage = "rex wsman-exec --target <host> (--program <executable> [--arguments <arguments>] | <launcher options>) [--transport <http[:port]|https[:port]>]";
     }
     else if ($2 eq "dcom-ishell-dispatch2") {
-        $usage = "rex dcom-ishell-dispatch2 --target <host> (--program <executable> [--arguments <arguments>] | <launcher options>)";
+        $usage = "rex " . $2 . " --target <host> (--program <executable> [--arguments <arguments>] | <launcher options>)";
     }
     else if ($2 eq "wmi-provider") {
         $usage = "rex wmi-provider --target <host> --provider-name <name> --provider-clsid <{GUID}> --remote-path <provider-dll>";
+    }
+    else if ($2 eq "wmi-event-subscription") {
+        $usage = "rex wmi-event-subscription --target <host> --subscription-name <name> --query <WQL> --command <command-line>";
     }
     else {
         berror($1, "unknown rex technique: " . $2);
@@ -152,9 +159,11 @@ sub rex_preflight_help {
 sub rex_techniques {
     blog($1,
         "wmi-exec: --command\n" .
+        "wmi-event-subscription: --subscription-name, --query, --command\n" .
         "wmi-service: --service-name, --remote-path\n" .
         "scm-change-service: --service-name, --remote-path\n" .
         "scm-create-service: --service-name, --remote-path\n" .
+        "scm-command: --service-name, --command\n" .
         "task-sched-exec: --task-name, --program, optional --arguments\n" .
         "wsman-exec: --program, optional --arguments and --transport\n" .
         "dcom-ishell-dispatch2: --program, optional --arguments\n" .
@@ -184,14 +193,16 @@ sub rex_launchers {
 }
 
 sub rex_known_technique {
-    return $1 eq "wmi-provider" || $1 eq "wmi-service" || $1 eq "wmi-exec" ||
+    return $1 eq "wmi-provider" || $1 eq "wmi-event-subscription" ||
+        $1 eq "wmi-service" || $1 eq "wmi-exec" ||
         $1 eq "wsman-exec" || $1 eq "task-sched-exec" ||
         $1 eq "dcom-ishell-dispatch2" || $1 eq "scm-change-service" ||
-        $1 eq "scm-create-service";
+        $1 eq "scm-create-service" || $1 eq "scm-command";
 }
 
 sub rex_object_name {
     if ($1 eq "wmi-provider") { return "wmiprovider"; }
+    if ($1 eq "wmi-event-subscription") { return "wmieventsubscription"; }
     if ($1 eq "wmi-service") { return "wmiservice"; }
     if ($1 eq "wmi-exec") { return "wmiexec"; }
     if ($1 eq "wsman-exec") { return "wsmanexec"; }
@@ -199,12 +210,14 @@ sub rex_object_name {
     if ($1 eq "dcom-ishell-dispatch2") { return "dcomishelldispatch2"; }
     if ($1 eq "scm-change-service") { return "scmchangeservice"; }
     if ($1 eq "scm-create-service") { return "scmcreateservice"; }
+    if ($1 eq "scm-command") { return "scmcommand"; }
     return "";
 }
 
 sub rex_launcher_technique {
     return $1 eq "wmi-exec" || $1 eq "wsman-exec" ||
-        $1 eq "task-sched-exec" || $1 eq "dcom-ishell-dispatch2";
+        $1 eq "task-sched-exec" || $1 eq "dcom-ishell-dispatch2" ||
+        $1 eq "scm-command";
 }
 
 sub rex_known_launcher {
@@ -258,7 +271,8 @@ sub rex_known_option {
         $1 eq "--arguments" || $1 eq "--transport" || $1 eq "--provider-name" ||
         $1 eq "--provider-clsid" || $1 eq "--payload-type" || $1 eq "--launcher" ||
         $1 eq "--launcher-program" || $1 eq "--launcher-arguments" ||
-        $1 eq "--entry-point" || $1 eq "--process-id";
+        $1 eq "--entry-point" || $1 eq "--process-id" ||
+        $1 eq "--subscription-name" || $1 eq "--query";
 }
 
 sub rex_launcher_option {
@@ -292,6 +306,12 @@ sub rex_option_allowed {
     }
     if ($1 eq "wmi-provider") {
         return $2 eq "--provider-name" || $2 eq "--provider-clsid" || $2 eq "--remote-path";
+    }
+    if ($1 eq "wmi-event-subscription") {
+        return $2 eq "--subscription-name" || $2 eq "--query" || $2 eq "--command";
+    }
+    if ($1 eq "scm-command") {
+        return $2 eq "--service-name" || $2 eq "--command";
     }
     return 0;
 }
@@ -557,6 +577,24 @@ alias rex {
             $primary = %request["--command"];
         }
     }
+    else if ($selector eq "scm-command") {
+        if (!rex_require_option($bid, %seen["--service-name"], "--service-name", $selector)) { return; }
+        $primary = %request["--service-name"];
+        if ($launcher_mode) {
+            if (%seen["--command"]) {
+                berror($bid, "--command cannot be combined with launcher options");
+                return;
+            }
+            $secondary = rex_quote_command_part(%resolved_launcher["program"]);
+            if (%resolved_launcher["arguments"] ne "") {
+                $secondary = $secondary . " " . %resolved_launcher["arguments"];
+            }
+        }
+        else {
+            if (!rex_require_option($bid, %seen["--command"], "--command", $selector)) { return; }
+            $secondary = %request["--command"];
+        }
+    }
     else if ($selector eq "wmi-service" || $selector eq "scm-change-service" || $selector eq "scm-create-service") {
         if (!rex_require_option($bid, %seen["--service-name"], "--service-name", $selector)) { return; }
         if (!rex_require_option($bid, %seen["--remote-path"], "--remote-path", $selector)) { return; }
@@ -618,6 +656,14 @@ alias rex {
         $primary = %request["--provider-name"];
         $secondary = %request["--provider-clsid"];
         $tertiary = %request["--remote-path"];
+    }
+    else if ($selector eq "wmi-event-subscription") {
+        if (!rex_require_option($bid, %seen["--subscription-name"], "--subscription-name", $selector)) { return; }
+        if (!rex_require_option($bid, %seen["--query"], "--query", $selector)) { return; }
+        if (!rex_require_option($bid, %seen["--command"], "--command", $selector)) { return; }
+        $primary = %request["--subscription-name"];
+        $secondary = %request["--query"];
+        $tertiary = %request["--command"];
     }
 
     $arch = barch($bid);

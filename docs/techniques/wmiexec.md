@@ -1,12 +1,13 @@
-# WMIExec
+# wmi-exec
 
-## Mechanism and prerequisites
+## How it works
 
-Calls `Win32_Process.Create` through WMI. It accepts one complete command line or a CNA-resolved [launcher contract](../launchers/index.md). It requires local-administrator rights and reachable WMI/DCOM. Any referenced executable or payload must already exist on the target.
+Rex calls WMI `Win32_Process.Create` with a complete command line. Cobalt Strike
+can build that command from a [launcher contract](../launchers/index.md).
 
 ```mermaid
 sequenceDiagram
-    participant B as rex BOF
+    participant B as Rex BOF
     participant W as WMI service
     participant P as Target process
     B->>W: Open root\cimv2 session
@@ -15,17 +16,19 @@ sequenceDiagram
     W-->>B: Return process identifier
 ```
 
-## Privilege and network surface
+## Requirements
 
 - Local administrator on the target
 - WMI/DCOM via TCP 135 and negotiated dynamic RPC ports
-- No BOF-managed SMB delivery; referenced files must already exist remotely
+- Referenced files already present on the target
 
-## Operator recovery
+## Cleanup
 
-The technique creates no generic persistent configuration record. The returned PID identifies the process created by `Win32_Process.Create`; it does not prove payload completion. Command-defined side effects and separately delivered files remain operator-owned. See [operator recovery](../recovery.md).
+The returned PID identifies the process created by WMI. Clean up files and
+other changes made by the command. See [recovery](../recovery.md).
 
-## Detection considerations
+## Detection
 
-Remote WMI process creation is well-signatured. A direct command avoids launcher-specific module-load signals, but the WMI invocation and resulting process command line remain detectable.
+Relevant telemetry includes the WMI process-creation call and the resulting
+process and command line.
 

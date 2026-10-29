@@ -17,16 +17,19 @@
       ];
 
       perSystem = { pkgs, inputs', ... }: {
+        # Zig compiles every target, LLVM inspects and strips the objects, and
+        # clang supplies clang-format.
         devShells.default = pkgs.mkShellNoCC {
           packages = [
             pkgs.actionlint
+            pkgs.clang
             pkgs.cppcheck
             pkgs.gnumake
-            pkgs.pkgsCross.mingw32.stdenv.cc
-            pkgs.pkgsCross.mingwW64.stdenv.cc
+            pkgs.llvm
             pkgs.python3
             pkgs.shellcheck
             pkgs.unzip
+            pkgs.zig
             pkgs.zip
           ];
         };

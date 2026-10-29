@@ -1,6 +1,8 @@
 # Cobalt Strike integration
 
-`rex.cna` converts named operator options into the fixed typed envelope consumed by each technique object. The script and objects must come from the same build. One invocation operates on one target and inherits the active Beacon token.
+`rex.cna` packs named options for the selected technique object. Keep the script
+and objects from the same release. Each command targets one host and uses the
+active Beacon token.
 
 ## Common command surface
 
@@ -13,11 +15,13 @@ rex preflight wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 rex wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 ```
 
-Prefix a normal invocation with `preflight` to run the same registered prerequisite callback and skip execution. The technique options remain required because preflight validates the exact request that would otherwise execute.
+Prefix a command with `preflight` to check its requirements without executing
+the technique. Supply the same options as an execution command.
 
 | Command | Technique options |
 |---|---|
 | `wmi-provider` | `--provider-name`, `--provider-clsid`, `--remote-path` |
+| `wmi-event-subscription` | `--subscription-name`, `--query`, `--command` |
 | `wmi-service` | `--service-name`, `--remote-path` |
 | `wmi-exec` | `--command` or launcher options |
 | `wsman-exec` | `--program`, optional `--arguments`, optional `--transport`, or launcher options |
@@ -25,16 +29,20 @@ Prefix a normal invocation with `preflight` to run the same registered prerequis
 | `dcom-ishell-dispatch2` | `--program`, optional `--arguments`, or launcher options |
 | `scm-change-service` | `--service-name`, `--remote-path` |
 | `scm-create-service` | `--service-name`, `--remote-path` |
+| `scm-command` | `--service-name`, `--command`, or launcher options |
 
-## Identity boundary
+## Authentication
 
-`rex` uses the active Beacon token. It does not accept a domain, username, password, ticket, or token selector, and it never creates, replaces, or reverts impersonation. Establish the intended identity before invoking `rex` and revert it explicitly when the operation is complete.
+Rex uses the active Beacon token and has no credential or token options. Set the
+required identity before running a command and revert it afterward.
 
-The effective token must have the privileges required by the selected technique, the remote API must be reachable, and target policy must allow the operation.
+The effective token needs the privileges required by the technique. The remote
+API must be reachable and allowed by target policy.
 
 ## Paths and text
 
-Every executable or DLL path must already exist on the target. The BOFs do not stage files, create parent directories, or delete payloads. Delivery and file-artifact tracking remain separate operator actions.
+Executable and DLL paths must already exist on the target. Rex does not create
+directories, transfer files, or delete payloads.
 
 The CNA packs the canonical kebab-case selector and target as narrow ASCII and
 technique values as UTF-16. Legacy command aliases are not accepted. Unicode
@@ -45,7 +53,9 @@ from letters, digits, `.`, `-`, `_`, and `:`. Technique values are limited to
 
 ## Launchers
 
-`WMIExec`, `WSManExec`, `TaskSchedExec`, and `DCOMIShellDispatch2` can resolve built-in or custom launchers into their existing command primitives. Launcher mode requires `--payload-type`, an absolute `--remote-path`, and `--launcher`. The referenced payload must already exist remotely.
+`wmi-exec`, `wsman-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`, and
+`scm-command` support built-in and custom launchers. Launcher mode requires `--payload-type`,
+an absolute `--remote-path`, and `--launcher`.
 
 ```text
 rex wmi-exec --target 10.0.0.15 --payload-type dll \
@@ -53,13 +63,20 @@ rex wmi-exec --target 10.0.0.15 --payload-type dll \
   --launcher rundll32.exe --entry-point Run
 ```
 
-Service techniques require a service-compatible executable. `WMIProvider` loads its provider DLL directly and does not accept launcher options. See the [launcher reference](../launchers/index.md) for exact selectors and callback contracts.
+Service techniques require a service executable. `wmi-provider` loads its DLL
+directly and does not accept launcher options. See the
+[launcher reference](../launchers/index.md) for selectors and callback contracts.
 
 ## Technique-specific boundaries
 
-`WSManExec` defaults to `http:5985`. Accepted `--transport` values are `http`, `https`, `http:<port>`, and `https:<port>`; HTTPS without an explicit port defaults to 5986. Invalid schemes and ports fail during input validation before session creation.
+`wsman-exec` defaults to `http:5985`. Accepted `--transport` values are `http`,
+`https`, `http:<port>`, and `https:<port>`; HTTPS defaults to port 5986.
 
-`WMIProvider` must use a provider DLL matching the BOF architecture. An x64 object uses the 64-bit COM registry view; an x86 object uses the 32-bit view. `DCOMIShellDispatch2` additionally requires a usable interactive Explorer shell. Existing-service techniques require the selected service to be stopped before mutation.
+`wmi-provider` requires a DLL matching the BOF architecture. An x64 object uses
+the 64-bit COM registry view; an x86 object uses the 32-bit view.
+`dcom-ishell-dispatch2` requires an interactive Explorer shell.
+Existing-service techniques require a stopped service.
 
-Unlike a standalone CLI, a BOF occupies the Beacon thread until the remote API call returns. Use a dedicated session when a target or firewall may leave DCOM calls waiting.
+A BOF occupies its Beacon thread until the remote API call returns. Use a
+dedicated session when DCOM calls may take a long time.
 

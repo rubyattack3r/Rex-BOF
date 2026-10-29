@@ -1,10 +1,9 @@
 # Process-bound injection
 
-## Mechanism and prerequisites
+## Requirements
 
-The `mavinject.exe` selector asks a target-resident `mavinject.exe` to load a
-native DLL into an existing process. It requires an explicit positive decimal
-`--process-id`; `rex` does not discover or select a process.
+`mavinject.exe` loads a native DLL into an existing process. Supply its PID with
+`--process-id`; Rex does not select a process.
 
 ```text
 rex wmi-exec --target 10.0.0.15 --payload-type dll \
@@ -20,18 +19,15 @@ Before execution:
 4. Keep `DllMain` loader-safe and make repeated loads harmless.
 5. Confirm the process lifetime is sufficient for the intended validation.
 
-The CNA validates only that `--process-id` is a positive decimal value and
-renders it into the launcher arguments. `rex preflight` does not open the PID,
-resolve its image, compare architectures, or verify payload presence. Any PID
-returned by `WMIExec` is the newly created `mavinject.exe` process, not the
-process supplied with `--process-id`.
+The CNA only checks that `--process-id` is a positive decimal value. Any PID
+returned by `wmi-exec` identifies the new `mavinject.exe` process, not the
+process receiving the DLL.
 
-## Operator recovery
+## Cleanup
 
-Injection cannot be generically undone. Recovery may require a payload-specific
-unload operation or termination of the approved disposable process before the
-remote DLL can be removed.
+Unload the DLL with its own cleanup path or stop the disposable process before
+deleting the file.
 
-## Detection considerations
+## Detection
 
-Cross-process access and module loading are highly observable. A dispatch result proves launcher acceptance, not successful DLL initialization.
+Relevant telemetry includes cross-process access and module loading.

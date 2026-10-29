@@ -5,14 +5,9 @@
 #include "technique.h"
 #include "wmi.h"
 
-REX_DECLARE_TECHNIQUE(rex_wmi_service);
-
-const rex_technique rex_technique_descriptor = {
-    "wmi-service", "service_snapshot_and_wmi_session", "win32_service",
-    REX_DISPOSITION_DISPATCHED,
-    rex_wmi_service_decode, rex_wmi_service_preflight,
-    rex_wmi_service_execute, rex_wmi_service_release,
-};
+REX_DEFINE_TECHNIQUE(rex_wmi_service, "wmi-service",
+                     "service_snapshot_and_wmi_session", "win32_service",
+                     REX_DISPOSITION_DISPATCHED);
 
 DECLSPEC_IMPORT HANDLE WINAPI KERNEL32$GetProcessHeap(void);
 DECLSPEC_IMPORT LPVOID WINAPI KERNEL32$HeapAlloc(HANDLE, DWORD, SIZE_T);
@@ -24,7 +19,7 @@ typedef struct {
 } rex_wmi_service_state;
 
 static HRESULT rex_wmi_service_decode(const rex_arguments *arguments,
-                               rex_request *request) {
+                                      rex_request *request) {
     if (rex_wcslen(arguments->values[0]) == 0 ||
         rex_wcslen(arguments->values[1]) == 0 ||
         rex_wcslen(arguments->values[2]) != 0) {
@@ -36,7 +31,7 @@ static HRESULT rex_wmi_service_decode(const rex_arguments *arguments,
 }
 
 static HRESULT rex_wmi_service_preflight(const rex_request *request,
-                                  rex_state *state) {
+                                         rex_state *state) {
     HANDLE heap = KERNEL32$GetProcessHeap();
     rex_wmi_service_state *value = (rex_wmi_service_state *)KERNEL32$HeapAlloc(
         heap, HEAP_ZERO_MEMORY, sizeof(*value));
@@ -60,8 +55,8 @@ static HRESULT rex_wmi_service_preflight(const rex_request *request,
 }
 
 static HRESULT rex_wmi_service_execute(const rex_request *request,
-                                rex_state *state,
-                                rex_observation *observation) {
+                                       rex_state *state,
+                                       rex_observation *observation) {
     rex_wmi_service_state *value = (rex_wmi_service_state *)state->private_data;
     HRESULT result;
     if (value == NULL) {
@@ -78,7 +73,8 @@ static HRESULT rex_wmi_service_execute(const rex_request *request,
             request->config.service.binary_path;
         observation->recovery.value.service.original_start_type =
             rex_service_original_start_type(value->snapshot);
-        result = rex_wmi_service_start(value->wmi, request->config.service.name);
+        result =
+            rex_wmi_service_start(value->wmi, request->config.service.name);
     }
     return result;
 }

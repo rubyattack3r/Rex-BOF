@@ -1,12 +1,13 @@
-# SCMCreateService
+# scm-create-service
 
-## Mechanism and prerequisites
+## How it works
 
-Implements a PsExec-style primitive natively by creating and starting a temporary service through SCM RPC. It requires local-administrator rights, reachable SCM RPC, an unused service name, and a Windows service executable that already exists on the target. It does not bundle or invoke Microsoft's PsExec utility.
+Rex creates and starts a service through SCM RPC. It implements the familiar
+PsExec-style service pattern without using the PsExec utility.
 
 ```mermaid
 sequenceDiagram
-    participant B as rex BOF
+    participant B as Rex BOF
     participant C as SCM RPC
     participant S as Temporary service
     B->>C: Verify service name is unused
@@ -15,18 +16,20 @@ sequenceDiagram
     B-->>B: Emit service recovery context
 ```
 
-## Privilege and network surface
+## Requirements
 
 - Local administrator on the target
 - SCM RPC over SMB on TCP 445
 - RPC endpoint mapper on TCP 135 where required
-- No BOF-managed file delivery; the service executable must already exist remotely
+- Service executable already present on the target
 
-## Operator recovery
+## Cleanup
 
-Stop the exact reported service if it is still running, delete it, and verify its absence. Remove the separately delivered executable only after the service releases it. See [operator recovery](../recovery.md).
+Stop and delete the reported service, then verify that it is gone. Delete the
+executable after the service releases it. See [recovery](../recovery.md).
 
-## Detection considerations
+## Detection
 
-New-service installation, service start activity, and a retained service definition are well-signatured PsExec-style lateral-movement indicators. File-delivery telemetry depends on the separate mechanism used to place the executable. Custom naming does not make the technique undetectable.
+Relevant telemetry includes service creation, service start activity, the
+service image path, and the separate file-transfer method.
 

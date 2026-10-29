@@ -24,7 +24,7 @@ for required in \
     "$PROJECT_DIR/CHANGELOG.md" \
     "$PROJECT_DIR/LICENSE" \
     "$PROJECT_DIR/ACCEPTABLE_USE_POLICY.md" \
-    "$PROJECT_DIR/docs/index.md" \
+    "$PROJECT_DIR/docs/README.md" \
     "$PROJECT_DIR/docs/integrations/sliver.md"; do
     if [ ! -f "$required" ]; then
         echo "required Sliver release input is missing: $required" >&2
