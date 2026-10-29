@@ -29,7 +29,7 @@ jobs:
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
-      - name: Build and run text tests
+      - name: Build and run Windows tests
         shell: cmd
         run: |
           for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
@@ -37,6 +37,8 @@ jobs:
           call "%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
           cl /nologo /W4 /WX /DREX_TEXT_TEST /Isrc\common src\common\text.c tests\text_test.c /Fe:%RUNNER_TEMP%\rex-text-test.exe
           "%RUNNER_TEMP%\rex-text-test.exe"
+          cl /nologo /W4 /WX /DREX_COM_SECURITY_TEST /Isrc\common src\common\com.c tests\com_security_test.c /Fe:%RUNNER_TEMP%\rex-com-security-test.exe
+          "%RUNNER_TEMP%\rex-com-security-test.exe"
 
   ratchet:
     name: Pinned actions

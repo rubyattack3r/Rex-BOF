@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include "beacon.h"
+#include "com.h"
 #include "rex.h"
 #include "technique.h"
 
@@ -51,7 +52,8 @@ static HRESULT rex_browser_proxy(IDispatch *dispatch) {
     return OLE32$CoSetProxyBlanket(
         (IUnknown *)dispatch, RPC_C_AUTHN_DEFAULT, RPC_C_AUTHZ_DEFAULT,
         COLE_DEFAULT_PRINCIPAL, RPC_C_AUTHN_LEVEL_DEFAULT,
-        RPC_C_IMP_LEVEL_IMPERSONATE, COLE_DEFAULT_AUTHINFO, EOAC_DEFAULT);
+        RPC_C_IMP_LEVEL_IMPERSONATE, COLE_DEFAULT_AUTHINFO,
+        EOAC_DYNAMIC_CLOAKING);
 }
 
 static HRESULT rex_browser_dispatch_id(IDispatch *dispatch, const wchar_t *name,
@@ -118,6 +120,9 @@ static HRESULT rex_browser_connect(const rex_request *request,
     if (result == S_OK || result == S_FALSE)
         state->uninitialize_com = TRUE;
     else if (result != RPC_E_CHANGED_MODE)
+        goto cleanup;
+    result = rex_com_enable_dynamic_cloaking();
+    if (FAILED(result))
         goto cleanup;
     if (!toWideChar((char *)request->target, target, sizeof(target))) {
         result = E_INVALIDARG;

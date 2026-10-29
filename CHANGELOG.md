@@ -6,6 +6,11 @@ increment the minor version.
 
 ## [Unreleased]
 
+### Fixed
+
+- Initialize COM security with dynamic cloaking before WMI connections and
+  DCOM activation so remote calls honor the active token context.
+
 ## [0.4.1] - 2026-10-29
 
 ### Fixed
