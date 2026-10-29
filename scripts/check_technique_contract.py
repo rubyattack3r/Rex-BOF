@@ -9,6 +9,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = {
     "wmiprovider": "wmi-provider",
+    "wmieventsubscription": "wmi-event-subscription",
     "wmiservice": "wmi-service",
     "wmiexec": "wmi-exec",
     "wsmanexec": "wsman-exec",
@@ -16,6 +17,7 @@ EXPECTED = {
     "dcomishelldispatch2": "dcom-ishell-dispatch2",
     "scmchangeservice": "scm-change-service",
     "scmcreateservice": "scm-create-service",
+    "scmcommand": "scm-command",
 }
 
 
@@ -25,12 +27,12 @@ def fail(message: str) -> None:
 
 for source_name, selector in EXPECTED.items():
     source = (ROOT / "src" / "techniques" / f"{source_name}.c").read_text()
-    descriptor = re.compile(
-        r"const rex_technique rex_technique_descriptor\s*=\s*\{\s*"
+    descriptor_loader = re.compile(
+        r"REX_DEFINE_TECHNIQUE\(\s*[A-Za-z0-9_]+\s*,\s*"
         + re.escape(f'"{selector}"')
         + r"\s*,"
     )
-    if descriptor.search(source) is None:
+    if descriptor_loader.search(source) is None:
         fail(f"{source_name}.c does not use selector {selector}")
 
 cna = (ROOT / "integrations" / "cna" / "rex.cna").read_text()
@@ -54,9 +56,7 @@ manifest = json.loads(
     (ROOT / "integrations" / "sliver" / "extension.json").read_text()
 )
 sliver_names = {command["command_name"] for command in manifest["commands"]}
-expected_sliver_names = {
-    f"rex-{selector}" for selector in EXPECTED.values()
-}
+expected_sliver_names = {f"rex-{selector}" for selector in EXPECTED.values()}
 if sliver_names != expected_sliver_names:
     fail(
         f"Sliver commands are {sorted(sliver_names)!r}, "
@@ -66,6 +66,13 @@ if sliver_names != expected_sliver_names:
 runtime = (ROOT / "src" / "common" / "rex.c").read_text()
 if "output.technique = technique->selector;" not in runtime:
     fail("runtime does not emit the canonical descriptor selector")
+
+runtime_helpers = (ROOT / "src" / "common" / "runtime.c").read_text()
+selector_validator = re.search(
+    r"BOOL rex_valid_selector\(.*?\n\}", runtime_helpers, re.DOTALL
+)
+if selector_validator is None or "value == '-'" not in selector_validator.group(0):
+    fail("selector validation does not accept canonical kebab-case names")
 
 legacy_transcript = re.compile(
     r"technique=(WMIProvider|WMIService|WMIExec|WSManExec|TaskSchedExec|"
@@ -78,4 +85,7 @@ for page in pages:
     if legacy_transcript.search(page.read_text()):
         fail(f"legacy transcript selector remains in {page.relative_to(ROOT)}")
 
-print("checked 8 native, Cobalt Strike, Sliver, and transcript technique names")
+print(
+    f"checked {len(EXPECTED)} native, Cobalt Strike, Sliver, and transcript "
+    "technique names"
+)

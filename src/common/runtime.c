@@ -5,14 +5,16 @@
 void rex_zero(void *value, SIZE_T length) {
     BYTE *bytes = (BYTE *)value;
     SIZE_T index;
-    for (index = 0; index < length; index++) bytes[index] = 0;
+    for (index = 0; index < length; index++)
+        bytes[index] = 0;
 }
 
 void rex_copy(void *destination, const void *source, SIZE_T length) {
     BYTE *output = (BYTE *)destination;
     const BYTE *input = (const BYTE *)source;
     SIZE_T index;
-    for (index = 0; index < length; index++) output[index] = input[index];
+    for (index = 0; index < length; index++)
+        output[index] = input[index];
 }
 
 SIZE_T rex_strlen(const char *value) {
@@ -59,10 +61,9 @@ BOOL rex_valid_target(const char *target) {
     }
     for (index = 0; index < length; index++) {
         char value = target[index];
-        if ((value >= 'a' && value <= 'z') ||
-            (value >= 'A' && value <= 'Z') ||
-            (value >= '0' && value <= '9') ||
-            value == '.' || value == '-' || value == '_' || value == ':') {
+        if ((value >= 'a' && value <= 'z') || (value >= 'A' && value <= 'Z') ||
+            (value >= '0' && value <= '9') || value == '.' || value == '-' ||
+            value == '_' || value == ':') {
             continue;
         }
         return FALSE;
@@ -78,13 +79,11 @@ BOOL rex_valid_selector(const char *selector) {
     }
     for (index = 0; index < length; index++) {
         char value = selector[index];
-        if ((value >= 'a' && value <= 'z') ||
-            (value >= 'A' && value <= 'Z') ||
-            (value >= '0' && value <= '9')) {
+        if ((value >= 'a' && value <= 'z') || (value >= 'A' && value <= 'Z') ||
+            (value >= '0' && value <= '9') || value == '-') {
             continue;
         }
         return FALSE;
     }
     return TRUE;
 }
-

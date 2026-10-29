@@ -5,9 +5,9 @@ multi-command `extension.json`. The manifest selects `amd64` or `386` objects
 for the active Windows target and calls the integration-specific entry point
 that matches the technique's argument count.
 
-The manifest targets the Sliver v1.7.9 schema, uses built-in `reflektor`, and
-declares `coff-loader` as a fallback. See [tested platforms](../platforms.md)
-for client, parser, and implant validation.
+The manifest targets the Sliver v1.7.9 schema and requires built-in
+`reflektor`. See [tested platforms](../platforms.md) for client, parser, and
+implant validation.
 
 ## Install
 
@@ -18,14 +18,8 @@ Sliver client:
 extensions install /path/to/Rex-BOF-Sliver-<version>
 ```
 
-Extensions are local to each Sliver client. On a target without built-in
-Reflektor support, install the fallback first:
-
-```text
-armory install coff-loader
-```
-
-Use `extensions load <directory>` instead when the commands should exist only
+Extensions are local to each Sliver client. Use
+`extensions load <directory>` instead when the commands should exist only
 for the current client process.
 
 ## Commands
@@ -33,6 +27,7 @@ for the current client process.
 | Sliver command | Required technique values | Optional technique values |
 |---|---|---|
 | `rex-wmi-provider` | `--target`, `--provider-name`, `--provider-clsid`, `--remote-path` | `--action` |
+| `rex-wmi-event-subscription` | `--target`, `--subscription-name`, `--query`, `--command` | `--action` |
 | `rex-wmi-service` | `--target`, `--service-name`, `--remote-path` | `--action` |
 | `rex-wmi-exec` | `--target`, `--command` | `--action` |
 | `rex-wsman-exec` | `--target`, `--program` | `--arguments`, `--transport`, `--action` |
@@ -40,6 +35,7 @@ for the current client process.
 | `rex-dcom-ishell-dispatch2` | `--target`, `--program` | `--arguments`, `--action` |
 | `rex-scm-change-service` | `--target`, `--service-name`, `--remote-path` | `--action` |
 | `rex-scm-create-service` | `--target`, `--service-name`, `--remote-path` | `--action` |
+| `rex-scm-command` | `--target`, `--service-name`, `--command` | `--action` |
 
 `--action` defaults to `execute`; set it to `preflight` to run the registered
 read-only prerequisite callback and skip mutation.
@@ -64,3 +60,6 @@ objects are one versioned contract. Each command inherits the active Sliver
 implant token, operates on one target, and emits the same typed transcript and
 recovery records documented in [output](../output.md) and
 [recovery](../recovery.md).
+
+Sliver clients without built-in Reflektor support are rejected rather than
+routed through an unvalidated loader fallback.

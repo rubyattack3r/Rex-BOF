@@ -11,6 +11,9 @@ EXPECTED = {
         ("provider-name", False), ("provider-clsid", False),
         ("remote-path", False),
     ]),
+    "rex-wmi-event-subscription": ("wmieventsubscription", "go_sliver_3", [
+        ("subscription-name", False), ("query", False), ("command", False),
+    ]),
     "rex-wmi-service": ("wmiservice", "go_sliver_2", [
         ("service-name", False), ("remote-path", False),
     ]),
@@ -29,6 +32,9 @@ EXPECTED = {
     ]),
     "rex-scm-create-service": ("scmcreateservice", "go_sliver_2", [
         ("service-name", False), ("remote-path", False),
+    ]),
+    "rex-scm-command": ("scmcommand", "go_sliver_2", [
+        ("service-name", False), ("command", False),
     ]),
 }
 
@@ -59,7 +65,7 @@ def main() -> None:
     if len(by_name) != len(commands):
         fail("command names must be unique")
     if set(by_name) != set(EXPECTED):
-        fail("commands do not match the eight stable Rex selectors")
+        fail("commands do not match the stable Rex selectors")
 
     for name, (basename, entrypoint, value_args) in EXPECTED.items():
         command = by_name[name]
@@ -67,8 +73,8 @@ def main() -> None:
             fail(f"{name}: entrypoint must be {entrypoint}")
         if command.get("bof_executor") != "reflektor":
             fail(f"{name}: bof_executor must be reflektor")
-        if command.get("depends_on") != "coff-loader":
-            fail(f"{name}: depends_on must provide the coff-loader fallback")
+        if "depends_on" in command:
+            fail(f"{name}: unvalidated dependency fallback must not be declared")
         expected_files = {
             ("windows", "amd64", f"rex_{basename}.x64.o"),
             ("windows", "386", f"rex_{basename}.x86.o"),

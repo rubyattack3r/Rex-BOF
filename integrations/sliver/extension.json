@@ -12,7 +12,6 @@
       "long_help": "Use -action preflight to validate prerequisites without mutation. The provider DLL must already exist on the target.",
       "entrypoint": "go_sliver_3",
       "bof_executor": "reflektor",
-      "depends_on": "coff-loader",
       "files": [
         {"os": "windows", "arch": "amd64", "path": "rex_wmiprovider.x64.o"},
         {"os": "windows", "arch": "386", "path": "rex_wmiprovider.x86.o"}
@@ -26,12 +25,29 @@
       ]
     },
     {
+      "command_name": "rex-wmi-event-subscription",
+      "help": "Create a permanent WMI event subscription on one Windows target",
+      "long_help": "Use -action preflight to validate the subscription name and WMI namespace without mutation. The query is evaluated in root\\cimv2.",
+      "entrypoint": "go_sliver_3",
+      "bof_executor": "reflektor",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_wmieventsubscription.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_wmieventsubscription.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "subscription-name", "type": "wstring", "desc": "Unused filter and consumer name", "optional": false},
+        {"name": "query", "type": "wstring", "desc": "WQL event query evaluated in root\\cimv2", "optional": false},
+        {"name": "command", "type": "wstring", "desc": "Command line run for each matching event", "optional": false}
+      ]
+    },
+    {
       "command_name": "rex-wmi-service",
       "help": "Temporarily reconfigure and start a service through WMI",
       "long_help": "Use -action preflight to capture and validate the stopped service state without mutation. The service executable must already exist on the target.",
       "entrypoint": "go_sliver_2",
       "bof_executor": "reflektor",
-      "depends_on": "coff-loader",
       "files": [
         {"os": "windows", "arch": "amd64", "path": "rex_wmiservice.x64.o"},
         {"os": "windows", "arch": "386", "path": "rex_wmiservice.x86.o"}
@@ -49,7 +65,6 @@
       "long_help": "Use -action preflight to validate WMI process creation prerequisites without mutation. Supply a complete Windows command line.",
       "entrypoint": "go_sliver_1",
       "bof_executor": "reflektor",
-      "depends_on": "coff-loader",
       "files": [
         {"os": "windows", "arch": "amd64", "path": "rex_wmiexec.x64.o"},
         {"os": "windows", "arch": "386", "path": "rex_wmiexec.x86.o"}
@@ -66,7 +81,6 @@
       "long_help": "Use -action preflight to validate WinRM prerequisites without mutation. Transport defaults to http when omitted.",
       "entrypoint": "go_sliver_3",
       "bof_executor": "reflektor",
-      "depends_on": "coff-loader",
       "files": [
         {"os": "windows", "arch": "amd64", "path": "rex_wsmanexec.x64.o"},
         {"os": "windows", "arch": "386", "path": "rex_wsmanexec.x86.o"}
@@ -85,7 +99,6 @@
       "long_help": "Use -action preflight to validate Task Scheduler prerequisites without mutation. The executable must already exist on the target.",
       "entrypoint": "go_sliver_3",
       "bof_executor": "reflektor",
-      "depends_on": "coff-loader",
       "files": [
         {"os": "windows", "arch": "amd64", "path": "rex_taskschedexec.x64.o"},
         {"os": "windows", "arch": "386", "path": "rex_taskschedexec.x86.o"}
@@ -104,7 +117,6 @@
       "long_help": "Use -action preflight to validate DCOM and interactive shell prerequisites without mutation.",
       "entrypoint": "go_sliver_2",
       "bof_executor": "reflektor",
-      "depends_on": "coff-loader",
       "files": [
         {"os": "windows", "arch": "amd64", "path": "rex_dcomishelldispatch2.x64.o"},
         {"os": "windows", "arch": "386", "path": "rex_dcomishelldispatch2.x86.o"}
@@ -122,7 +134,6 @@
       "long_help": "Use -action preflight to capture and validate the stopped service state without mutation. The service executable must already exist on the target.",
       "entrypoint": "go_sliver_2",
       "bof_executor": "reflektor",
-      "depends_on": "coff-loader",
       "files": [
         {"os": "windows", "arch": "amd64", "path": "rex_scmchangeservice.x64.o"},
         {"os": "windows", "arch": "386", "path": "rex_scmchangeservice.x86.o"}
@@ -140,7 +151,6 @@
       "long_help": "Use -action preflight to validate SCM prerequisites without mutation. The service executable must already exist on the target.",
       "entrypoint": "go_sliver_2",
       "bof_executor": "reflektor",
-      "depends_on": "coff-loader",
       "files": [
         {"os": "windows", "arch": "amd64", "path": "rex_scmcreateservice.x64.o"},
         {"os": "windows", "arch": "386", "path": "rex_scmcreateservice.x86.o"}
@@ -150,6 +160,23 @@
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
         {"name": "service-name", "type": "wstring", "desc": "Unused service name", "optional": false},
         {"name": "remote-path", "type": "wstring", "desc": "Existing target-side service executable and arguments", "optional": false}
+      ]
+    },
+    {
+      "command_name": "rex-scm-command",
+      "help": "Create a temporary command-backed service through SCM",
+      "long_help": "Use -action preflight to validate the unused service name without mutation. Cleanup must delete the reported service.",
+      "entrypoint": "go_sliver_2",
+      "bof_executor": "reflektor",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_scmcommand.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_scmcommand.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "service-name", "type": "wstring", "desc": "Unused service name", "optional": false},
+        {"name": "command", "type": "wstring", "desc": "Complete Windows command line", "optional": false}
       ]
     }
   ]

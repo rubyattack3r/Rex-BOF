@@ -7,8 +7,10 @@ when it contains recovery values.
 | Technique | Emitted recovery context | Operator action |
 |---|---|---|
 | `wmi-provider` | Provider name, CLSID, and DLL path | Unload the provider, remove its instance and registration keys, then delete the DLL. |
+| `wmi-event-subscription` | Filter and consumer name | Remove the binding, consumer, and filter with that name. |
 | `wmi-service`, `scm-change-service` | Service name, original and applied paths, start type, and original stopped state | Stop the service, verify its current state, and restore the recorded configuration. |
 | `scm-create-service` | Created service name and binary path | Stop and delete the service, then verify its absence. |
+| `scm-command` | Created service name | Delete the service and verify its absence. Clean up command side effects separately. |
 | `task-sched-exec` | Registered task name and executable | Delete the recorded task. |
 | `wmi-exec`, `wsman-exec`, `dcom-ishell-dispatch2` | None | Clean up changes made by the command or payload. |
 

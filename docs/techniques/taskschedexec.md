@@ -2,18 +2,20 @@
 
 ## How it works
 
-Rex connects to Task Scheduler over DCOM, registers a SYSTEM task in the root
-folder, and starts it. Cobalt Strike can supply the program through a
+Rex uses the Task Scheduler COM client, which connects to the remote
+`ITaskSchedulerService` RPC interface. It registers a SYSTEM task in the root
+folder and starts it. Cobalt Strike can supply the program through a
 [launcher contract](../launchers/index.md).
 
 ```mermaid
 sequenceDiagram
-    participant B as rex BOF
-    participant D as DCOM
+    participant B as Rex BOF
+    participant D as Task Scheduler COM client
     participant T as Task Scheduler
     participant P as Target process
-    B->>D: Activate Task Scheduler service
-    D->>T: Verify task name is unused
+    B->>D: Connect to the remote task service
+    D->>T: Call ITaskSchedulerService over RPC
+    T-->>B: Confirm task name is unused
     B->>T: Register SYSTEM task
     B->>T: Run task
     T->>P: Launch program and arguments

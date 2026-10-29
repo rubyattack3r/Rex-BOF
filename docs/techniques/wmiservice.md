@@ -11,7 +11,7 @@ Windows service lifecycle.
 
 ```mermaid
 sequenceDiagram
-    participant B as rex BOF
+    participant B as Rex BOF
     participant W as WMI service
     participant S as Existing service
     B->>W: Read service configuration and state

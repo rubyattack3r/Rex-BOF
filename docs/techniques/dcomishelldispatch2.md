@@ -11,7 +11,7 @@ automation interface in a usable session.
 
 ```mermaid
 sequenceDiagram
-    participant B as rex BOF
+    participant B as Rex BOF
     participant D as DCOM
     participant U as Interactive shell
     participant P as Target process

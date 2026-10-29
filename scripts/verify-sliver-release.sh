@@ -32,8 +32,9 @@ unzip -Z1 "$ARCHIVE" | LC_ALL=C sort > "$ACTUAL"
         "$PACKAGE_NAME/README.md" \
         "$PACKAGE_NAME/VERSION.txt" \
         "$PACKAGE_NAME/extension.json"
-    for technique in wmiprovider wmiservice wmiexec wsmanexec taskschedexec \
-        dcomishelldispatch2 scmchangeservice scmcreateservice; do
+    for technique in wmiprovider wmieventsubscription wmiservice wmiexec \
+        wsmanexec taskschedexec dcomishelldispatch2 \
+        scmchangeservice scmcreateservice scmcommand; do
         printf '%s\n' \
             "$PACKAGE_NAME/rex_$technique.x64.o" \
             "$PACKAGE_NAME/rex_$technique.x86.o"

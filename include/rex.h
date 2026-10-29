@@ -7,10 +7,7 @@
 #define REX_MAX_SELECTOR 64
 #define REX_MAX_COMMAND 8191
 
-typedef enum {
-    REX_ACTION_EXECUTE = 0,
-    REX_ACTION_PREFLIGHT
-} rex_action;
+typedef enum { REX_ACTION_EXECUTE = 0, REX_ACTION_PREFLIGHT } rex_action;
 
 typedef struct {
     rex_action action;
@@ -52,6 +49,12 @@ typedef struct {
     const wchar_t *dll_path;
 } rex_provider_config;
 
+typedef struct {
+    const wchar_t *name;
+    const wchar_t *query;
+    const wchar_t *command;
+} rex_subscription_config;
+
 typedef union {
     rex_command_config command;
     rex_service_config service;
@@ -59,6 +62,7 @@ typedef union {
     rex_shell_config shell;
     rex_wsman_config wsman;
     rex_provider_config provider;
+    rex_subscription_config subscription;
 } rex_config;
 
 typedef struct {
@@ -67,8 +71,20 @@ typedef struct {
     rex_config config;
 } rex_request;
 
+typedef enum {
+    REX_LIFECYCLE_NEW = 0,
+    REX_LIFECYCLE_DECODED,
+    REX_LIFECYCLE_PREFLIGHTING,
+    REX_LIFECYCLE_READY,
+    REX_LIFECYCLE_EXECUTING,
+    REX_LIFECYCLE_EXECUTED,
+    REX_LIFECYCLE_RELEASING,
+    REX_LIFECYCLE_RELEASED
+} rex_lifecycle;
+
 typedef struct {
     void *private_data;
+    rex_lifecycle lifecycle;
 } rex_state;
 
 typedef struct {
@@ -94,12 +110,17 @@ typedef struct {
     const wchar_t *dll_path;
 } rex_provider_artifact;
 
+typedef struct {
+    const wchar_t *name;
+} rex_subscription_artifact;
+
 typedef enum {
     REX_RECOVERY_NONE = 0,
     REX_RECOVERY_RESTORE_SERVICE,
     REX_RECOVERY_DELETE_SERVICE,
     REX_RECOVERY_DELETE_TASK,
-    REX_RECOVERY_REMOVE_PROVIDER
+    REX_RECOVERY_REMOVE_PROVIDER,
+    REX_RECOVERY_REMOVE_WMI_SUBSCRIPTION
 } rex_recovery_kind;
 
 typedef struct {
@@ -109,6 +130,7 @@ typedef struct {
         rex_created_service_artifact created_service;
         rex_task_artifact task;
         rex_provider_artifact provider;
+        rex_subscription_artifact subscription;
     } value;
 } rex_recovery;
 
@@ -118,10 +140,7 @@ typedef struct {
     rex_recovery recovery;
 } rex_observation;
 
-typedef enum {
-    REX_STATUS_FAILED = 0,
-    REX_STATUS_SUCCEEDED
-} rex_result_status;
+typedef enum { REX_STATUS_FAILED = 0, REX_STATUS_SUCCEEDED } rex_result_status;
 
 typedef enum {
     REX_DISPOSITION_NONE = 0,
@@ -165,8 +184,6 @@ typedef struct {
     rex_release_fn release;
 } rex_technique;
 
-extern const rex_technique rex_technique_descriptor;
-
 SIZE_T rex_strlen(const char *value);
 SIZE_T rex_wcslen(const wchar_t *value);
 BOOL rex_streq(const char *left, const char *right);
@@ -176,6 +193,7 @@ void rex_zero(void *value, SIZE_T length);
 void rex_copy(void *destination, const void *source, SIZE_T length);
 void rex_result_write(const rex_result *result);
 
-const rex_technique *rex_find_technique(const char *selector);
+void rex_load_technique(rex_technique *technique);
+BOOL rex_find_technique(const char *selector, rex_technique *technique);
 
 #endif

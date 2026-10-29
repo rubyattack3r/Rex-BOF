@@ -11,7 +11,7 @@ launcher.
 
 ```mermaid
 sequenceDiagram
-    participant B as rex BOF
+    participant B as Rex BOF
     participant R as Remote registry
     participant W as WMI service
     participant H as Provider host

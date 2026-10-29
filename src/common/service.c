@@ -5,19 +5,26 @@
 #include "rex.h"
 #include "service.h"
 
-DECLSPEC_IMPORT SC_HANDLE WINAPI ADVAPI32$OpenSCManagerW(LPCWSTR, LPCWSTR, DWORD);
-DECLSPEC_IMPORT SC_HANDLE WINAPI ADVAPI32$OpenServiceW(SC_HANDLE, LPCWSTR, DWORD);
-DECLSPEC_IMPORT BOOL WINAPI ADVAPI32$QueryServiceConfigW(
-    SC_HANDLE, LPQUERY_SERVICE_CONFIGW, DWORD, LPDWORD);
-DECLSPEC_IMPORT BOOL WINAPI ADVAPI32$QueryServiceStatusEx(
-    SC_HANDLE, SC_STATUS_TYPE, LPBYTE, DWORD, LPDWORD);
-DECLSPEC_IMPORT BOOL WINAPI ADVAPI32$ChangeServiceConfigW(
-    SC_HANDLE, DWORD, DWORD, DWORD, LPCWSTR, LPCWSTR, LPDWORD, LPCWSTR,
-    LPCWSTR, LPCWSTR, LPCWSTR);
+DECLSPEC_IMPORT SC_HANDLE WINAPI ADVAPI32$OpenSCManagerW(LPCWSTR, LPCWSTR,
+                                                         DWORD);
+DECLSPEC_IMPORT SC_HANDLE WINAPI ADVAPI32$OpenServiceW(SC_HANDLE, LPCWSTR,
+                                                       DWORD);
+DECLSPEC_IMPORT
+BOOL WINAPI ADVAPI32$QueryServiceConfigW(SC_HANDLE, LPQUERY_SERVICE_CONFIGW,
+                                         DWORD, LPDWORD);
+DECLSPEC_IMPORT BOOL WINAPI ADVAPI32$QueryServiceStatusEx(SC_HANDLE,
+                                                          SC_STATUS_TYPE,
+                                                          LPBYTE, DWORD,
+                                                          LPDWORD);
+DECLSPEC_IMPORT BOOL WINAPI ADVAPI32$ChangeServiceConfigW(SC_HANDLE, DWORD,
+                                                          DWORD, DWORD, LPCWSTR,
+                                                          LPCWSTR, LPDWORD,
+                                                          LPCWSTR, LPCWSTR,
+                                                          LPCWSTR, LPCWSTR);
 DECLSPEC_IMPORT BOOL WINAPI ADVAPI32$StartServiceW(SC_HANDLE, DWORD, LPCWSTR *);
 DECLSPEC_IMPORT SC_HANDLE WINAPI ADVAPI32$CreateServiceW(
-    SC_HANDLE, LPCWSTR, LPCWSTR, DWORD, DWORD, DWORD, DWORD, LPCWSTR,
-    LPCWSTR, LPDWORD, LPCWSTR, LPCWSTR, LPCWSTR);
+    SC_HANDLE, LPCWSTR, LPCWSTR, DWORD, DWORD, DWORD, DWORD, LPCWSTR, LPCWSTR,
+    LPDWORD, LPCWSTR, LPCWSTR, LPCWSTR);
 DECLSPEC_IMPORT BOOL WINAPI ADVAPI32$CloseServiceHandle(SC_HANDLE);
 DECLSPEC_IMPORT DWORD WINAPI KERNEL32$GetLastError(void);
 DECLSPEC_IMPORT HANDLE WINAPI KERNEL32$GetProcessHeap(void);
@@ -58,8 +65,8 @@ HRESULT rex_service_create_preflight(const char *target, const wchar_t *name,
         rex_streq(target, "127.0.0.1")) {
         machine = NULL;
     }
-    state = (rex_created_service *)KERNEL32$HeapAlloc(
-        heap, HEAP_ZERO_MEMORY, sizeof(*state));
+    state = (rex_created_service *)KERNEL32$HeapAlloc(heap, HEAP_ZERO_MEMORY,
+                                                      sizeof(*state));
     if (state == NULL) {
         return E_OUTOFMEMORY;
     }
@@ -70,7 +77,8 @@ HRESULT rex_service_create_preflight(const char *target, const wchar_t *name,
         KERNEL32$HeapFree(heap, 0, state);
         return HRESULT_FROM_WIN32(error);
     }
-    collision = ADVAPI32$OpenServiceW(state->manager, name, SERVICE_QUERY_STATUS);
+    collision =
+        ADVAPI32$OpenServiceW(state->manager, name, SERVICE_QUERY_STATUS);
     if (collision != NULL) {
         ADVAPI32$CloseServiceHandle(collision);
         rex_service_created_close(state);
@@ -92,7 +100,8 @@ HRESULT rex_service_create_preflight(const char *target, const wchar_t *name,
     return S_OK;
 }
 
-HRESULT rex_service_create(rex_created_service *state, const wchar_t *binary_path) {
+HRESULT rex_service_create(rex_created_service *state,
+                           const wchar_t *binary_path) {
     state->service = ADVAPI32$CreateServiceW(
         state->manager, state->name, state->name, SERVICE_START | DELETE,
         SERVICE_WIN32_OWN_PROCESS, SERVICE_DEMAND_START, SERVICE_ERROR_NORMAL,
@@ -104,7 +113,17 @@ HRESULT rex_service_create(rex_created_service *state, const wchar_t *binary_pat
 }
 
 HRESULT rex_service_created_start(rex_created_service *state) {
-    return ADVAPI32$StartServiceW(state->service, 0, NULL) ? S_OK : last_error();
+    return ADVAPI32$StartServiceW(state->service, 0, NULL) ? S_OK
+                                                           : last_error();
+}
+
+HRESULT rex_service_created_start_command(rex_created_service *state) {
+    DWORD error;
+    if (ADVAPI32$StartServiceW(state->service, 0, NULL))
+        return S_OK;
+    error = KERNEL32$GetLastError();
+    return error == ERROR_SERVICE_REQUEST_TIMEOUT ? S_OK
+                                                  : HRESULT_FROM_WIN32(error);
 }
 
 void rex_service_created_close(rex_created_service *state) {
@@ -125,8 +144,8 @@ void rex_service_created_close(rex_created_service *state) {
     KERNEL32$HeapFree(heap, 0, state);
 }
 
-HRESULT rex_service_snapshot_open(const char *target, const wchar_t *name, DWORD access,
-                                  rex_service_snapshot **out) {
+HRESULT rex_service_snapshot_open(const char *target, const wchar_t *name,
+                                  DWORD access, rex_service_snapshot **out) {
     HANDLE heap = KERNEL32$GetProcessHeap();
     rex_service_snapshot *value;
     wchar_t wide_target[REX_MAX_TARGET + 1];
@@ -136,8 +155,8 @@ HRESULT rex_service_snapshot_open(const char *target, const wchar_t *name, DWORD
     DWORD status_size = 0;
     HRESULT result = S_OK;
     *out = NULL;
-    value = (rex_service_snapshot *)KERNEL32$HeapAlloc(
-        heap, HEAP_ZERO_MEMORY, sizeof(*value));
+    value = (rex_service_snapshot *)KERNEL32$HeapAlloc(heap, HEAP_ZERO_MEMORY,
+                                                       sizeof(*value));
     if (value == NULL) {
         return E_OUTOFMEMORY;
     }
@@ -154,8 +173,10 @@ HRESULT rex_service_snapshot_open(const char *target, const wchar_t *name, DWORD
         result = last_error();
         goto fail;
     }
-    value->service = ADVAPI32$OpenServiceW(value->manager, name,
-        SERVICE_QUERY_CONFIG | SERVICE_QUERY_STATUS | SERVICE_CHANGE_CONFIG | access);
+    value->service =
+        ADVAPI32$OpenServiceW(value->manager, name,
+                              SERVICE_QUERY_CONFIG | SERVICE_QUERY_STATUS |
+                                  SERVICE_CHANGE_CONFIG | access);
     if (value->service == NULL) {
         result = last_error();
         goto fail;
@@ -171,11 +192,11 @@ HRESULT rex_service_snapshot_open(const char *target, const wchar_t *name, DWORD
         result = E_OUTOFMEMORY;
         goto fail;
     }
-    if (!ADVAPI32$QueryServiceConfigW(
-            value->service, value->original, required, &required) ||
-        !ADVAPI32$QueryServiceStatusEx(
-            value->service, SC_STATUS_PROCESS_INFO, (LPBYTE)&status,
-            sizeof(status), &status_size)) {
+    if (!ADVAPI32$QueryServiceConfigW(value->service, value->original, required,
+                                      &required) ||
+        !ADVAPI32$QueryServiceStatusEx(value->service, SC_STATUS_PROCESS_INFO,
+                                       (LPBYTE)&status, sizeof(status),
+                                       &status_size)) {
         result = last_error();
         goto fail;
     }
@@ -190,7 +211,8 @@ fail:
     return result;
 }
 
-HRESULT rex_service_change_native(rex_service_snapshot *value, const wchar_t *path) {
+HRESULT rex_service_change_native(rex_service_snapshot *value,
+                                  const wchar_t *path) {
     if (!ADVAPI32$ChangeServiceConfigW(
             value->service, SERVICE_NO_CHANGE, SERVICE_DEMAND_START,
             SERVICE_NO_CHANGE, path, NULL, NULL, NULL, NULL, NULL, NULL)) {
@@ -200,18 +222,21 @@ HRESULT rex_service_change_native(rex_service_snapshot *value, const wchar_t *pa
 }
 
 HRESULT rex_service_start_native(rex_service_snapshot *value) {
-    return ADVAPI32$StartServiceW(value->service, 0, NULL) ? S_OK : last_error();
+    return ADVAPI32$StartServiceW(value->service, 0, NULL) ? S_OK
+                                                           : last_error();
 }
 
-const wchar_t *rex_service_original_binary_path(
-        const rex_service_snapshot *value) {
+const wchar_t *
+rex_service_original_binary_path(const rex_service_snapshot *value) {
     return value == NULL || value->original == NULL
-        ? NULL : value->original->lpBinaryPathName;
+               ? NULL
+               : value->original->lpBinaryPathName;
 }
 
 DWORD rex_service_original_start_type(const rex_service_snapshot *value) {
     return value == NULL || value->original == NULL
-        ? 0 : value->original->dwStartType;
+               ? 0
+               : value->original->dwStartType;
 }
 
 void rex_service_snapshot_close(rex_service_snapshot *value) {

@@ -6,11 +6,40 @@ increment the minor version.
 
 ## [Unreleased]
 
+### Added
+
+- Added `wmi-event-subscription` and `scm-command` for x86 and x64 Cobalt
+  Strike and Sliver consumers.
+- Added a platform-validation column to the technique reference and a shared
+  environment registry for techniques and launchers.
+- Added a repository-wide `clang-format` policy and enforced it in
+  `make verify`.
+
 ### Changed
 
+- Make the shared decode, preflight, execute, and release lifecycle explicit
+  and record the Server 2025 remote-activation boundary for
+  `dcom-shell-browser-window`.
 - Rewrite operator and developer documentation for clearer installation,
   requirements, results, and cleanup guidance. Launcher entries now link
   directly to their LOLBAS references.
+- Use Zig for reproducible x86 and x64 Windows BOF builds, with the same target
+  and BOF-oriented compiler conventions as Zip-BOF. Each technique now builds
+  as one translation unit and is stripped and inspected with LLVM tools.
+- Withhold `dcom-mmc20` and `dcom-shell-browser-window` from release bundles.
+  Server 2025 validation found an in-process MMC automation hang and a
+  platform-level `ShellBrowserWindow` activation failure.
+- Remove the unvalidated Sliver `coff-loader` fallback. Sliver now requires
+  built-in Reflektor support and fails closed on older clients.
+
+### Fixed
+
+- Allow canonical kebab-case selectors through the shared native input
+  validator and guard the contract with a verification check.
+- Construct technique descriptors in caller-owned storage and disable pointer
+  jump tables so x64 BOFs contain no Cobalt Strike-incompatible
+  `IMAGE_REL_AMD64_ADDR64` or `.refptr` relocations. Object verification now
+  rejects either form.
 
 ## [0.3.0] - 2026-10-29
 

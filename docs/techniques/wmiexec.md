@@ -7,7 +7,7 @@ can build that command from a [launcher contract](../launchers/index.md).
 
 ```mermaid
 sequenceDiagram
-    participant B as rex BOF
+    participant B as Rex BOF
     participant W as WMI service
     participant P as Target process
     B->>W: Open root\cimv2 session

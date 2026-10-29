@@ -6,8 +6,9 @@
 #define rex_HeapAlloc HeapAlloc
 #define rex_HeapFree HeapFree
 #else
-DECLSPEC_IMPORT int WINAPI KERNEL32$WideCharToMultiByte(
-    UINT, DWORD, LPCWCH, int, LPSTR, int, LPCCH, LPBOOL);
+DECLSPEC_IMPORT int WINAPI KERNEL32$WideCharToMultiByte(UINT, DWORD, LPCWCH,
+                                                        int, LPSTR, int, LPCCH,
+                                                        LPBOOL);
 DECLSPEC_IMPORT HANDLE WINAPI KERNEL32$GetProcessHeap(void);
 DECLSPEC_IMPORT LPVOID WINAPI KERNEL32$HeapAlloc(HANDLE, DWORD, SIZE_T);
 DECLSPEC_IMPORT BOOL WINAPI KERNEL32$HeapFree(HANDLE, DWORD, LPVOID);
@@ -33,15 +34,17 @@ char *rex_text_encode_wide(const wchar_t *value) {
     SIZE_T input;
     SIZE_T output = 0;
     int utf8_length;
-    if (value == NULL) return NULL;
-    utf8_length = rex_WideCharToMultiByte(
-        CP_UTF8, WC_ERR_INVALID_CHARS, value, -1, NULL, 0, NULL, NULL);
-    if (utf8_length <= 0) return NULL;
+    if (value == NULL)
+        return NULL;
+    utf8_length = rex_WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, value,
+                                          -1, NULL, 0, NULL, NULL);
+    if (utf8_length <= 0)
+        return NULL;
     utf8 = (char *)rex_HeapAlloc(heap, 0, (SIZE_T)utf8_length);
-    if (utf8 == NULL) return NULL;
-    if (rex_WideCharToMultiByte(
-            CP_UTF8, WC_ERR_INVALID_CHARS, value, -1,
-            utf8, utf8_length, NULL, NULL) <= 0) {
+    if (utf8 == NULL)
+        return NULL;
+    if (rex_WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, value, -1, utf8,
+                                utf8_length, NULL, NULL) <= 0) {
         rex_HeapFree(heap, 0, utf8);
         return NULL;
     }
@@ -53,7 +56,8 @@ char *rex_text_encode_wide(const wchar_t *value) {
         }
         encoded_length += amount;
     }
-    if (input == 1 && utf8[0] == '-') encoded_length = 3;
+    if (input == 1 && utf8[0] == '-')
+        encoded_length = 3;
     if (encoded_length == (SIZE_T)-1) {
         rex_HeapFree(heap, 0, utf8);
         return NULL;
@@ -66,7 +70,7 @@ char *rex_text_encode_wide(const wchar_t *value) {
     for (input = 0; utf8[input] != '\0'; input++) {
         unsigned char current = (unsigned char)utf8[input];
         BOOL encode = !rex_text_safe(current) ||
-            (input == 0 && utf8[1] == '\0' && current == '-');
+                      (input == 0 && utf8[1] == '\0' && current == '-');
         if (encode) {
             encoded[output++] = '%';
             encoded[output++] = rex_text_hex((unsigned char)(current >> 4));
@@ -81,5 +85,6 @@ char *rex_text_encode_wide(const wchar_t *value) {
 }
 
 void rex_text_free(char *value) {
-    if (value != NULL) rex_HeapFree(rex_GetProcessHeap(), 0, value);
+    if (value != NULL)
+        rex_HeapFree(rex_GetProcessHeap(), 0, value);
 }

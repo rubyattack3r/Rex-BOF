@@ -1,7 +1,7 @@
 # Launcher contracts
 
 The Cobalt Strike integration provides launchers for `wmi-exec`, `wsman-exec`,
-`task-sched-exec`, and `dcom-ishell-dispatch2`. Choose a payload type, launcher,
+`task-sched-exec`, `dcom-ishell-dispatch2`, and `scm-command`. Choose a payload type, launcher,
 and absolute path to a file already on the target.
 
 ```text
@@ -51,7 +51,8 @@ Framework tool or a `SysWOW64` launcher.
 
 The CNA resolves a launcher into a program and arguments before the BOF runs.
 `wmi-exec` receives one command line. `wsman-exec`, `task-sched-exec`, and
-`dcom-ishell-dispatch2` receive separate program and argument values.
+`dcom-ishell-dispatch2` receive separate program and argument values. `scm-command`
+receives the same complete command-line form as `wmi-exec`.
 
 `rex preflight` checks the remote-execution technique, not the launcher or
 payload. Verify file presence, architecture, exports, dependencies, and process
@@ -59,7 +60,7 @@ IDs before execution.
 
 ## Results and cleanup
 
-`wmi-exec`, `task-sched-exec`, and `dcom-ishell-dispatch2` return after starting
+`wmi-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`, and `scm-command` return after starting
 the launcher. `wsman-exec` waits for its exit code.
 
 Delete the remote file after the launcher exits. Clean up files, registry keys,

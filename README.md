@@ -1,6 +1,6 @@
 # Rex BOF
 
-Rex packages eight Windows remote-execution techniques as native x86 and x64
+Rex packages ten Windows remote-execution techniques as native x86 and x64
 Beacon Object Files for Cobalt Strike and Sliver.
 
 <picture>

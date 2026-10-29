@@ -12,7 +12,7 @@ change WinRM configuration.
 
 ```mermaid
 sequenceDiagram
-    participant B as rex BOF
+    participant B as Rex BOF
     participant W as WinRM listener
     participant P as Target process
     B->>W: Create WSMan session and shell

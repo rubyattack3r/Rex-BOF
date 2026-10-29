@@ -7,7 +7,7 @@ PsExec-style service pattern without using the PsExec utility.
 
 ```mermaid
 sequenceDiagram
-    participant B as rex BOF
+    participant B as Rex BOF
     participant C as SCM RPC
     participant S as Temporary service
     B->>C: Verify service name is unused

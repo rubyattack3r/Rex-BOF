@@ -21,6 +21,7 @@ the technique. Supply the same options as an execution command.
 | Command | Technique options |
 |---|---|
 | `wmi-provider` | `--provider-name`, `--provider-clsid`, `--remote-path` |
+| `wmi-event-subscription` | `--subscription-name`, `--query`, `--command` |
 | `wmi-service` | `--service-name`, `--remote-path` |
 | `wmi-exec` | `--command` or launcher options |
 | `wsman-exec` | `--program`, optional `--arguments`, optional `--transport`, or launcher options |
@@ -28,6 +29,7 @@ the technique. Supply the same options as an execution command.
 | `dcom-ishell-dispatch2` | `--program`, optional `--arguments`, or launcher options |
 | `scm-change-service` | `--service-name`, `--remote-path` |
 | `scm-create-service` | `--service-name`, `--remote-path` |
+| `scm-command` | `--service-name`, `--command`, or launcher options |
 
 ## Authentication
 
@@ -51,8 +53,8 @@ from letters, digits, `.`, `-`, `_`, and `:`. Technique values are limited to
 
 ## Launchers
 
-`wmi-exec`, `wsman-exec`, `task-sched-exec`, and `dcom-ishell-dispatch2`
-support built-in and custom launchers. Launcher mode requires `--payload-type`,
+`wmi-exec`, `wsman-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`, and
+`scm-command` support built-in and custom launchers. Launcher mode requires `--payload-type`,
 an absolute `--remote-path`, and `--launcher`.
 
 ```text
@@ -72,8 +74,8 @@ directly and does not accept launcher options. See the
 
 `wmi-provider` requires a DLL matching the BOF architecture. An x64 object uses
 the 64-bit COM registry view; an x86 object uses the 32-bit view.
-`dcom-ishell-dispatch2` requires an interactive Explorer shell. Existing-service
-techniques require a stopped service.
+`dcom-ishell-dispatch2` requires an interactive Explorer shell.
+Existing-service techniques require a stopped service.
 
 A BOF occupies its Beacon thread until the remote API call returns. Use a
 dedicated session when DCOM calls may take a long time.

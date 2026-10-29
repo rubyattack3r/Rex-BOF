@@ -2,11 +2,11 @@
 
 ## Overview
 
-This repository builds eight Windows remote-execution techniques as native
+This repository builds ten Windows remote-execution techniques as native
 Cobalt Strike BOFs. Every technique supports x86 and x64 Beacons. Keep the
 typed runtime and reusable WMI and service code shared, with one selector,
-implementation, descriptor, and object per technique. Cobalt Strike and Sliver
-integrations live separately under `integrations/`.
+implementation, descriptor loader, and object per technique. Cobalt Strike and
+Sliver integrations live separately under `integrations/`.
 
 ## Architecture
 
@@ -18,15 +18,15 @@ integrations live separately under `integrations/`.
   transcript encoding. `wmi.c` and `service.c` provide reusable capabilities
   linked only into techniques that need them.
 - `src/techniques/` contains one implementation and one `rex_technique`
-  descriptor for each canonical stable selector: `wmi-provider`, `wmi-service`,
-  `wmi-exec`, `wsman-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`,
-  `scm-change-service`, and `scm-create-service`.
-- Public Cobalt Strike commands use `wmi-provider`, `wmi-service`, `wmi-exec`,
-  `wsman-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`,
-  `scm-change-service`, and `scm-create-service`. Sliver prefixes the same
+  descriptor loader for each canonical stable selector listed in
+  `docs/techniques/index.md`.
+- Public Cobalt Strike commands use the canonical selectors from the technique
+  reference. Sliver prefixes the same
   names with `rex-`. Do not add compatibility aliases. Native requests and
   transcripts use the same canonical kebab-case selectors.
-- Each BOF is linked from the common modules and exactly one technique module.
+- Each BOF is compiled from the common modules and exactly one technique module
+  as a single translation unit. The descriptor loader fills caller-owned
+  storage instead of emitting a global pointer table.
   The common entry point rejects a packed selector that does not match the
   linked descriptor.
 - `integrations/cna/rex.cna` owns the operator command surface, named-option
@@ -43,13 +43,13 @@ integrations live separately under `integrations/`.
   documentation and release checks. `.github/` contains CI, CodeQL, release
   workflows, Dependabot, and community health files.
 - The Cobalt Strike and Sliver release bundles each contain their integration
-  file, all 16 objects, the offline `docs/` tree, project metadata, the MIT
+  file, all 20 objects, the offline `docs/` tree, project metadata, the MIT
   license, and acceptable-use guidance. Each bundle keeps its integration file
   and objects together at its root.
 
 ## Behavior and Safety Invariants
 
-- Preserve the eight public kebab-case command names, internal stable
+- Preserve the ten public kebab-case command names, internal stable
   selectors, and documented named options unless a user-facing change is
   intended. Keep one target per invocation and one object per selector and
   architecture.
@@ -60,9 +60,10 @@ integrations live separately under `integrations/`.
   exact request that execution would consume. Rex does not stage, inspect, or
   remove referenced payload files.
 - Every technique implements decode, preflight, execute, and release callbacks.
-  Release must tolerate partial initialization and run after preflight-only,
-  success, and failure paths. Always release process-local handles, interfaces,
-  sessions, and allocations.
+  The common runtime owns the lifecycle transitions from decode through
+  release. Release must tolerate partial initialization and run after
+  preflight-only, success, and failure paths. Always release process-local
+  handles, interfaces, sessions, and allocations.
 - Record retained remote state in typed recovery context as soon as it exists.
   Do not retain commands, arguments, credentials, or payload contents. Keep
   recovery instructions explicit and technique-specific.
@@ -72,6 +73,9 @@ integrations live separately under `integrations/`.
 - Declare only Beacon APIs and dynamic `MODULE$function` imports. Do not add a
   C runtime dependency or direct Windows import. The undefined-import check
   rejects symbols outside the allowlist.
+- Do not introduce `IMAGE_REL_AMD64_ADDR64` or `.refptr` relocations. Cobalt
+  Strike rejects them. Keep descriptor construction runtime-local and retain
+  `-fno-jump-tables`; `scripts/verify-objects.sh` enforces the object contract.
 - Keep operator text and transcript fields UTF-8 and Windows native arguments
   UTF-16. Preserve percent-encoding for ambiguous transcript values and the
   documented target, command, and field limits. Keep transcript `technique`
@@ -82,23 +86,25 @@ integrations live separately under `integrations/`.
 
 ## Build and verification
 
-Use the `flake.nix` development shell; MinGW-w64 compiles and links both
-architectures. Run these checks after relevant changes:
+Use the `flake.nix` development shell; Zig compiles each technique as one
+translation unit for both architectures. `clang-format` owns C formatting.
+Run these checks after relevant changes:
 
 ```sh
 nix develop -c make verify
 nix develop -c make release VERSION=v0.0.0-ci
 ```
 
-`make verify` runs cppcheck, shellcheck, and actionlint, performs clean x86/x64
-builds, rejects unexpected undefined imports, and checks documentation links
-and required technique diagrams. It also verifies that each Sliver object
-defines the manifest entry point with the exact undecorated name on both
-architectures. The release target creates deterministic Cobalt Strike and
-Sliver ZIPs, verifies their exact contents, extracts them and checks their
-offline documentation, validates the Sliver manifest and entry points, and
-writes SHA-256 checksums. CI also compiles and runs the transcript encoder test
-with MSVC on Windows.
+`make verify` checks `clang-format`, runs cppcheck, shellcheck, and actionlint,
+performs clean x86/x64 builds, rejects unsupported x64 relocations and
+unexpected undefined imports, and checks documentation links and required
+technique diagrams. It also verifies that
+each Sliver object defines the manifest entry point with the exact undecorated
+name on both architectures. The release target creates deterministic Cobalt
+Strike and Sliver ZIPs, verifies their exact contents, extracts them and checks
+their offline documentation, validates the Sliver manifest and entry points,
+and writes SHA-256 checksums. CI also compiles and runs the transcript encoder
+test with MSVC on Windows.
 
 When `boflint.py` is available, run this against every generated object:
 

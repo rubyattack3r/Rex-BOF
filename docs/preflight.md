@@ -44,10 +44,12 @@ A normal `rex <technique> ...` command runs the same check before execution.
 | `wmi-service` | `service_snapshot_and_wmi_session` | Reads the service path and start type, confirms it is stopped, and opens WMI. |
 | `scm-change-service` | `scm_service_snapshot` | Opens the service, reads its path and start type, and confirms it is stopped. |
 | `scm-create-service` | `scm_service_name_available` | Opens SCM with create rights and confirms the service name is unused. |
+| `scm-command` | `scm_service_name_available` | Opens SCM with create rights and confirms the service name is unused. |
 | `task-sched-exec` | `task_scheduler_name_available` | Connects to the Task Scheduler root folder and confirms the task name is unused. |
 | `wsman-exec` | `wsman_shell` | Validates the transport, creates a WSMan session, and opens a temporary shell. |
 | `dcom-ishell-dispatch2` | `ishelldispatch2_interface` | Activates the Shell COM class and resolves `IShellDispatch2` from an interactive Explorer session. |
 | `wmi-provider` | `wmi_provider_and_registry_available` | Opens WMI, confirms the provider and COM registration are unused, and opens the registry view matching the BOF architecture. |
+| `wmi-event-subscription` | `wmi_subscription_name_available` | Opens `ROOT\SUBSCRIPTION` and confirms the filter and consumer names are unused. |
 
 ## What preflight does not check
 

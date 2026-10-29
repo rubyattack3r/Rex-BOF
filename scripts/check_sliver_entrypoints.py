@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 
 import json
+import os
 import pathlib
 import subprocess
 import sys
 
 
-NM_BY_ARCH = {
-    "amd64": "x86_64-w64-mingw32-nm",
-    "386": "i686-w64-mingw32-nm",
-}
+SUPPORTED_ARCHES = {"amd64", "386"}
 
 
 def fail(message: str) -> None:
@@ -40,6 +38,7 @@ def main() -> None:
         raise SystemExit(f"usage: {sys.argv[0]} <extension.json>")
     manifest_path = pathlib.Path(sys.argv[1])
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    nm = os.environ.get("LLVM_NM", "llvm-nm")
     checked: set[tuple[pathlib.Path, str]] = set()
 
     for command in manifest.get("commands", []):
@@ -50,7 +49,7 @@ def main() -> None:
         for item in command.get("files", []):
             arch = item.get("arch")
             relative_path = item.get("path")
-            if arch not in NM_BY_ARCH or not relative_path:
+            if arch not in SUPPORTED_ARCHES or not relative_path:
                 fail(f"{name}: invalid file binding")
             object_path = manifest_path.parent / relative_path
             if not object_path.is_file():
@@ -58,7 +57,7 @@ def main() -> None:
             binding = (object_path, entrypoint)
             if binding in checked:
                 continue
-            symbols = defined_symbols(NM_BY_ARCH[arch], object_path)
+            symbols = defined_symbols(nm, object_path)
             if entrypoint not in symbols:
                 fail(
                     f"{name}: {object_path.name} does not define exact symbol "
