@@ -1,21 +1,18 @@
 # Custom launchers
 
-The reserved `custom` selector describes a target-resident executable without
-adding it to the built-in CNA registry. The operator owns the payload ABI,
-success semantics, dependencies, side effects, and recovery procedure.
+Use `custom` for a target-resident executable that is not in the built-in
+launcher registry.
 
 ## Selecting a candidate
 
-Use the [LOLBAS catalog](https://lolbas-project.github.io/) to research an
-execution function compatible with the target environment and payload format.
-A catalog entry is a candidate, not proof that it exists or works on a specific
-host. Confirm that:
+The [LOLBAS catalog](https://lolbas-project.github.io/) is a useful starting
+point. Before adding a candidate, confirm that:
 
 1. the exact executable and required features exist on the target;
 2. its function accepts `dll`, `cpl`, or `managed` input as declared;
 3. its invocation fits one single-line template;
 4. payload, launcher, and process architectures are compatible; and
-5. the engagement permits its side effects and telemetry.
+5. its side effects and cleanup are understood.
 
 A function limited to download, copy, compile, or another non-execution action
 is not automatically a launcher.
@@ -54,18 +51,16 @@ rex wmi-exec --target 10.0.0.15 --payload-type dll \
   --process-id 4242
 ```
 
-The CNA validates syntax only. It does not check that the program or payload
-exists, that the executable implements the claimed contract, or that a PID is
-valid. `rex preflight` checks the selected remote-execution technique, not the
-custom launcher.
+The CNA validates template syntax. Verify the program, payload, ABI, and any
+PID on the target.
 
-## Validation and recovery
+## Validation and cleanup
 
 Document accepted payload formats, architectures, quoting rules, dependencies,
 exit-status meaning, persistent effects, and recovery beside the launcher.
-Test the exact rendered invocation on a disposable host. Track and reverse
-payload and launcher side effects separately from technique-owned recovery.
+Test the rendered invocation on a disposable host and document cleanup.
 
-## Detection considerations
+## Detection
 
-Custom means operator-defined, not trusted or low-observability. Process creation, command lines, module loads, and launcher-defined side effects remain detectable.
+Document expected process, command-line, module-load, and side-effect telemetry
+for the selected program.

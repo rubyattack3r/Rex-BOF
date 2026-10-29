@@ -1,10 +1,13 @@
-# WMIProvider
+# wmi-provider
 
-## Mechanism and prerequisites
+## How it works
 
-Registers COM metadata and a `__Win32Provider` instance, then invokes `MSFT_Providers.Load`. It requires local-administrator rights, reachable WMI/DCOM, an unused provider name and CLSID registration, and a provider DLL that already exists on the target. The DLL's architecture must match the selected BOF object and its `DllGetClassObject` implementation must expose the value supplied through `--provider-clsid`.
+Rex registers COM metadata and a `__Win32Provider` instance, then calls
+`MSFT_Providers.Load`. The provider DLL must already be on the target, match the
+BOF architecture, and expose the CLSID supplied through `--provider-clsid`.
 
-Payload support: an already-staged native WMI provider DLL only. This technique does not use a launcher because the provider host loads the registered DLL directly.
+The provider host loads the DLL directly; this technique does not use a
+launcher.
 
 ```mermaid
 sequenceDiagram
@@ -21,18 +24,21 @@ sequenceDiagram
     B-->>B: Emit provider recovery context
 ```
 
-## Privilege and network surface
+## Requirements
 
 - Local administrator on the target
 - WMI/DCOM via TCP 135 and negotiated dynamic RPC ports
 - Remote registry access through the WMI and registry interfaces used by the active token
-- No BOF-managed SMB delivery; the DLL must already exist remotely
+- Provider DLL already present on the target
 
-## Operator recovery
+## Cleanup
 
-Call `MSFT_Providers.UnLoad`, delete the exact `__Win32Provider` instance, and remove the reported `InprocServer32` key and CLSID parent. Wait for the provider host to release the module before deleting the separately delivered DLL. See [operator recovery](../recovery.md).
+Call `MSFT_Providers.UnLoad`, delete the reported `__Win32Provider` instance,
+and remove its `InprocServer32` and CLSID keys. Delete the DLL after the
+provider host releases it. See [recovery](../recovery.md).
 
-## Detection considerations
+## Detection
 
-Provider registration, registry changes, WMI activity, and an unusual provider-host DLL load are well-signatured. Provider naming and hosting choices can change alert confidence, but the technique is never undetectable.
+Relevant telemetry includes provider registration, registry changes, WMI
+activity, and provider-host DLL loads.
 

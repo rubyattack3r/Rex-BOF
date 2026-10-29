@@ -1,19 +1,24 @@
 # Technique reference
 
-Each selector maps to separate x86 and x64 objects. `rex.cna` selects the object matching the active Beacon architecture, converts named options into the typed BOF request, and uses the active Beacon token. One invocation operates on one target.
+Each selector has separate x86 and x64 objects. The integration selects the
+matching architecture and uses the active implant token. Each command targets
+one host.
 
 | Selector | Required options | Remote API | Success evidence | Recovery context |
 |---|---|---|---|---|
-| [WMIProvider](wmiprovider.md) | `--provider-name`, `--provider-clsid`, `--remote-path` | WMI and remote registry | Provider load completed | Provider name, CLSID, and DLL path |
-| [WMIService](wmiservice.md) | `--service-name`, `--remote-path` | WMI `Win32_Service` | Service start dispatched | Original and applied service configuration |
-| [WMIExec](wmiexec.md) | `--command` or launcher options | WMI `Win32_Process.Create` | Process dispatched with PID | None |
-| [WSManExec](wsmanexec.md) | `--program`, optional `--arguments` and `--transport`, or launcher options | WSMan/WinRM | Command completed | None |
-| [TaskSchedExec](taskschedexec.md) | `--task-name`, `--program`, optional `--arguments`, or launcher options | Task Scheduler DCOM | Task run dispatched | Registered task name and executable |
-| [DCOMIShellDispatch2](dcomishelldispatch2.md) | `--program`, optional `--arguments`, or launcher options | DCOM Shell automation | Shell execution dispatched | None |
-| [SCMChangeService](scmchangeservice.md) | `--service-name`, `--remote-path` | SCM RPC | Service start dispatched | Original and applied service configuration |
-| [SCMCreateService](scmcreateservice.md) | `--service-name`, `--remote-path` | SCM RPC | Service start dispatched | Created service name and binary path |
+| [`wmi-provider`](wmiprovider.md) | `--provider-name`, `--provider-clsid`, `--remote-path` | WMI and remote registry | Provider loaded | Provider name, CLSID, and DLL path |
+| [`wmi-service`](wmiservice.md) | `--service-name`, `--remote-path` | WMI `Win32_Service` | Service start requested | Original and applied service configuration |
+| [`wmi-exec`](wmiexec.md) | `--command` or launcher options | WMI `Win32_Process.Create` | Process created with PID | None |
+| [`wsman-exec`](wsmanexec.md) | `--program`, optional `--arguments` and `--transport`, or launcher options | WSMan/WinRM | Command exit status | None |
+| [`task-sched-exec`](taskschedexec.md) | `--task-name`, `--program`, optional `--arguments`, or launcher options | Task Scheduler DCOM | Task started | Registered task name and executable |
+| [`dcom-ishell-dispatch2`](dcomishelldispatch2.md) | `--program`, optional `--arguments`, or launcher options | DCOM Shell automation | Program started | None |
+| [`scm-change-service`](scmchangeservice.md) | `--service-name`, `--remote-path` | SCM RPC | Service start requested | Original and applied service configuration |
+| [`scm-create-service`](scmcreateservice.md) | `--service-name`, `--remote-path` | SCM RPC | Service start requested | Created service name and binary path |
 
-Use `rex preflight <technique>` with the same options to run the registered read-only checks without invoking the technique's execution callback. See the [preflight boundary](../preflight.md) for the exact checks and limitations.
+Use `rex preflight <technique>` with the same options to check requirements
+without executing the technique. See [preflight](../preflight.md) for the checks.
 
-`dispatched` means the remote API accepted the work; it does not claim payload completion. `WSManExec` is the exception because it waits for the remote command and reports `completed` only for a zero exit status. See [results and recovery](../output.md) for the transcript contract.
+Most techniques report `dispatched` after the remote API accepts the request.
+`wsman-exec` waits for the command and reports `completed` when it exits with
+status 0. See [transcript output](../output.md).
 

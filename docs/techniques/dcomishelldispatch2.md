@@ -1,10 +1,13 @@
-# DCOMIShellDispatch2
+# dcom-ishell-dispatch2
 
-## Mechanism and prerequisites
+## How it works
 
-Activates the remote Shell COM class, resolves `IShellDispatch2` from a usable interactive Explorer session, and invokes `ShellExecute`. It accepts a program with optional arguments or a CNA-resolved [launcher contract](../launchers/index.md). It requires local-administrator rights, reachable DCOM, and an active interactive user shell on the target.
+Rex activates the remote Shell COM class, gets `IShellDispatch2` from an
+interactive Explorer session, and calls `ShellExecute`. Cobalt Strike can
+supply the program through a [launcher contract](../launchers/index.md).
 
-Finding an `explorer.exe` process is not sufficient. Preflight must resolve the Shell automation interface in a usable session before execution.
+An `explorer.exe` process alone is not enough. Preflight must resolve the Shell
+automation interface in a usable session.
 
 ```mermaid
 sequenceDiagram
@@ -19,18 +22,20 @@ sequenceDiagram
     B-->>D: Release COM interfaces
 ```
 
-## Privilege and network surface
+## Requirements
 
 - Local administrator on the target
 - Active interactive user logon with a usable Explorer shell
 - DCOM via TCP 135 and negotiated dynamic RPC ports
-- No BOF-managed SMB delivery; referenced files must already exist remotely
+- Referenced files already present on the target
 
-## Operator recovery
+## Cleanup
 
-The technique releases its COM interfaces and creates no generic persistent configuration record. Remove separately delivered files after the launched process releases them. Program-defined side effects remain operator-owned. See [operator recovery](../recovery.md).
+Delete payload files after the launched process releases them, and clean up
+changes made by the program. See [recovery](../recovery.md).
 
-## Detection considerations
+## Detection
 
-Visibility depends on DCOM activation telemetry, but `ShellExecute` and the resulting process remain detectable. The active-shell precondition narrows usable targets; it does not make the technique quiet or undetectable.
+Relevant telemetry includes DCOM activation, `ShellExecute`, and the resulting
+process.
 

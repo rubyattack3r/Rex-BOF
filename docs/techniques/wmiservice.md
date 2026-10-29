@@ -1,10 +1,13 @@
-# WMIService
+# wmi-service
 
-## Mechanism and prerequisites
+## How it works
 
-Uses WMI `Win32_Service` methods to snapshot and reconfigure an existing stopped service so it launches an already-staged service executable. It requires local-administrator rights, reachable WMI/DCOM, an explicitly selected service, and readable original configuration. Preflight captures the original binary path and start type and proves the service is stopped before modification.
+Rex uses WMI `Win32_Service` methods to read and reconfigure an existing stopped
+service. Preflight records its binary path and start type and confirms that it
+is stopped.
 
-Payload support: a Windows service executable that already exists on the target and implements the lifecycle expected by the selected service.
+The replacement executable must already be on the target and implement the
+Windows service lifecycle.
 
 ```mermaid
 sequenceDiagram
@@ -17,17 +20,20 @@ sequenceDiagram
     B-->>B: Emit original and applied configuration
 ```
 
-## Privilege and network surface
+## Requirements
 
 - Local administrator on the target
 - WMI/DCOM via TCP 135 and negotiated dynamic RPC ports
-- No BOF-managed SMB delivery; the service executable must already exist remotely
+- Service executable already present on the target
 
-## Operator recovery
+## Cleanup
 
-Stop the service if safe, compare its current configuration with the emitted recovery context, and restore the original binary path and start type. The preflight-proven original state is stopped. Remove the separately delivered executable only after the service releases it. See [operator recovery](../recovery.md).
+Stop the service, confirm its current configuration, and restore the recorded
+binary path and start type. Delete the executable after the service releases
+it. See [recovery](../recovery.md).
 
-## Detection considerations
+## Detection
 
-WMI administration, service configuration changes, unusual image paths, and service starts are well-signatured. Selecting a service that is already noisy can change baseline rarity, but does not remove host telemetry.
+Relevant telemetry includes WMI administration, service configuration changes,
+image paths, and service starts.
 

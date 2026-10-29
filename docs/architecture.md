@@ -1,10 +1,9 @@
 # Architecture
 
-`rex` is a native C BOF runtime, not a Go CLI compiled as COFF. Integrations
-own operator-facing argument packing; the object files own typed decoding,
-read-only preflight, native API execution, result construction, and
-process-local resource release. The Cobalt Strike CNA also owns launcher
-resolution, while Sliver exposes the primitive fields directly.
+Rex is a native C BOF runtime. Integrations pack operator input; each object
+decodes its request, runs preflight, calls the Windows API, reports the result,
+and releases local resources. The Cobalt Strike CNA resolves launchers. Sliver
+exposes the underlying program and argument fields.
 
 ```mermaid
 flowchart LR
@@ -18,9 +17,12 @@ flowchart LR
 ## Source layout
 
 - `include/rex.h` defines the shared request, result, observation, recovery, state, and technique-descriptor contracts.
-- `src/common/` contains the Beacon entrypoint, registry guard, runtime helpers, transcript encoding, and reusable WMI and service capabilities.
+- `src/common/` contains the Beacon entrypoint, registry guard, runtime helpers,
+  transcript encoding, and reusable WMI and service capabilities.
 - `src/techniques/` contains one implementation and linked descriptor per stable selector.
-- `integrations/cna/rex.cna` maps selectors to objects, exposes named options, resolves launchers, and chooses x86 or x64 from the active Beacon architecture.
+- `integrations/cna/rex.cna` maps selectors to objects, exposes named options,
+  resolves launchers, and chooses x86 or x64 from the active Beacon
+  architecture.
 - `integrations/sliver/extension.json` exposes eight primitive commands, selects
   `amd64` or `386` objects, and uses dedicated argument-count adapters before
   entering the shared runtime.
@@ -44,7 +46,9 @@ If `boflint.py` is available, validate the generated objects with:
 make verify-bof BOFLINT=/path/to/boflint.py
 ```
 
-CI also rejects unexpected imports so accidental CRT or direct Win32 linkage cannot enter an object unnoticed. A malformed BOF can terminate the containing implant; validate new objects against a disposable authorized target before operational use.
+CI rejects unexpected imports, including accidental CRT and direct Win32
+linkage. Test new objects on a disposable target before use; a malformed BOF
+can terminate its implant process.
 
 ## Technique contract
 
@@ -56,7 +60,9 @@ CNA matches the linked descriptor. The Sliver entry points derive that selector
 from the descriptor and accept only the one, two, or three technique values
 declared by the manifest.
 
-Preflight must finish before the execute callback runs. Release must tolerate partial initialization and run after preflight-only, successful execution, and failure paths. Recovery context must be populated as soon as reversible remote state exists so an execution failure does not discard it.
+Preflight finishes before execution begins. Release runs after preflight-only,
+success, and failure paths and must handle partial initialization. Record
+recovery data as soon as a reversible remote change is made.
 
 ## Adding a technique
 

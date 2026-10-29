@@ -1,6 +1,7 @@
 # Transcript output
 
-Each invocation emits concise transcript records backed by typed C result, observation, and recovery structs. The BOF output is not a versioned JSON schema and does not mirror the Go CLI serialization contract.
+Each invocation writes space-delimited transcript records from the BOF's typed
+result and recovery structures. The output is not JSON.
 
 Successful execution emits one result line. Techniques that expose a remote process identifier include it:
 
@@ -21,17 +22,20 @@ technique=wmi-exec target=10.0.0.15 status=succeeded disposition=validated sourc
 | `technique` | Canonical lowercase kebab-case public technique name. |
 | `target` | Hostname or address supplied to the invocation. |
 | `status` | `succeeded` or `failed`. |
-| `disposition` | What the remote API proved: `validated`, `dispatched`, or `completed`. |
+| `disposition` | Result type: `validated`, `dispatched`, or `completed`. |
 | `source` | Technique-specific evidence source. |
 | `pid` | Remote process identifier when the API provides one. |
-| `phase` | Failure boundary: `input`, `preflight`, or `execution`. |
+| `phase` | Failure stage: `input`, `preflight`, or `execution`. |
 | `hresult` | Native failure code on failed results. |
 
-`validated` means the registered read-only prerequisite callback succeeded and execution was skipped. `dispatched` means the remote API accepted or exposed the work but did not prove payload completion. `completed` means a synchronous API reported a zero exit status.
+- `validated`: preflight passed and execution was skipped.
+- `dispatched`: the remote API accepted the work.
+- `completed`: a synchronous command returned exit status 0.
 
 ## Failures and partial mutation
 
-Input and preflight failures occur before a technique-owned persistent mutation. Execution can fail after a mutation; when that happens, the BOF emits the failure and the available recovery record:
+Input and preflight failures occur before the technique changes remote state.
+Execution failures may include a recovery record when a change already occurred:
 
 ```text
 technique=scm-change-service target=10.0.0.15 status=failed phase=execution hresult=0x80070005
@@ -40,9 +44,14 @@ recovery target=10.0.0.15 action=restore_service service=Example original_binary
 
 ## Transcript encoding
 
-Records are space-delimited `key=value` fields. Dynamic recovery values use reversible UTF-8 percent encoding when whitespace, control bytes, `%`, or `=` would make the record ambiguous. A literal single `-` is `%2D`; bare `-` means the value was unavailable.
+Dynamic values use UTF-8 percent encoding for whitespace, control bytes, `%`,
+and `=`. A literal single `-` is `%2D`; bare `-` means unavailable.
 
-Split a line into fields before decoding percent sequences. Windows path separators, drive separators, and non-ASCII UTF-8 remain readable when they do not conflict with the grammar. For example, `C:\Program Files\rex.dll` is emitted as `C:\Program%20Files\rex.dll`.
+Split a line into fields before decoding percent sequences. Path separators,
+drive separators, and non-ASCII UTF-8 remain readable when they do not conflict
+with the grammar. For example, `C:\Program Files\rex.dll` is emitted as
+`C:\Program%20Files\rex.dll`.
 
-Raw commands, launcher arguments, and credentials are never copied into the transcript. See [operator recovery](recovery.md) for the meaning of recovery records.
+Transcripts omit raw commands, launcher arguments, and credentials. See the
+[cleanup guide](recovery.md) for recovery fields.
 

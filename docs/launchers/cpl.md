@@ -31,17 +31,16 @@ rex wsman-exec --target 10.0.0.15 --payload-type cpl \
   --remote-path C:\ProgramData\module.cpl --launcher control.exe
 ```
 
-`rex preflight` validates the remote-execution technique only. It does not
-inspect `CPlApplet`, confirm the file exists, or prove Control Panel will load
-the module.
+`rex preflight` does not inspect `CPlApplet` or the remote file.
 
-## Operator recovery
+## Cleanup
 
-Wait for `control.exe` to release the module before removing it. Callback-created files, processes, registry state, and other effects require a payload-specific recovery procedure.
+Wait for `control.exe` to release the module before deleting it. Remove any
+files, processes, or registry state created by its callbacks.
 
-## Detection considerations
+## Detection
 
-Control Panel process creation, module loading, child processes, and callback
-effects are observable. No CPL invocation is undetectable.
+Relevant telemetry includes Control Panel process creation, module loading,
+child processes, and callback activity.
 
 Reference: [Control Panel applications](https://learn.microsoft.com/en-us/windows/win32/shell/control-panel-applications).

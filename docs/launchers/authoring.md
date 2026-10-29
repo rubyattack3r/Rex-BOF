@@ -1,9 +1,8 @@
 # Authoring and validating payloads
 
-A launcher-compatible payload is defined by its binary format, architecture,
-entry-point ABI, runtime dependencies, and callback behavior—not by its file
-extension. Build and validate the final artifact in an engagement-controlled
-environment before placing it on the target.
+A file extension does not define a launcher payload. The final artifact must
+match the required format, architecture, ABI, dependencies, and callback
+behavior.
 
 ## Contract map
 
@@ -34,7 +33,7 @@ On a non-Windows build host, `llvm-objdump -p`, a MinGW `objdump -p`, or
 reader for assembly references, attributes, target framework, and strong-name
 state.
 
-Before remote execution, verify:
+Before placing the artifact on the target:
 
 1. The payload type matches the launcher family.
 2. The file already exists at the exact absolute `--remote-path`.
@@ -42,12 +41,10 @@ Before remote execution, verify:
 4. Required exports have exact undecorated names and calling conventions.
 5. The selected CLR and every dependent assembly exist on the target.
 6. Callbacks return meaningful failure status and tolerate repeated invocation.
-7. Payload-defined side effects and recovery steps are recorded separately.
+7. Record its side effects and cleanup steps.
 8. A disposable-host test proves the intended callback runs and the module can
    be released before deletion.
 
-`rex preflight` cannot replace these checks. It validates WMI, SCM, WSMan,
-Task Scheduler, DCOM shell, or registry prerequisites for the selected
-technique, not an arbitrary payload ABI.
+`rex preflight` checks the execution technique, not the payload ABI.
 
 See the [launcher index](index.md) and the family page matching the artifact.

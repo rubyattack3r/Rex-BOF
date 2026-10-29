@@ -1,10 +1,13 @@
-# SCMChangeService
+# scm-change-service
 
-## Mechanism and prerequisites
+## How it works
 
-Uses Service Control Manager RPC to snapshot and reconfigure an existing stopped service so it launches an already-staged service executable. It requires local-administrator rights, reachable SCM RPC, an explicitly selected service, and readable original configuration. Preflight captures the original binary path and start type and proves the service is stopped before modification.
+Rex uses Service Control Manager RPC to read and reconfigure an existing stopped
+service. Preflight records its binary path and start type and confirms that it
+is stopped.
 
-Payload support: a Windows service executable that already exists on the target and implements the lifecycle expected by the selected service.
+The replacement executable must already be on the target and implement the
+Windows service lifecycle.
 
 ```mermaid
 sequenceDiagram
@@ -17,18 +20,21 @@ sequenceDiagram
     B-->>B: Emit original and applied configuration
 ```
 
-## Privilege and network surface
+## Requirements
 
 - Local administrator on the target
 - SCM RPC, commonly over SMB on TCP 445
 - RPC endpoint mapper on TCP 135 where required
-- No BOF-managed file delivery; the service executable must already exist remotely
+- Service executable already present on the target
 
-## Operator recovery
+## Cleanup
 
-Stop the service if safe, compare its current configuration with the emitted recovery context, and restore the original binary path and start type. The preflight-proven original state is stopped. Remove the separately delivered executable only after the service releases it. See [operator recovery](../recovery.md).
+Stop the service, confirm its current configuration, and restore the recorded
+binary path and start type. Delete the executable after the service releases
+it. See [recovery](../recovery.md).
 
-## Detection considerations
+## Detection
 
-SCM configuration changes, service starts, and anomalous image paths are well-signatured. Selecting a service that is already noisy can change baseline rarity, but does not make the technique undetectable.
+Relevant telemetry includes SCM configuration changes, service starts, and
+image paths.
 

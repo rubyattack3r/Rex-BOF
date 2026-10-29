@@ -1,8 +1,7 @@
 # Native DLL launchers
 
-The Rundll32, Advpack, `msiexec`, `odbcconf`, and `regsvr32` selectors consume
-native DLLs, but they invoke different exports. Select the launcher whose
-contract the final binary actually implements.
+These launchers load native DLLs through different exports. Choose the launcher
+that matches the DLL.
 
 ## Required exports
 
@@ -31,8 +30,8 @@ void CALLBACK Run(HWND window, HINSTANCE instance, LPSTR command_line, int show)
 
 Export only the callbacks the chosen launcher needs. Return a failing
 `HRESULT` when initialization fails. Keep `DllMain` minimal because it runs
-under loader lock; put substantive work in the invoked export or a deliberately
-created worker.
+under loader lock; put substantive work in the invoked export or a worker
+thread.
 
 ## Names and architecture
 
@@ -62,19 +61,18 @@ rex task-sched-exec --target 10.0.0.15 --task-name TemporaryTask \
   --launcher "regsvr32.exe (/i)"
 ```
 
-`rex preflight` does not inspect exports, architecture, dependencies, or file
-presence. A dispatch result means the remote API accepted the launcher process;
-it does not prove that the DLL export completed successfully.
+`rex preflight` does not inspect the DLL. Verify its exports, architecture,
+dependencies, and remote path separately.
 
-## Operator recovery
+## Cleanup
 
-Registration callbacks can create state the BOF cannot infer. Document and
-reverse it separately, wait for the launcher to release the DLL, and then
-remove the remote file.
+Reverse changes made by registration callbacks. Wait for the launcher to
+release the DLL before deleting it.
 
-## Detection considerations
+## Detection
 
-Process creation, command lines, DLL loads, and registration activity are observable. Changing the signed Windows launcher changes telemetry details, not the underlying observability.
+Relevant telemetry includes process creation, command lines, DLL loads, and
+registration changes.
 
 References: [Rundll32](https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/rundll32),
 [DLL entry point](https://learn.microsoft.com/en-us/windows/win32/dlls/dynamic-link-library-entry-point-function),

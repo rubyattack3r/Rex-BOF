@@ -1,18 +1,24 @@
-# Operator recovery
+# Cleanup
 
-`rex` releases process-local handles, COM interfaces, and transport sessions before returning, but it does not automatically reverse remote assessment state. The BOF also does not stage or remove payload files. Save the transcript when recovery context matters to the engagement.
+Rex closes its local handles, interfaces, and sessions before returning. It
+does not reverse remote changes or remove payload files. Save the transcript
+when it contains recovery values.
 
 | Technique | Emitted recovery context | Operator action |
 |---|---|---|
-| `WMIProvider` | Provider name, CLSID, and DLL path | Unload the provider, remove its instance and registration keys, then remove the separately delivered DLL after release. |
-| `WMIService`, `SCMChangeService` | Service name, original and applied binary paths, original start type, and preflight-proven stopped state | Stop the service if safe, verify current state, and restore the recorded configuration. |
-| `SCMCreateService` | Created service name and binary path | Stop and delete the exact service, then verify its absence. |
-| `TaskSchedExec` | Registered task name and executable | Delete the exact registered task after collecting the required evidence. |
-| `WMIExec`, `WSManExec`, `DCOMIShellDispatch2` | No generic persistent configuration record | Review process or command-defined effects separately. |
+| `wmi-provider` | Provider name, CLSID, and DLL path | Unload the provider, remove its instance and registration keys, then delete the DLL. |
+| `wmi-service`, `scm-change-service` | Service name, original and applied paths, start type, and original stopped state | Stop the service, verify its current state, and restore the recorded configuration. |
+| `scm-create-service` | Created service name and binary path | Stop and delete the service, then verify its absence. |
+| `task-sched-exec` | Registered task name and executable | Delete the recorded task. |
+| `wmi-exec`, `wsman-exec`, `dcom-ishell-dispatch2` | None | Clean up changes made by the command or payload. |
 
-Before recovery, compare every identifier and original value with current target state. Never delete similarly named services, tasks, provider registrations, files, or registry keys by wildcard. An execution failure can still carry recovery context when mutation occurred before the failure.
+Before cleanup, compare the recorded identifiers and original values with the
+current target state. Avoid wildcard deletion. A failed execution may still
+contain recovery values for an earlier change.
 
-Launcher and payload callbacks can create files, child processes, registry entries, COM state, services, accounts, or other effects that the BOF cannot infer. Registration, installer, CPL, injection, and custom-launcher effects require payload-specific recovery. Wait until the launcher or hosting process releases a module before attempting to remove its separately delivered file.
+Clean up files, child processes, registry entries, COM state, services, and
+accounts created by the payload. Wait for a launcher or host process to release
+a module before deleting it.
 
-The recovery record is operator-visible context, not an executable rollback journal. Losing the transcript loses that context.
+Recovery records are informational; Rex does not execute them.
 

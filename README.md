@@ -1,11 +1,11 @@
 # Rex BOF
 
-`rex` provides eight Windows remote-execution primitives as native x86 and
-x64 Beacon Object Files, with integrations for Cobalt Strike and Sliver.
+Rex packages eight Windows remote-execution techniques as native x86 and x64
+Beacon Object Files for Cobalt Strike and Sliver.
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/demo/demo-light.svg">
-  <img alt="rex dispatching WMIExec and reporting its remote process identifier" src="docs/demo/demo-dark.svg">
+  <img alt="rex dispatching wmi-exec and reporting its remote process identifier" src="docs/demo/demo-dark.svg">
 </picture>
 
 ## Install
@@ -44,15 +44,14 @@ rex-wmi-exec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
 rex-wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 ```
 
-One invocation operates on one target and inherits the active implant token.
-Preflight validates the exact request before mutation. Rex does not accept
-credentials or stage and remove payload files. A `dispatched` result proves
-API acceptance, not payload completion.
+Each command targets one host and uses the active implant token. Use
+`preflight` to check technique requirements without making the technique's
+remote change. Payload files must already be on the target.
 
 See the [operator documentation](docs/index.md),
 [integration guides](docs/integrations/index.md),
 [technique reference](docs/techniques/index.md),
-[tested platforms](docs/platforms.md), and [recovery guide](docs/recovery.md).
+[tested platforms](docs/platforms.md), and [cleanup guide](docs/recovery.md).
 
 ## Build from source
 
@@ -61,9 +60,8 @@ nix develop -c make verify
 nix develop -c make release VERSION=v0.3.0
 ```
 
-The build writes loadable files under `integrations/cna/` and
-`integrations/sliver/`. The release target creates and verifies both bundles
-and their checksums under `release/`.
+Build output is written beside each integration under `integrations/`. Release
+ZIPs and checksums are written to `release/`.
 
 Render the demo after editing `docs/demo/demo.toml` with:
 
@@ -73,9 +71,8 @@ nix develop .#demo -c make demo
 
 ## Responsible use
 
-Use this tool only in environments that you own or are authorized to operate.
-Follow the [Acceptable Use Policy](ACCEPTABLE_USE_POLICY.md). This guidance does
-not add conditions to the MIT license.
+Use Rex only on systems you own or are authorized to test. See the
+[Acceptable Use Policy](ACCEPTABLE_USE_POLICY.md).
 
 ## License
 
