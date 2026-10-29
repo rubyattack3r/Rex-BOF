@@ -35,7 +35,7 @@ contains spaces or tabs; the remaining parsing behavior belongs to the custom
 program.
 
 ```text
-rex WMIExec --target 10.0.0.15 --payload-type dll \
+rex wmi-exec --target 10.0.0.15 --payload-type dll \
   --remote-path "D:\Approved Staging\payload.dll" \
   --launcher custom \
   --launcher-program "D:\Approved Tools\loader-host.exe" \
@@ -46,7 +46,7 @@ rex WMIExec --target 10.0.0.15 --payload-type dll \
 For a process-bound contract:
 
 ```text
-rex WMIExec --target 10.0.0.15 --payload-type dll \
+rex wmi-exec --target 10.0.0.15 --payload-type dll \
   --remote-path D:\Staging\payload.dll \
   --launcher custom \
   --launcher-program D:\Tools\injector.exe \

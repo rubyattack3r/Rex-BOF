@@ -21,6 +21,11 @@ linked only into techniques that need them.
 descriptor for each stable selector: `WMIProvider`, `WMIService`, `WMIExec`,
 `WSManExec`, `TaskSchedExec`, `DCOMIShellDispatch2`, `SCMChangeService`, and
 `SCMCreateService`.
+- Public Cobalt Strike commands use `wmi-provider`, `wmi-service`, `wmi-exec`,
+  `wsman-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`,
+  `scm-change-service`, and `scm-create-service`. Sliver prefixes the same
+  names with `rex-`. Do not add compatibility aliases; the PascalCase values
+  remain internal BOF selector and transcript tokens.
 - Each BOF is linked from the common modules and exactly one technique module.
 The common entry point rejects a packed selector that does not match the
 linked descriptor.
@@ -44,9 +49,10 @@ resolution.
 
 ## Behavior and Safety Invariants
 
-- Preserve the eight stable selectors and their documented named options
-unless a user-facing change is intended. Keep one target per invocation and
-one object per selector and architecture.
+- Preserve the eight public kebab-case command names, internal stable
+selectors, and documented named options unless a user-facing change is
+intended. Keep one target per invocation and one object per selector and
+architecture.
 - Each integration and its objects form one versioned request contract. Do not
   mix builds. Both integrations use the active implant token and must not
   accept credentials or change token state.

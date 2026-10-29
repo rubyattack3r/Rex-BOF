@@ -7,7 +7,7 @@
   "repo_url": "https://github.com/rubyattack3r/Rex-BOF",
   "commands": [
     {
-      "command_name": "rex-wmiprovider",
+      "command_name": "rex-wmi-provider",
       "help": "Register and load a WMI provider on one Windows target",
       "long_help": "Use -action preflight to validate prerequisites without mutation. The provider DLL must already exist on the target.",
       "entrypoint": "go_sliver_3",
@@ -26,7 +26,7 @@
       ]
     },
     {
-      "command_name": "rex-wmiservice",
+      "command_name": "rex-wmi-service",
       "help": "Temporarily reconfigure and start a service through WMI",
       "long_help": "Use -action preflight to capture and validate the stopped service state without mutation. The service executable must already exist on the target.",
       "entrypoint": "go_sliver_2",
@@ -44,7 +44,7 @@
       ]
     },
     {
-      "command_name": "rex-wmiexec",
+      "command_name": "rex-wmi-exec",
       "help": "Create a process through WMI on one Windows target",
       "long_help": "Use -action preflight to validate WMI process creation prerequisites without mutation. Supply a complete Windows command line.",
       "entrypoint": "go_sliver_1",
@@ -61,7 +61,7 @@
       ]
     },
     {
-      "command_name": "rex-wsmanexec",
+      "command_name": "rex-wsman-exec",
       "help": "Run a command through WSMan on one Windows target",
       "long_help": "Use -action preflight to validate WinRM prerequisites without mutation. Transport defaults to http when omitted.",
       "entrypoint": "go_sliver_3",
@@ -80,7 +80,7 @@
       ]
     },
     {
-      "command_name": "rex-taskschedexec",
+      "command_name": "rex-task-sched-exec",
       "help": "Register and start a scheduled task on one Windows target",
       "long_help": "Use -action preflight to validate Task Scheduler prerequisites without mutation. The executable must already exist on the target.",
       "entrypoint": "go_sliver_3",
@@ -99,7 +99,7 @@
       ]
     },
     {
-      "command_name": "rex-dcomishelldispatch2",
+      "command_name": "rex-dcom-ishell-dispatch2",
       "help": "Invoke ShellExecute through DCOM on one Windows target",
       "long_help": "Use -action preflight to validate DCOM and interactive shell prerequisites without mutation.",
       "entrypoint": "go_sliver_2",
@@ -117,7 +117,7 @@
       ]
     },
     {
-      "command_name": "rex-scmchangeservice",
+      "command_name": "rex-scm-change-service",
       "help": "Temporarily reconfigure and start a service through SCM",
       "long_help": "Use -action preflight to capture and validate the stopped service state without mutation. The service executable must already exist on the target.",
       "entrypoint": "go_sliver_2",
@@ -135,7 +135,7 @@
       ]
     },
     {
-      "command_name": "rex-scmcreateservice",
+      "command_name": "rex-scm-create-service",
       "help": "Create and start a service through SCM on one Windows target",
       "long_help": "Use -action preflight to validate SCM prerequisites without mutation. The service executable must already exist on the target.",
       "entrypoint": "go_sliver_2",

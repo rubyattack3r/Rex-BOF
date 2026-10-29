@@ -7,27 +7,27 @@ import sys
 
 
 EXPECTED = {
-    "rex-wmiprovider": ("wmiprovider", "go_sliver_3", [
+    "rex-wmi-provider": ("wmiprovider", "go_sliver_3", [
         ("provider-name", False), ("provider-clsid", False),
         ("remote-path", False),
     ]),
-    "rex-wmiservice": ("wmiservice", "go_sliver_2", [
+    "rex-wmi-service": ("wmiservice", "go_sliver_2", [
         ("service-name", False), ("remote-path", False),
     ]),
-    "rex-wmiexec": ("wmiexec", "go_sliver_1", [("command", False)]),
-    "rex-wsmanexec": ("wsmanexec", "go_sliver_3", [
+    "rex-wmi-exec": ("wmiexec", "go_sliver_1", [("command", False)]),
+    "rex-wsman-exec": ("wsmanexec", "go_sliver_3", [
         ("program", False), ("arguments", True), ("transport", True),
     ]),
-    "rex-taskschedexec": ("taskschedexec", "go_sliver_3", [
+    "rex-task-sched-exec": ("taskschedexec", "go_sliver_3", [
         ("task-name", False), ("program", False), ("arguments", True),
     ]),
-    "rex-dcomishelldispatch2": ("dcomishelldispatch2", "go_sliver_2", [
+    "rex-dcom-ishell-dispatch2": ("dcomishelldispatch2", "go_sliver_2", [
         ("program", False), ("arguments", True),
     ]),
-    "rex-scmchangeservice": ("scmchangeservice", "go_sliver_2", [
+    "rex-scm-change-service": ("scmchangeservice", "go_sliver_2", [
         ("service-name", False), ("remote-path", False),
     ]),
-    "rex-scmcreateservice": ("scmcreateservice", "go_sliver_2", [
+    "rex-scm-create-service": ("scmcreateservice", "go_sliver_2", [
         ("service-name", False), ("remote-path", False),
     ]),
 }

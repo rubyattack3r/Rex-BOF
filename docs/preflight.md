@@ -29,8 +29,8 @@ Prefix the ordinary technique invocation with `preflight` and retain the same
 options:
 
 ```text
-rex preflight WMIExec --target 10.0.0.15 --command "whoami.exe /all"
-rex preflight SCMChangeService --target 10.0.0.15 \
+rex preflight wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
+rex preflight scm-change-service --target 10.0.0.15 \
   --service-name ExistingService \
   --remote-path C:\ProgramData\service.exe
 ```

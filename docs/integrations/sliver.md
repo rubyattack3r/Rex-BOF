@@ -14,7 +14,7 @@ code has validated artifact selection, typed argument packing, executor
 selection, and Reflektor request construction for every command and
 architecture. Its Reflektor COFF parser has also accepted all 16 objects and
 resolved their exact entry points. On 2026-10-29, official Sliver v1.7.9 x86
-and x64 Windows implants then executed the packaged `rex-wmiexec` object
+and x64 Windows implants then executed the packaged `rex_wmiexec.<arch>.o` object
 through built-in Reflektor on Windows Server 2025 build 26100. Both
 architectures passed read-only preflight without creating a marker, then
 dispatched a process whose architecture-specific marker was independently
@@ -44,29 +44,31 @@ for the current client process.
 
 | Sliver command | Required technique values | Optional technique values |
 |---|---|---|
-| `rex-wmiprovider` | `--target`, `--provider-name`, `--provider-clsid`, `--remote-path` | `--action` |
-| `rex-wmiservice` | `--target`, `--service-name`, `--remote-path` | `--action` |
-| `rex-wmiexec` | `--target`, `--command` | `--action` |
-| `rex-wsmanexec` | `--target`, `--program` | `--arguments`, `--transport`, `--action` |
-| `rex-taskschedexec` | `--target`, `--task-name`, `--program` | `--arguments`, `--action` |
-| `rex-dcomishelldispatch2` | `--target`, `--program` | `--arguments`, `--action` |
-| `rex-scmchangeservice` | `--target`, `--service-name`, `--remote-path` | `--action` |
-| `rex-scmcreateservice` | `--target`, `--service-name`, `--remote-path` | `--action` |
+| `rex-wmi-provider` | `--target`, `--provider-name`, `--provider-clsid`, `--remote-path` | `--action` |
+| `rex-wmi-service` | `--target`, `--service-name`, `--remote-path` | `--action` |
+| `rex-wmi-exec` | `--target`, `--command` | `--action` |
+| `rex-wsman-exec` | `--target`, `--program` | `--arguments`, `--transport`, `--action` |
+| `rex-task-sched-exec` | `--target`, `--task-name`, `--program` | `--arguments`, `--action` |
+| `rex-dcom-ishell-dispatch2` | `--target`, `--program` | `--arguments`, `--action` |
+| `rex-scm-change-service` | `--target`, `--service-name`, `--remote-path` | `--action` |
+| `rex-scm-create-service` | `--target`, `--service-name`, `--remote-path` | `--action` |
 
 `--action` defaults to `execute`; set it to `preflight` to run the registered
 read-only prerequisite callback and skip mutation.
 
 ```text
-rex-wmiexec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
-rex-wmiexec --target 10.0.0.15 --command "whoami.exe /all"
-rex-wsmanexec --target 10.0.0.15 --program cmd.exe --arguments "/c whoami"
+rex-wmi-exec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
+rex-wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
+rex-wsman-exec --target 10.0.0.15 --program cmd.exe --arguments "/c whoami"
 ```
 
-The Sliver manifest exposes the primitive program, argument, and complete
-command fields directly. Cobalt Strike launcher selectors are CNA conveniences
-and are not reproduced in the Sliver manifest. Compose the final program and
-arguments explicitly, following the [launcher contracts](../launchers/index.md)
-when invoking a target-resident payload.
+The kebab-case names above are the only public Sliver commands; legacy aliases
+are not registered. The Sliver manifest exposes the primitive program,
+argument, and complete command fields directly. Cobalt Strike launcher
+selectors are CNA conveniences and are not reproduced in the Sliver manifest.
+Compose the final program and arguments explicitly, following the
+[launcher contracts](../launchers/index.md) when invoking a target-resident
+payload.
 
 ## Runtime contract
 

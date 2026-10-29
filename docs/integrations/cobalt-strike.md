@@ -8,23 +8,23 @@
 rex help
 rex techniques
 rex launchers
-rex help WMIExec
-rex preflight WMIExec --target 10.0.0.15 --command "whoami.exe /all"
-rex WMIExec --target 10.0.0.15 --command "whoami.exe /all"
+rex help wmi-exec
+rex preflight wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
+rex wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 ```
 
 Prefix a normal invocation with `preflight` to run the same registered prerequisite callback and skip execution. The technique options remain required because preflight validates the exact request that would otherwise execute.
 
-| Selector | Technique options |
+| Command | Technique options |
 |---|---|
-| `WMIProvider` | `--provider-name`, `--provider-clsid`, `--remote-path` |
-| `WMIService` | `--service-name`, `--remote-path` |
-| `WMIExec` | `--command` or launcher options |
-| `WSManExec` | `--program`, optional `--arguments`, optional `--transport`, or launcher options |
-| `TaskSchedExec` | `--task-name`, `--program`, optional `--arguments`, or launcher options |
-| `DCOMIShellDispatch2` | `--program`, optional `--arguments`, or launcher options |
-| `SCMChangeService` | `--service-name`, `--remote-path` |
-| `SCMCreateService` | `--service-name`, `--remote-path` |
+| `wmi-provider` | `--provider-name`, `--provider-clsid`, `--remote-path` |
+| `wmi-service` | `--service-name`, `--remote-path` |
+| `wmi-exec` | `--command` or launcher options |
+| `wsman-exec` | `--program`, optional `--arguments`, optional `--transport`, or launcher options |
+| `task-sched-exec` | `--task-name`, `--program`, optional `--arguments`, or launcher options |
+| `dcom-ishell-dispatch2` | `--program`, optional `--arguments`, or launcher options |
+| `scm-change-service` | `--service-name`, `--remote-path` |
+| `scm-create-service` | `--service-name`, `--remote-path` |
 
 ## Identity boundary
 
@@ -36,14 +36,20 @@ The effective token must have the privileges required by the selected technique,
 
 Every executable or DLL path must already exist on the target. The BOFs do not stage files, create parent directories, or delete payloads. Delivery and file-artifact tracking remain separate operator actions.
 
-The CNA packs the target and stable selector as narrow ASCII and technique values as UTF-16. Unicode command text and Windows paths, including Japanese names, do not depend on the target's active code page. Targets accept hostnames or address literals made from letters, digits, `.`, `-`, `_`, and `:`. Technique values are limited to 8,191 UTF-16 code units.
+The CNA maps each public kebab-case command to its stable internal selector,
+then packs the target and selector as narrow ASCII and technique values as
+UTF-16. Legacy command aliases are not accepted. Unicode command text and
+Windows paths, including Japanese names, do not depend on the target's active
+code page. Targets accept hostnames or address literals made from letters,
+digits, `.`, `-`, `_`, and `:`. Technique values are limited to 8,191 UTF-16
+code units.
 
 ## Launchers
 
 `WMIExec`, `WSManExec`, `TaskSchedExec`, and `DCOMIShellDispatch2` can resolve built-in or custom launchers into their existing command primitives. Launcher mode requires `--payload-type`, an absolute `--remote-path`, and `--launcher`. The referenced payload must already exist remotely.
 
 ```text
-rex WMIExec --target 10.0.0.15 --payload-type dll \
+rex wmi-exec --target 10.0.0.15 --payload-type dll \
   --remote-path C:\ProgramData\loader.dll \
   --launcher rundll32.exe --entry-point Run
 ```

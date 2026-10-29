@@ -1,4 +1,4 @@
-# rex WMIExec in a Beacon console, rendered with beaconcast.
+# rex wmi-exec in a Beacon console, rendered with beaconcast.
 
 mode = "dark"
 
@@ -13,12 +13,12 @@ pid = 4120
 arch = "x64"
 
 [[command]]
-input = 'rex WMIExec --target 10.0.0.15 --command "whoami.exe /all"'
+input = 'rex wmi-exec --target 10.0.0.15 --command "whoami.exe /all"'
 
   [[command.event]]
   at = 0.15
   kind = "task"
-  text = "rex WMIExec against 10.0.0.15 using the active token context"
+  text = "rex wmi-exec against 10.0.0.15 using the active token context"
 
   [[command.event]]
   at = 0.9

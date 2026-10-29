@@ -4,6 +4,14 @@ Notable changes to Rex-BOF are documented here. The project follows [Semantic Ve
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-10-29
+
+### Changed
+
+- Replace the public Cobalt Strike and Sliver command names with lowercase
+  kebab-case forms. Compatibility aliases are intentionally not retained;
+  native selector and transcript tokens remain unchanged.
+
 ## [0.1.0] - 2026-10-29
 
 ### Added

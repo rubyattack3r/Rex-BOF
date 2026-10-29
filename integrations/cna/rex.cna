@@ -93,8 +93,8 @@ sub rex_general_help {
         "       rex techniques\n" .
         "       rex launchers\n" .
         "       rex help <technique>\n" .
-        "techniques: WMIProvider, WMIService, WMIExec, WSManExec, " .
-        "TaskSchedExec, DCOMIShellDispatch2, SCMChangeService, SCMCreateService\n" .
+        "techniques: wmi-provider, wmi-service, wmi-exec, wsman-exec, " .
+        "task-sched-exec, dcom-ishell-dispatch2, scm-change-service, scm-create-service\n" .
         "identity: rex uses the active Beacon token context"
     );
 }
@@ -102,23 +102,23 @@ sub rex_general_help {
 sub rex_technique_help {
     local('$launcher_help $usage');
 
-    if ($2 eq "WMIExec") {
-        $usage = "rex WMIExec --target <host> (--command <command-line> | <launcher options>)";
+    if ($2 eq "wmi-exec") {
+        $usage = "rex wmi-exec --target <host> (--command <command-line> | <launcher options>)";
     }
-    else if ($2 eq "WMIService" || $2 eq "SCMChangeService" || $2 eq "SCMCreateService") {
+    else if ($2 eq "wmi-service" || $2 eq "scm-change-service" || $2 eq "scm-create-service") {
         $usage = "rex " . $2 . " --target <host> --service-name <name> --remote-path <service-exe>";
     }
-    else if ($2 eq "TaskSchedExec") {
-        $usage = "rex TaskSchedExec --target <host> --task-name <name> (--program <executable> [--arguments <arguments>] | <launcher options>)";
+    else if ($2 eq "task-sched-exec") {
+        $usage = "rex task-sched-exec --target <host> --task-name <name> (--program <executable> [--arguments <arguments>] | <launcher options>)";
     }
-    else if ($2 eq "WSManExec") {
-        $usage = "rex WSManExec --target <host> (--program <executable> [--arguments <arguments>] | <launcher options>) [--transport <http[:port]|https[:port]>]";
+    else if ($2 eq "wsman-exec") {
+        $usage = "rex wsman-exec --target <host> (--program <executable> [--arguments <arguments>] | <launcher options>) [--transport <http[:port]|https[:port]>]";
     }
-    else if ($2 eq "DCOMIShellDispatch2") {
-        $usage = "rex DCOMIShellDispatch2 --target <host> (--program <executable> [--arguments <arguments>] | <launcher options>)";
+    else if ($2 eq "dcom-ishell-dispatch2") {
+        $usage = "rex dcom-ishell-dispatch2 --target <host> (--program <executable> [--arguments <arguments>] | <launcher options>)";
     }
-    else if ($2 eq "WMIProvider") {
-        $usage = "rex WMIProvider --target <host> --provider-name <name> --provider-clsid <{GUID}> --remote-path <provider-dll>";
+    else if ($2 eq "wmi-provider") {
+        $usage = "rex wmi-provider --target <host> --provider-name <name> --provider-clsid <{GUID}> --remote-path <provider-dll>";
     }
     else {
         berror($1, "unknown rex technique: " . $2);
@@ -151,14 +151,14 @@ sub rex_preflight_help {
 
 sub rex_techniques {
     blog($1,
-        "WMIExec: --command\n" .
-        "WMIService: --service-name, --remote-path\n" .
-        "SCMChangeService: --service-name, --remote-path\n" .
-        "SCMCreateService: --service-name, --remote-path\n" .
-        "TaskSchedExec: --task-name, --program, optional --arguments\n" .
-        "WSManExec: --program, optional --arguments and --transport\n" .
-        "DCOMIShellDispatch2: --program, optional --arguments\n" .
-        "WMIProvider: --provider-name, --provider-clsid, --remote-path\n" .
+        "wmi-exec: --command\n" .
+        "wmi-service: --service-name, --remote-path\n" .
+        "scm-change-service: --service-name, --remote-path\n" .
+        "scm-create-service: --service-name, --remote-path\n" .
+        "task-sched-exec: --task-name, --program, optional --arguments\n" .
+        "wsman-exec: --program, optional --arguments and --transport\n" .
+        "dcom-ishell-dispatch2: --program, optional --arguments\n" .
+        "wmi-provider: --provider-name, --provider-clsid, --remote-path\n" .
         "command-capable selectors also accept an explicit launcher contract\n" .
         "all selectors: --target; identity is inherited from the active Beacon token"
     );
@@ -184,27 +184,39 @@ sub rex_launchers {
 }
 
 sub rex_known_technique {
-    return $1 eq "WMIProvider" || $1 eq "WMIService" || $1 eq "WMIExec" ||
-        $1 eq "WSManExec" || $1 eq "TaskSchedExec" ||
-        $1 eq "DCOMIShellDispatch2" || $1 eq "SCMChangeService" ||
-        $1 eq "SCMCreateService";
+    return $1 eq "wmi-provider" || $1 eq "wmi-service" || $1 eq "wmi-exec" ||
+        $1 eq "wsman-exec" || $1 eq "task-sched-exec" ||
+        $1 eq "dcom-ishell-dispatch2" || $1 eq "scm-change-service" ||
+        $1 eq "scm-create-service";
+}
+
+sub rex_internal_selector {
+    if ($1 eq "wmi-provider") { return "WMIProvider"; }
+    if ($1 eq "wmi-service") { return "WMIService"; }
+    if ($1 eq "wmi-exec") { return "WMIExec"; }
+    if ($1 eq "wsman-exec") { return "WSManExec"; }
+    if ($1 eq "task-sched-exec") { return "TaskSchedExec"; }
+    if ($1 eq "dcom-ishell-dispatch2") { return "DCOMIShellDispatch2"; }
+    if ($1 eq "scm-change-service") { return "SCMChangeService"; }
+    if ($1 eq "scm-create-service") { return "SCMCreateService"; }
+    return "";
 }
 
 sub rex_object_name {
-    if ($1 eq "WMIProvider") { return "wmiprovider"; }
-    if ($1 eq "WMIService") { return "wmiservice"; }
-    if ($1 eq "WMIExec") { return "wmiexec"; }
-    if ($1 eq "WSManExec") { return "wsmanexec"; }
-    if ($1 eq "TaskSchedExec") { return "taskschedexec"; }
-    if ($1 eq "DCOMIShellDispatch2") { return "dcomishelldispatch2"; }
-    if ($1 eq "SCMChangeService") { return "scmchangeservice"; }
-    if ($1 eq "SCMCreateService") { return "scmcreateservice"; }
+    if ($1 eq "wmi-provider") { return "wmiprovider"; }
+    if ($1 eq "wmi-service") { return "wmiservice"; }
+    if ($1 eq "wmi-exec") { return "wmiexec"; }
+    if ($1 eq "wsman-exec") { return "wsmanexec"; }
+    if ($1 eq "task-sched-exec") { return "taskschedexec"; }
+    if ($1 eq "dcom-ishell-dispatch2") { return "dcomishelldispatch2"; }
+    if ($1 eq "scm-change-service") { return "scmchangeservice"; }
+    if ($1 eq "scm-create-service") { return "scmcreateservice"; }
     return "";
 }
 
 sub rex_launcher_technique {
-    return $1 eq "WMIExec" || $1 eq "WSManExec" ||
-        $1 eq "TaskSchedExec" || $1 eq "DCOMIShellDispatch2";
+    return $1 eq "wmi-exec" || $1 eq "wsman-exec" ||
+        $1 eq "task-sched-exec" || $1 eq "dcom-ishell-dispatch2";
 }
 
 sub rex_known_launcher {
@@ -275,22 +287,22 @@ sub rex_option_allowed {
         (rex_launcher_option($2) || $2 eq "--remote-path")) {
         return 1;
     }
-    if ($1 eq "WMIExec") {
+    if ($1 eq "wmi-exec") {
         return $2 eq "--command";
     }
-    if ($1 eq "WMIService" || $1 eq "SCMChangeService" || $1 eq "SCMCreateService") {
+    if ($1 eq "wmi-service" || $1 eq "scm-change-service" || $1 eq "scm-create-service") {
         return $2 eq "--service-name" || $2 eq "--remote-path";
     }
-    if ($1 eq "TaskSchedExec") {
+    if ($1 eq "task-sched-exec") {
         return $2 eq "--task-name" || $2 eq "--program" || $2 eq "--arguments";
     }
-    if ($1 eq "WSManExec") {
+    if ($1 eq "wsman-exec") {
         return $2 eq "--program" || $2 eq "--arguments" || $2 eq "--transport";
     }
-    if ($1 eq "DCOMIShellDispatch2") {
+    if ($1 eq "dcom-ishell-dispatch2") {
         return $2 eq "--program" || $2 eq "--arguments";
     }
-    if ($1 eq "WMIProvider") {
+    if ($1 eq "wmi-provider") {
         return $2 eq "--provider-name" || $2 eq "--provider-clsid" || $2 eq "--remote-path";
     }
     return 0;
@@ -307,7 +319,7 @@ sub rex_require_option {
 
 alias rex {
     local('$action $arch $bid $flag $handle $index $object $object_name $packed');
-    local('$primary $secondary $selector $target $tertiary $value');
+    local('$internal_selector $primary $secondary $selector $target $tertiary $value');
     local('$entry_point $expected_type $launcher $launcher_descriptor $launcher_mode');
     local('$launcher_program $launcher_template $payload_type $process_id $resolved_arguments');
     # %request is the normalized operator request DTO. %seen preserves the
@@ -541,7 +553,7 @@ alias rex {
     $primary = "";
     $secondary = "";
     $tertiary = "";
-    if ($selector eq "WMIExec") {
+    if ($selector eq "wmi-exec") {
         if ($launcher_mode) {
             if (%seen["--command"]) {
                 berror($bid, "--command cannot be combined with launcher options");
@@ -557,13 +569,13 @@ alias rex {
             $primary = %request["--command"];
         }
     }
-    else if ($selector eq "WMIService" || $selector eq "SCMChangeService" || $selector eq "SCMCreateService") {
+    else if ($selector eq "wmi-service" || $selector eq "scm-change-service" || $selector eq "scm-create-service") {
         if (!rex_require_option($bid, %seen["--service-name"], "--service-name", $selector)) { return; }
         if (!rex_require_option($bid, %seen["--remote-path"], "--remote-path", $selector)) { return; }
         $primary = %request["--service-name"];
         $secondary = %request["--remote-path"];
     }
-    else if ($selector eq "TaskSchedExec") {
+    else if ($selector eq "task-sched-exec") {
         if (!rex_require_option($bid, %seen["--task-name"], "--task-name", $selector)) { return; }
         $primary = %request["--task-name"];
         if ($launcher_mode) {
@@ -580,7 +592,7 @@ alias rex {
             if (%seen["--arguments"]) { $tertiary = %request["--arguments"]; }
         }
     }
-    else if ($selector eq "WSManExec") {
+    else if ($selector eq "wsman-exec") {
         if ($launcher_mode) {
             if (%seen["--program"] || %seen["--arguments"]) {
                 berror($bid, "--program and --arguments cannot be combined with launcher options");
@@ -596,7 +608,7 @@ alias rex {
         }
         if (%seen["--transport"]) { $tertiary = %request["--transport"]; }
     }
-    else if ($selector eq "DCOMIShellDispatch2") {
+    else if ($selector eq "dcom-ishell-dispatch2") {
         if ($launcher_mode) {
             if (%seen["--program"] || %seen["--arguments"]) {
                 berror($bid, "--program and --arguments cannot be combined with launcher options");
@@ -611,7 +623,7 @@ alias rex {
             if (%seen["--arguments"]) { $secondary = %request["--arguments"]; }
         }
     }
-    else if ($selector eq "WMIProvider") {
+    else if ($selector eq "wmi-provider") {
         if (!rex_require_option($bid, %seen["--provider-name"], "--provider-name", $selector)) { return; }
         if (!rex_require_option($bid, %seen["--provider-clsid"], "--provider-clsid", $selector)) { return; }
         if (!rex_require_option($bid, %seen["--remote-path"], "--remote-path", $selector)) { return; }
@@ -631,8 +643,9 @@ alias rex {
     $object = readb($handle, -1);
     closef($handle);
     $target = %request["--target"];
+    $internal_selector = rex_internal_selector($selector);
     $packed = bof_pack(
-        $bid, "zzzZZZ", $action, $target, $selector,
+        $bid, "zzzZZZ", $action, $target, $internal_selector,
         $primary, $secondary, $tertiary
     );
 

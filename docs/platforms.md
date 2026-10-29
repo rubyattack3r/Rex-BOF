@@ -30,7 +30,7 @@ every command and architecture. The v1.7.9 Reflektor COFF parser also accepted
 all 16 objects and found each exact architecture-specific entry point.
 
 Official Sliver v1.7.9 x86 and x64 Windows implants then executed the packaged
-`rex-wmiexec` object through built-in Reflektor on Windows Server 2025 build
+`rex_wmiexec.<arch>.o` object through built-in Reflektor on Windows Server 2025 build
 26100. Both architectures returned a successful `validated` preflight without
 creating a marker. Both then returned a WMI process identifier from `execute`,
 and their architecture-specific benign markers were independently observed.

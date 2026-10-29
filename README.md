@@ -36,12 +36,12 @@ extensions install /path/to/Rex-BOF-Sliver-<version>
 ```text
 # Cobalt Strike
 rex help
-rex preflight WMIExec --target 10.0.0.15 --command "whoami.exe /all"
-rex WMIExec --target 10.0.0.15 --command "whoami.exe /all"
+rex preflight wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
+rex wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 
 # Sliver
-rex-wmiexec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
-rex-wmiexec --target 10.0.0.15 --command "whoami.exe /all"
+rex-wmi-exec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
+rex-wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 ```
 
 One invocation operates on one target and inherits the active implant token.
@@ -58,7 +58,7 @@ See the [operator documentation](docs/index.md),
 
 ```sh
 nix develop -c make verify
-nix develop -c make release VERSION=v0.1.0
+nix develop -c make release VERSION=v0.2.0
 ```
 
 The build writes loadable files under `integrations/cna/` and

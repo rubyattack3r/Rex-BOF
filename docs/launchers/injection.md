@@ -7,7 +7,7 @@ native DLL into an existing process. It requires an explicit positive decimal
 `--process-id`; `rex` does not discover or select a process.
 
 ```text
-rex WMIExec --target 10.0.0.15 --payload-type dll \
+rex wmi-exec --target 10.0.0.15 --payload-type dll \
   --remote-path C:\ProgramData\payload.dll \
   --launcher mavinject.exe --process-id 4242
 ```
