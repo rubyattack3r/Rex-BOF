@@ -49,10 +49,12 @@ CI also rejects unexpected imports so accidental CRT or direct Win32 linkage can
 ## Technique contract
 
 Each object links exactly one `rex_technique` descriptor with separate decode,
-preflight, execute, and release callbacks. The Cobalt Strike entry point
-verifies that the selector packed by the CNA matches the linked descriptor.
-The Sliver entry points derive that selector from the descriptor and accept
-only the one, two, or three technique values declared by the manifest.
+preflight, execute, and release callbacks. Its canonical lowercase kebab-case
+selector is shared by the native request, both integrations, and transcript
+output. The Cobalt Strike entry point verifies that the selector packed by the
+CNA matches the linked descriptor. The Sliver entry points derive that selector
+from the descriptor and accept only the one, two, or three technique values
+declared by the manifest.
 
 Preflight must finish before the execute callback runs. Release must tolerate partial initialization and run after preflight-only, successful execution, and failure paths. Recovery context must be populated as soon as reversible remote state exists so an execution failure does not discard it.
 

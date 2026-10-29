@@ -9,7 +9,7 @@
 REX_DECLARE_TECHNIQUE(rex_wsman);
 
 const rex_technique rex_technique_descriptor = {
-    "WSManExec", "wsman_shell", "wsman_run_shell_command",
+    "wsman-exec", "wsman_shell", "wsman_run_shell_command",
     REX_DISPOSITION_COMPLETED,
     rex_wsman_decode, rex_wsman_preflight,
     rex_wsman_execute, rex_wsman_release,

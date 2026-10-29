@@ -53,12 +53,12 @@ static void rex_run(const char *action, int action_size,
     }
 
     output.target = target;
-    output.technique = selector;
     technique = rex_find_technique(selector);
     if (technique == NULL) {
         rex_fail(&output, REX_PHASE_INPUT, E_INVALIDARG);
         return;
     }
+    output.technique = technique->selector;
 
     arguments.action = rex_streq(action, "preflight")
         ? REX_ACTION_PREFLIGHT : REX_ACTION_EXECUTE;

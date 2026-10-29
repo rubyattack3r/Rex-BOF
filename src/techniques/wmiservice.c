@@ -8,7 +8,7 @@
 REX_DECLARE_TECHNIQUE(rex_wmi_service);
 
 const rex_technique rex_technique_descriptor = {
-    "WMIService", "service_snapshot_and_wmi_session", "win32_service",
+    "wmi-service", "service_snapshot_and_wmi_session", "win32_service",
     REX_DISPOSITION_DISPATCHED,
     rex_wmi_service_decode, rex_wmi_service_preflight,
     rex_wmi_service_execute, rex_wmi_service_release,

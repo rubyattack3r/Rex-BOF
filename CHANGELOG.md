@@ -4,6 +4,13 @@ Notable changes to Rex-BOF are documented here. The project follows [Semantic Ve
 
 ## [Unreleased]
 
+## [0.3.0] - 2026-10-29
+
+### Changed
+
+- Use canonical lowercase kebab-case selectors throughout the native request,
+  both integrations, and the transcript `technique` field.
+
 ## [0.2.0] - 2026-10-29
 
 ### Changed

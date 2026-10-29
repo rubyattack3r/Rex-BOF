@@ -190,18 +190,6 @@ sub rex_known_technique {
         $1 eq "scm-create-service";
 }
 
-sub rex_internal_selector {
-    if ($1 eq "wmi-provider") { return "WMIProvider"; }
-    if ($1 eq "wmi-service") { return "WMIService"; }
-    if ($1 eq "wmi-exec") { return "WMIExec"; }
-    if ($1 eq "wsman-exec") { return "WSManExec"; }
-    if ($1 eq "task-sched-exec") { return "TaskSchedExec"; }
-    if ($1 eq "dcom-ishell-dispatch2") { return "DCOMIShellDispatch2"; }
-    if ($1 eq "scm-change-service") { return "SCMChangeService"; }
-    if ($1 eq "scm-create-service") { return "SCMCreateService"; }
-    return "";
-}
-
 sub rex_object_name {
     if ($1 eq "wmi-provider") { return "wmiprovider"; }
     if ($1 eq "wmi-service") { return "wmiservice"; }
@@ -319,7 +307,7 @@ sub rex_require_option {
 
 alias rex {
     local('$action $arch $bid $flag $handle $index $object $object_name $packed');
-    local('$internal_selector $primary $secondary $selector $target $tertiary $value');
+    local('$primary $secondary $selector $target $tertiary $value');
     local('$entry_point $expected_type $launcher $launcher_descriptor $launcher_mode');
     local('$launcher_program $launcher_template $payload_type $process_id $resolved_arguments');
     # %request is the normalized operator request DTO. %seen preserves the
@@ -643,9 +631,8 @@ alias rex {
     $object = readb($handle, -1);
     closef($handle);
     $target = %request["--target"];
-    $internal_selector = rex_internal_selector($selector);
     $packed = bof_pack(
-        $bid, "zzzZZZ", $action, $target, $internal_selector,
+        $bid, "zzzZZZ", $action, $target, $selector,
         $primary, $secondary, $tertiary
     );
 

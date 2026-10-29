@@ -18,14 +18,14 @@ Beacon APIs available to the objects.
 transcript encoding. `wmi.c` and `service.c` provide reusable capabilities
 linked only into techniques that need them.
 - `src/techniques/` contains one implementation and one `rex_technique`
-descriptor for each stable selector: `WMIProvider`, `WMIService`, `WMIExec`,
-`WSManExec`, `TaskSchedExec`, `DCOMIShellDispatch2`, `SCMChangeService`, and
-`SCMCreateService`.
+descriptor for each canonical stable selector: `wmi-provider`, `wmi-service`,
+`wmi-exec`, `wsman-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`,
+`scm-change-service`, and `scm-create-service`.
 - Public Cobalt Strike commands use `wmi-provider`, `wmi-service`, `wmi-exec`,
   `wsman-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`,
   `scm-change-service`, and `scm-create-service`. Sliver prefixes the same
-  names with `rex-`. Do not add compatibility aliases; the PascalCase values
-  remain internal BOF selector and transcript tokens.
+  names with `rex-`. Do not add compatibility aliases. Native requests and
+  transcripts use the same canonical kebab-case selectors.
 - Each BOF is linked from the common modules and exactly one technique module.
 The common entry point rejects a packed selector that does not match the
 linked descriptor.
@@ -74,7 +74,8 @@ C runtime dependency or direct Windows import. The undefined-import check
 rejects symbols outside the allowlist.
 - Keep operator text and transcript fields UTF-8 and Windows native arguments
 UTF-16. Preserve percent-encoding for ambiguous transcript values and the
-documented target, command, and field limits.
+documented target, command, and field limits. Keep transcript `technique`
+values aligned with the canonical public kebab-case names.
 - Changes to request packing, decoding, preflight, recovery, or output require
   matching CNA help, Sliver manifest arguments, operator documentation,
   detection considerations, and focused x86/x64 validation.

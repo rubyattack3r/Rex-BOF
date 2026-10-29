@@ -28,4 +28,4 @@ input = 'rex wmi-exec --target 10.0.0.15 --command "whoami.exe /all"'
   [[command.event]]
   at = 1.6
   kind = "output"
-  text = "technique=WMIExec target=10.0.0.15 status=succeeded disposition=dispatched source=win32_process_create pid=4280"
+  text = "technique=wmi-exec target=10.0.0.15 status=succeeded disposition=dispatched source=win32_process_create pid=4280"
