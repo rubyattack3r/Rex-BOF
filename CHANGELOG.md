@@ -6,6 +6,8 @@ increment the minor version.
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-10-29
+
 ### Fixed
 
 - Return scalar booleans from the Cobalt Strike CNA predicate helpers so
