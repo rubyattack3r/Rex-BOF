@@ -48,7 +48,7 @@ Each command targets one host and uses the active implant token. Use
 `preflight` to check technique requirements without making the technique's
 remote change. Payload files must already be on the target.
 
-See the [operator documentation](docs/index.md),
+See the [operator documentation](docs/README.md),
 [integration guides](docs/integrations/index.md),
 [technique reference](docs/techniques/index.md),
 [tested platforms](docs/platforms.md), and [cleanup guide](docs/recovery.md).
@@ -57,7 +57,7 @@ See the [operator documentation](docs/index.md),
 
 ```sh
 nix develop -c make verify
-nix develop -c make release VERSION=v0.3.0
+nix develop -c make release VERSION=v0.4.0
 ```
 
 Build output is written beside each integration under `integrations/`. Release
