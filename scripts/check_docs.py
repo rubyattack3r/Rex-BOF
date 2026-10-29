@@ -2,10 +2,18 @@
 
 import pathlib
 import re
+import sys
 import urllib.parse
 
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+if len(sys.argv) > 2:
+    raise SystemExit(f"usage: {sys.argv[0]} [documentation-root]")
+
+ROOT = (
+    pathlib.Path(sys.argv[1]).resolve()
+    if len(sys.argv) == 2
+    else pathlib.Path(__file__).resolve().parent.parent
+)
 PAGES = [ROOT / "README.md", *sorted((ROOT / "docs").rglob("*.md"))]
 
 

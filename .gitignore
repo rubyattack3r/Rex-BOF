@@ -1,5 +1,7 @@
 /.build/
+/release/
 /integrations/cna/*.o
+/integrations/sliver/*.o
 /.wiki/
 /.scratch/
 *.exe

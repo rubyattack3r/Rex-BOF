@@ -1,4 +1,4 @@
-# Runtime configuration
+# Cobalt Strike integration
 
 `rex.cna` converts named operator options into the fixed typed envelope consumed by each technique object. The script and objects must come from the same build. One invocation operates on one target and inherits the active Beacon token.
 
@@ -48,7 +48,7 @@ rex WMIExec --target 10.0.0.15 --payload-type dll \
   --launcher rundll32.exe --entry-point Run
 ```
 
-Service techniques require a service-compatible executable. `WMIProvider` loads its provider DLL directly and does not accept launcher options. See the [launcher reference](launchers/index.md) for exact selectors and callback contracts.
+Service techniques require a service-compatible executable. `WMIProvider` loads its provider DLL directly and does not accept launcher options. See the [launcher reference](../launchers/index.md) for exact selectors and callback contracts.
 
 ## Technique-specific boundaries
 

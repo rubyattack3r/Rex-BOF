@@ -8,4 +8,4 @@ You may not use Rex-BOF to gain or maintain unauthorized access; deploy malware 
 
 Stop immediately if scope is uncertain, a safety control fails, cleanup cannot be verified, or execution affects an unintended system. Preserve audit records and follow the engagement's incident and recovery procedure.
 
-Maintainers may decline support for activity that appears unsafe or unauthorized. This policy supplements, and does not replace, the [Apache License 2.0](LICENSE).
+Maintainers may decline support for activity that appears unsafe or unauthorized. This guidance does not add conditions to the [MIT License](LICENSE).

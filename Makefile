@@ -7,10 +7,13 @@ NM_X86 := i686-w64-mingw32-nm
 CFLAGS := -Os -Wall -Wextra -Werror -fno-asynchronous-unwind-tables -fno-builtin -fno-ident
 CPPFLAGS := -Iinclude -Isrc/common -Isrc/techniques
 OUTPUT_DIR := integrations/cna
+SLIVER_OUTPUT_DIR := integrations/sliver
 BOFLINT ?= boflint.py
+VERSION ?=
 
 TECHNIQUES := wmiprovider wmiservice wmiexec wsmanexec taskschedexec dcomishelldispatch2 scmchangeservice scmcreateservice
 OUTPUTS := $(foreach technique,$(TECHNIQUES),$(OUTPUT_DIR)/rex_$(technique).x64.o $(OUTPUT_DIR)/rex_$(technique).x86.o)
+SLIVER_OUTPUTS := $(foreach technique,$(TECHNIQUES),$(SLIVER_OUTPUT_DIR)/rex_$(technique).x64.o $(SLIVER_OUTPUT_DIR)/rex_$(technique).x86.o)
 
 BASE_SOURCES := src/common/rex.c src/common/registry.c src/common/result.c src/common/runtime.c src/common/text.c
 WMI_SOURCES := src/common/wmi.c
@@ -25,11 +28,19 @@ dcomishelldispatch2_SOURCES := $(BASE_SOURCES) src/techniques/dcomishelldispatch
 scmchangeservice_SOURCES := $(BASE_SOURCES) $(SERVICE_SOURCES) src/techniques/scmchangeservice.c
 scmcreateservice_SOURCES := $(BASE_SOURCES) $(SERVICE_SOURCES) src/techniques/scmcreateservice.c
 
-.PHONY: all clean demo docs imports verify verify-bof
+.PHONY: all clean demo docs imports lint release sliver-entrypoints sliver-manifest verify verify-bof
 
-all: $(OUTPUTS)
+all: $(OUTPUTS) $(SLIVER_OUTPUTS)
 
-verify: clean all imports docs
+verify: clean lint all imports docs sliver-manifest sliver-entrypoints
+
+lint:
+	cppcheck --quiet --error-exitcode=1 --std=c11 --inline-suppr \
+		--enable=warning,portability,performance \
+		--suppress=missingIncludeSystem -Iinclude -Isrc/common \
+		-Isrc/techniques src tests
+	shellcheck --severity=warning scripts/*.sh
+	actionlint
 
 imports: all
 	@for object in $(OUTPUTS); do \
@@ -45,10 +56,21 @@ imports: all
 docs:
 	python3 scripts/check_docs.py
 
+sliver-manifest:
+	python3 scripts/check_sliver_manifest.py integrations/sliver/extension.json
+
+sliver-entrypoints: all
+	python3 scripts/check_sliver_entrypoints.py integrations/sliver/extension.json
+
 verify-bof: all
 	@for object in $(OUTPUTS); do \
 		python3 $(BOFLINT) --loader cs "$$object" || exit 1; \
 	done
+
+release: verify
+	@test -n "$(VERSION)" || { echo "VERSION is required (for example, VERSION=v0.1.0)" >&2; exit 2; }
+	sh scripts/package-release.sh "$(VERSION)"
+	sh scripts/package-sliver-release.sh "$(VERSION)"
 
 # Render the README demo locally. Generated media is committed so CI and
 # documentation rendering do not depend on beaconcast.
@@ -72,6 +94,10 @@ endef
 
 $(foreach technique,$(TECHNIQUES),$(eval $(call TECHNIQUE_template,$(technique))))
 
+$(SLIVER_OUTPUT_DIR)/%.o: $(OUTPUT_DIR)/%.o
+	@mkdir -p $(@D)
+	cp $< $@
+
 .build/x64/%.o: %.c include/beacon.h include/rex.h src/common/text.h src/common/wmi.h src/common/service.h src/techniques/technique.h Makefile
 	@command -v $(CC_X64) >/dev/null || { echo "$(CC_X64) is required to build the x64 BOFs" >&2; exit 1; }
 	@mkdir -p $(@D)
@@ -83,5 +109,5 @@ $(foreach technique,$(TECHNIQUES),$(eval $(call TECHNIQUE_template,$(technique))
 	$(CC_X86) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 clean:
-	$(RM) -r .build $(OUTPUT_DIR)/rex_*.o
+	$(RM) -r .build $(OUTPUT_DIR)/rex_*.o $(SLIVER_OUTPUT_DIR)/rex_*.o
 

@@ -1,0 +1,156 @@
+{
+  "name": "rex-bof",
+  "package_name": "rex-bof",
+  "version": "0.0.0",
+  "extension_author": "rubyattack3r",
+  "original_author": "rubyattack3r",
+  "repo_url": "https://github.com/rubyattack3r/Rex-BOF",
+  "commands": [
+    {
+      "command_name": "rex-wmiprovider",
+      "help": "Register and load a WMI provider on one Windows target",
+      "long_help": "Use -action preflight to validate prerequisites without mutation. The provider DLL must already exist on the target.",
+      "entrypoint": "go_sliver_3",
+      "bof_executor": "reflektor",
+      "depends_on": "coff-loader",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_wmiprovider.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_wmiprovider.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "provider-name", "type": "wstring", "desc": "WMI provider name", "optional": false},
+        {"name": "provider-clsid", "type": "wstring", "desc": "Provider CLSID in braces", "optional": false},
+        {"name": "remote-path", "type": "wstring", "desc": "Existing target-side provider DLL path", "optional": false}
+      ]
+    },
+    {
+      "command_name": "rex-wmiservice",
+      "help": "Temporarily reconfigure and start a service through WMI",
+      "long_help": "Use -action preflight to capture and validate the stopped service state without mutation. The service executable must already exist on the target.",
+      "entrypoint": "go_sliver_2",
+      "bof_executor": "reflektor",
+      "depends_on": "coff-loader",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_wmiservice.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_wmiservice.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "service-name", "type": "wstring", "desc": "Existing stopped service name", "optional": false},
+        {"name": "remote-path", "type": "wstring", "desc": "Existing target-side service executable and arguments", "optional": false}
+      ]
+    },
+    {
+      "command_name": "rex-wmiexec",
+      "help": "Create a process through WMI on one Windows target",
+      "long_help": "Use -action preflight to validate WMI process creation prerequisites without mutation. Supply a complete Windows command line.",
+      "entrypoint": "go_sliver_1",
+      "bof_executor": "reflektor",
+      "depends_on": "coff-loader",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_wmiexec.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_wmiexec.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "command", "type": "wstring", "desc": "Complete Windows command line", "optional": false}
+      ]
+    },
+    {
+      "command_name": "rex-wsmanexec",
+      "help": "Run a command through WSMan on one Windows target",
+      "long_help": "Use -action preflight to validate WinRM prerequisites without mutation. Transport defaults to http when omitted.",
+      "entrypoint": "go_sliver_3",
+      "bof_executor": "reflektor",
+      "depends_on": "coff-loader",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_wsmanexec.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_wsmanexec.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "program", "type": "wstring", "desc": "Target-side executable", "optional": false},
+        {"name": "arguments", "type": "wstring", "desc": "Executable arguments", "optional": true, "default": ""},
+        {"name": "transport", "type": "wstring", "desc": "http[:port] or https[:port]", "optional": true, "default": ""}
+      ]
+    },
+    {
+      "command_name": "rex-taskschedexec",
+      "help": "Register and start a scheduled task on one Windows target",
+      "long_help": "Use -action preflight to validate Task Scheduler prerequisites without mutation. The executable must already exist on the target.",
+      "entrypoint": "go_sliver_3",
+      "bof_executor": "reflektor",
+      "depends_on": "coff-loader",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_taskschedexec.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_taskschedexec.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "task-name", "type": "wstring", "desc": "Unused task name", "optional": false},
+        {"name": "program", "type": "wstring", "desc": "Target-side executable", "optional": false},
+        {"name": "arguments", "type": "wstring", "desc": "Executable arguments", "optional": true, "default": ""}
+      ]
+    },
+    {
+      "command_name": "rex-dcomishelldispatch2",
+      "help": "Invoke ShellExecute through DCOM on one Windows target",
+      "long_help": "Use -action preflight to validate DCOM and interactive shell prerequisites without mutation.",
+      "entrypoint": "go_sliver_2",
+      "bof_executor": "reflektor",
+      "depends_on": "coff-loader",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_dcomishelldispatch2.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_dcomishelldispatch2.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "program", "type": "wstring", "desc": "Target-side executable", "optional": false},
+        {"name": "arguments", "type": "wstring", "desc": "Executable arguments", "optional": true, "default": ""}
+      ]
+    },
+    {
+      "command_name": "rex-scmchangeservice",
+      "help": "Temporarily reconfigure and start a service through SCM",
+      "long_help": "Use -action preflight to capture and validate the stopped service state without mutation. The service executable must already exist on the target.",
+      "entrypoint": "go_sliver_2",
+      "bof_executor": "reflektor",
+      "depends_on": "coff-loader",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_scmchangeservice.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_scmchangeservice.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "service-name", "type": "wstring", "desc": "Existing stopped service name", "optional": false},
+        {"name": "remote-path", "type": "wstring", "desc": "Existing target-side service executable and arguments", "optional": false}
+      ]
+    },
+    {
+      "command_name": "rex-scmcreateservice",
+      "help": "Create and start a service through SCM on one Windows target",
+      "long_help": "Use -action preflight to validate SCM prerequisites without mutation. The service executable must already exist on the target.",
+      "entrypoint": "go_sliver_2",
+      "bof_executor": "reflektor",
+      "depends_on": "coff-loader",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_scmcreateservice.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_scmcreateservice.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "service-name", "type": "wstring", "desc": "Unused service name", "optional": false},
+        {"name": "remote-path", "type": "wstring", "desc": "Existing target-side service executable and arguments", "optional": false}
+      ]
+    }
+  ]
+}

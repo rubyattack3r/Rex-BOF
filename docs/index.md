@@ -1,6 +1,9 @@
-# rex BOF documentation
+# Rex BOF documentation
 
-`rex` provides native x86 and x64 Beacon Object Files for authorized remote-execution assessments against Windows estates. Each technique has a separate object, while `rex.cna` provides one technique-aware command surface and selects the object matching the active Beacon architecture.
+`rex` provides native x86 and x64 Beacon Object Files for authorized
+remote-execution assessments against Windows estates. Each technique has a
+separate object. Cobalt Strike provides one technique-aware `rex` command;
+Sliver provides eight typed `rex-*` commands.
 
 The BOFs inherit the active Beacon token and operate on one target per invocation. They perform technique preflight before mutation, but do not stage or delete payloads, accept credentials, or batch targets. No technique is undetectable; visibility depends on the target's endpoint, operating-system, identity, and network telemetry.
 
@@ -17,7 +20,7 @@ The BOFs inherit the active Beacon token and operate on one target per invocatio
 
 Additional references:
 
-- [Runtime configuration](configuration.md)
+- [Integration guides](integrations/index.md)
 - [Technique reference](techniques/index.md)
 - [Read-only preflight](preflight.md)
 - [Launcher contracts](launchers/index.md)
@@ -27,5 +30,7 @@ Additional references:
 - [Architecture and development](architecture.md)
 - [Acceptable Use Policy](../ACCEPTABLE_USE_POLICY.md)
 
-Load `integrations/cna/rex.cna` with the adjacent per-technique objects from the same build. Run `rex help`, `rex techniques`, or `rex help <technique>` for contextual usage.
+Keep the selected integration file and all adjacent technique objects from the
+same release bundle. See the [integration guides](integrations/index.md) for
+installation and command help.
 
