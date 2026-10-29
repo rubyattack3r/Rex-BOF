@@ -193,11 +193,14 @@ sub rex_launchers {
 }
 
 sub rex_known_technique {
-    return $1 eq "wmi-provider" || $1 eq "wmi-event-subscription" ||
+    if ($1 eq "wmi-provider" || $1 eq "wmi-event-subscription" ||
         $1 eq "wmi-service" || $1 eq "wmi-exec" ||
         $1 eq "wsman-exec" || $1 eq "task-sched-exec" ||
         $1 eq "dcom-ishell-dispatch2" || $1 eq "scm-change-service" ||
-        $1 eq "scm-create-service" || $1 eq "scm-command";
+        $1 eq "scm-create-service" || $1 eq "scm-command") {
+        return 1;
+    }
+    return 0;
 }
 
 sub rex_object_name {
@@ -215,9 +218,12 @@ sub rex_object_name {
 }
 
 sub rex_launcher_technique {
-    return $1 eq "wmi-exec" || $1 eq "wsman-exec" ||
+    if ($1 eq "wmi-exec" || $1 eq "wsman-exec" ||
         $1 eq "task-sched-exec" || $1 eq "dcom-ishell-dispatch2" ||
-        $1 eq "scm-command";
+        $1 eq "scm-command") {
+        return 1;
+    }
+    return 0;
 }
 
 sub rex_known_launcher {
@@ -266,19 +272,25 @@ sub rex_render_launcher_arguments {
 }
 
 sub rex_known_option {
-    return $1 eq "--target" || $1 eq "--command" || $1 eq "--service-name" ||
+    if ($1 eq "--target" || $1 eq "--command" || $1 eq "--service-name" ||
         $1 eq "--remote-path" || $1 eq "--task-name" || $1 eq "--program" ||
         $1 eq "--arguments" || $1 eq "--transport" || $1 eq "--provider-name" ||
         $1 eq "--provider-clsid" || $1 eq "--payload-type" || $1 eq "--launcher" ||
         $1 eq "--launcher-program" || $1 eq "--launcher-arguments" ||
         $1 eq "--entry-point" || $1 eq "--process-id" ||
-        $1 eq "--subscription-name" || $1 eq "--query";
+        $1 eq "--subscription-name" || $1 eq "--query") {
+        return 1;
+    }
+    return 0;
 }
 
 sub rex_launcher_option {
-    return $1 eq "--payload-type" || $1 eq "--launcher" ||
+    if ($1 eq "--payload-type" || $1 eq "--launcher" ||
         $1 eq "--launcher-program" || $1 eq "--launcher-arguments" ||
-        $1 eq "--entry-point" || $1 eq "--process-id";
+        $1 eq "--entry-point" || $1 eq "--process-id") {
+        return 1;
+    }
+    return 0;
 }
 
 sub rex_option_allowed {
@@ -290,28 +302,36 @@ sub rex_option_allowed {
         return 1;
     }
     if ($1 eq "wmi-exec") {
-        return $2 eq "--command";
+        if ($2 eq "--command") { return 1; }
+        return 0;
     }
     if ($1 eq "wmi-service" || $1 eq "scm-change-service" || $1 eq "scm-create-service") {
-        return $2 eq "--service-name" || $2 eq "--remote-path";
+        if ($2 eq "--service-name" || $2 eq "--remote-path") { return 1; }
+        return 0;
     }
     if ($1 eq "task-sched-exec") {
-        return $2 eq "--task-name" || $2 eq "--program" || $2 eq "--arguments";
+        if ($2 eq "--task-name" || $2 eq "--program" || $2 eq "--arguments") { return 1; }
+        return 0;
     }
     if ($1 eq "wsman-exec") {
-        return $2 eq "--program" || $2 eq "--arguments" || $2 eq "--transport";
+        if ($2 eq "--program" || $2 eq "--arguments" || $2 eq "--transport") { return 1; }
+        return 0;
     }
     if ($1 eq "dcom-ishell-dispatch2") {
-        return $2 eq "--program" || $2 eq "--arguments";
+        if ($2 eq "--program" || $2 eq "--arguments") { return 1; }
+        return 0;
     }
     if ($1 eq "wmi-provider") {
-        return $2 eq "--provider-name" || $2 eq "--provider-clsid" || $2 eq "--remote-path";
+        if ($2 eq "--provider-name" || $2 eq "--provider-clsid" || $2 eq "--remote-path") { return 1; }
+        return 0;
     }
     if ($1 eq "wmi-event-subscription") {
-        return $2 eq "--subscription-name" || $2 eq "--query" || $2 eq "--command";
+        if ($2 eq "--subscription-name" || $2 eq "--query" || $2 eq "--command") { return 1; }
+        return 0;
     }
     if ($1 eq "scm-command") {
-        return $2 eq "--service-name" || $2 eq "--command";
+        if ($2 eq "--service-name" || $2 eq "--command") { return 1; }
+        return 0;
     }
     return 0;
 }

@@ -6,6 +6,11 @@ increment the minor version.
 
 ## [Unreleased]
 
+### Fixed
+
+- Return scalar booleans from the Cobalt Strike CNA predicate helpers so
+  canonical techniques and their named options are accepted by Sleep.
+
 ## [0.4.0] - 2026-10-29
 
 ### Added
