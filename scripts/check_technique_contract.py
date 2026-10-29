@@ -36,6 +36,15 @@ for source_name, selector in EXPECTED.items():
         fail(f"{source_name}.c does not use selector {selector}")
 
 cna = (ROOT / "integrations" / "cna" / "rex.cna").read_text()
+for line_number, line in enumerate(cna.splitlines(), start=1):
+    stripped = line.strip()
+    if stripped.startswith("return ") and any(
+        token in stripped for token in (" eq ", " ne ", " ismatch ", "||", "&&")
+    ):
+        fail(
+            f"CNA line {line_number} returns a Sleep predicate directly; "
+            "use an if branch that returns scalar 1 or 0"
+        )
 cna_known = re.search(
     r"sub rex_known_technique \{(?P<body>.*?)\n\}\n\nsub rex_object_name",
     cna,
