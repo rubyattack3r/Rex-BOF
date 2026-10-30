@@ -13,6 +13,7 @@
 #endif
 
 #if defined(REX_WITH_WMI)
+#include "common/wmi_text.c"
 #include "common/wmi.c"
 #endif
 

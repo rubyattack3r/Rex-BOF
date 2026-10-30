@@ -21,7 +21,7 @@
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
         {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
         {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
-        {"name": "provider-name", "type": "wstring", "desc": "WMI provider name", "optional": false},
+        {"name": "provider-name", "type": "wstring", "desc": "Unicode WMI provider name", "optional": false},
         {"name": "provider-clsid", "type": "wstring", "desc": "Provider CLSID in braces", "optional": false},
         {"name": "remote-path", "type": "wstring", "desc": "Existing target-side provider DLL path", "optional": false}
       ]
@@ -41,7 +41,7 @@
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
         {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
         {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
-        {"name": "provider-name", "type": "wstring", "desc": "WMI provider name", "optional": false},
+        {"name": "provider-name", "type": "wstring", "desc": "Unicode WMI provider name", "optional": false},
         {"name": "provider-clsid", "type": "wstring", "desc": "Provider CLSID in braces", "optional": false},
         {"name": "remote-path", "type": "wstring", "desc": "Existing target-side instance-provider DLL path", "optional": false}
       ]
@@ -61,7 +61,7 @@
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
         {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
         {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
-        {"name": "provider-name", "type": "wstring", "desc": "WMI provider name", "optional": false},
+        {"name": "provider-name", "type": "wstring", "desc": "Unicode WMI provider name", "optional": false},
         {"name": "provider-clsid", "type": "wstring", "desc": "Provider CLSID in braces", "optional": false},
         {"name": "remote-path", "type": "wstring", "desc": "Existing target-side method-provider DLL path", "optional": false}
       ]
@@ -81,7 +81,7 @@
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
         {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
         {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
-        {"name": "subscription-name", "type": "wstring", "desc": "Unused filter and consumer name", "optional": false},
+        {"name": "subscription-name", "type": "wstring", "desc": "Unused Unicode filter and consumer name", "optional": false},
         {"name": "query", "type": "wstring", "desc": "WQL event query evaluated in root\\cimv2", "optional": false},
         {"name": "command", "type": "wstring", "desc": "Command line run for each matching event", "optional": false}
       ]

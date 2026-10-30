@@ -43,6 +43,8 @@ jobs:
           "%RUNNER_TEMP%\rex-identity-test.exe"
           cl /nologo /W4 /WX /Isrc\standalone src\standalone\args.c tests\args_test.c /Fe:%RUNNER_TEMP%\rex-args-test.exe
           "%RUNNER_TEMP%\rex-args-test.exe"
+          cl /nologo /W4 /WX /Isrc\common src\common\wmi_text.c tests\wmi_text_test.c /Fe:%RUNNER_TEMP%\rex-wmi-text-test.exe
+          "%RUNNER_TEMP%\rex-wmi-text-test.exe"
 
   ratchet:
     name: Pinned actions

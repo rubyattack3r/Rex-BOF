@@ -8,6 +8,7 @@
 #include "com.h"
 #include "rex.h"
 #include "wmi.h"
+#include "wmi_text.h"
 
 DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoInitializeEx(LPVOID, DWORD);
 DECLSPEC_IMPORT void WINAPI OLE32$CoUninitialize(void);
@@ -42,6 +43,31 @@ struct rex_wmi_session {
     IWbemClassObject *create_input_definition;
     BOOL uninitialize_com;
 };
+
+static HRESULT rex_wmi_named_path(const wchar_t *class_name,
+                                  const wchar_t *name, wchar_t quote,
+                                  BSTR *path) {
+    HANDLE heap = KERNEL32$GetProcessHeap();
+    size_t capacity = rex_wmi_named_path_capacity(class_name, name, quote);
+    wchar_t *value;
+    HRESULT result = S_OK;
+    *path = NULL;
+    if (capacity == 0 || capacity > (SIZE_T)-1 / sizeof(wchar_t))
+        return E_INVALIDARG;
+    value = (wchar_t *)KERNEL32$HeapAlloc(heap, 0, capacity * sizeof(wchar_t));
+    if (value == NULL)
+        return E_OUTOFMEMORY;
+    if (!rex_wmi_named_path_write(class_name, name, quote, value, capacity)) {
+        result = E_INVALIDARG;
+        goto cleanup;
+    }
+    *path = OLEAUT32$SysAllocString(value);
+    if (*path == NULL)
+        result = E_OUTOFMEMORY;
+cleanup:
+    KERNEL32$HeapFree(heap, 0, value);
+    return result;
+}
 
 static BOOL rex_append_wide(wchar_t *destination, int capacity, int *offset,
                             const wchar_t *source) {
@@ -408,15 +434,7 @@ HRESULT rex_wmi_service_start(rex_wmi_session *session, const wchar_t *name) {
 }
 
 static HRESULT rex_provider_path(const wchar_t *name, BSTR *path) {
-    wchar_t value[512];
-    int offset = 0;
-    value[0] = L'\0';
-    if (!rex_append_wide(value, 512, &offset, L"__Win32Provider.Name='") ||
-        !rex_append_wide(value, 512, &offset, name) ||
-        !rex_append_wide(value, 512, &offset, L"'"))
-        return E_INVALIDARG;
-    *path = OLEAUT32$SysAllocString(value);
-    return *path == NULL ? E_OUTOFMEMORY : S_OK;
+    return rex_wmi_named_path(L"__Win32Provider", name, L'\'', path);
 }
 
 HRESULT rex_wmi_provider_exists(rex_wmi_session *session, const wchar_t *name,
@@ -691,36 +709,12 @@ cleanup:
     return result;
 }
 
-static HRESULT rex_wmi_named_path(const wchar_t *class_name,
-                                  const wchar_t *name, BSTR *path) {
-    wchar_t value[512];
-    int offset = 0;
-    SIZE_T index;
-    if (class_name == NULL || name == NULL || name[0] == L'\0') {
-        return E_INVALIDARG;
-    }
-    for (index = 0; name[index] != L'\0'; index++) {
-        if (name[index] == L'\'' || name[index] == L'\\') {
-            return E_INVALIDARG;
-        }
-    }
-    value[0] = L'\0';
-    if (!rex_append_wide(value, 512, &offset, class_name) ||
-        !rex_append_wide(value, 512, &offset, L".Name='") ||
-        !rex_append_wide(value, 512, &offset, name) ||
-        !rex_append_wide(value, 512, &offset, L"'")) {
-        return E_INVALIDARG;
-    }
-    *path = OLEAUT32$SysAllocString(value);
-    return *path == NULL ? E_OUTOFMEMORY : S_OK;
-}
-
 static HRESULT rex_wmi_named_exists(rex_wmi_session *session,
                                     const wchar_t *class_name,
                                     const wchar_t *name, BOOL *exists) {
     BSTR path = NULL;
     IWbemClassObject *object = NULL;
-    HRESULT result = rex_wmi_named_path(class_name, name, &path);
+    HRESULT result = rex_wmi_named_path(class_name, name, L'\'', &path);
     *exists = FALSE;
     if (SUCCEEDED(result)) {
         result = IWbemServices_GetObject(session->services, path, 0, NULL,
@@ -783,15 +777,9 @@ static const wchar_t *rex_wmi_provider_role_class(rex_provider_role role) {
     return NULL;
 }
 
-static BOOL rex_wmi_provider_reference(const wchar_t *name, wchar_t quote,
-                                       wchar_t output[512]) {
-    wchar_t delimiter[2] = {quote, L'\0'};
-    int offset = 0;
-    output[0] = L'\0';
-    return rex_append_wide(output, 512, &offset, L"__Win32Provider.Name=") &&
-           rex_append_wide(output, 512, &offset, delimiter) &&
-           rex_append_wide(output, 512, &offset, name) &&
-           rex_append_wide(output, 512, &offset, delimiter);
+static HRESULT rex_wmi_provider_reference(const wchar_t *name, wchar_t quote,
+                                          BSTR *reference) {
+    return rex_wmi_named_path(L"__Win32Provider", name, quote, reference);
 }
 
 HRESULT rex_wmi_provider_role_exists(rex_wmi_session *session,
@@ -799,22 +787,29 @@ HRESULT rex_wmi_provider_role_exists(rex_wmi_session *session,
                                      rex_provider_role role, BOOL *exists) {
     const wchar_t *class_name = rex_wmi_provider_role_class(role);
     BSTR language = NULL, query = NULL;
+    BSTR double_reference = NULL, single_reference = NULL;
     IEnumWbemClassObject *enumerator = NULL;
     IWbemClassObject *instance = NULL;
     VARIANT provider;
-    wchar_t query_text[128], double_reference[512], single_reference[512];
+    wchar_t query_text[128];
     int offset = 0;
     ULONG returned = 0;
     HRESULT result;
     *exists = FALSE;
-    if (class_name == NULL ||
-        !rex_wmi_provider_reference(name, L'"', double_reference) ||
-        !rex_wmi_provider_reference(name, L'\'', single_reference))
+    if (class_name == NULL)
         return E_INVALIDARG;
+    result = rex_wmi_provider_reference(name, L'"', &double_reference);
+    if (FAILED(result))
+        goto cleanup;
+    result = rex_wmi_provider_reference(name, L'\'', &single_reference);
+    if (FAILED(result))
+        goto cleanup;
     query_text[0] = L'\0';
     if (!rex_append_wide(query_text, 128, &offset, L"SELECT * FROM ") ||
-        !rex_append_wide(query_text, 128, &offset, class_name))
-        return E_INVALIDARG;
+        !rex_append_wide(query_text, 128, &offset, class_name)) {
+        result = E_INVALIDARG;
+        goto cleanup;
+    }
     language = OLEAUT32$SysAllocString(L"WQL");
     query = OLEAUT32$SysAllocString(query_text);
     if (language == NULL || query == NULL) {
@@ -859,6 +854,10 @@ cleanup:
         OLEAUT32$SysFreeString(query);
     if (language != NULL)
         OLEAUT32$SysFreeString(language);
+    if (single_reference != NULL)
+        OLEAUT32$SysFreeString(single_reference);
+    if (double_reference != NULL)
+        OLEAUT32$SysFreeString(double_reference);
     return result;
 }
 
@@ -876,11 +875,13 @@ HRESULT rex_wmi_provider_role_register(rex_wmi_session *session,
                                        rex_provider_role role) {
     const wchar_t *class_name = rex_wmi_provider_role_class(role);
     IWbemClassObject *instance = NULL;
-    wchar_t provider_reference[512];
+    BSTR provider_reference = NULL;
     HRESULT result;
-    if (class_name == NULL ||
-        !rex_wmi_provider_reference(name, L'"', provider_reference))
+    if (class_name == NULL)
         return E_INVALIDARG;
+    result = rex_wmi_provider_reference(name, L'"', &provider_reference);
+    if (FAILED(result))
+        goto cleanup;
     result = rex_wmi_spawn(session, class_name, &instance);
     if (FAILED(result))
         goto cleanup;
@@ -899,6 +900,8 @@ HRESULT rex_wmi_provider_role_register(rex_wmi_session *session,
 cleanup:
     if (instance != NULL)
         IWbemClassObject_Release(instance);
+    if (provider_reference != NULL)
+        OLEAUT32$SysFreeString(provider_reference);
     return result;
 }
 
@@ -922,9 +925,8 @@ HRESULT rex_wmi_subscription_create(rex_wmi_session *session,
                                     const wchar_t *name, const wchar_t *query,
                                     const wchar_t *command, DWORD *created) {
     IWbemClassObject *instance = NULL;
+    BSTR filter_path = NULL, consumer_path = NULL;
     VARIANT synchronous;
-    wchar_t filter_path[512], consumer_path[512];
-    int filter_offset = 0, consumer_offset = 0;
     HRESULT result;
     *created = 0;
 
@@ -963,19 +965,13 @@ HRESULT rex_wmi_subscription_create(rex_wmi_session *session,
         goto cleanup;
     *created |= 2;
 
-    filter_path[0] = L'\0';
-    consumer_path[0] = L'\0';
-    if (!rex_append_wide(filter_path, 512, &filter_offset,
-                         L"__EventFilter.Name=\"") ||
-        !rex_append_wide(filter_path, 512, &filter_offset, name) ||
-        !rex_append_wide(filter_path, 512, &filter_offset, L"\"") ||
-        !rex_append_wide(consumer_path, 512, &consumer_offset,
-                         L"CommandLineEventConsumer.Name=\"") ||
-        !rex_append_wide(consumer_path, 512, &consumer_offset, name) ||
-        !rex_append_wide(consumer_path, 512, &consumer_offset, L"\"")) {
-        result = E_INVALIDARG;
+    result = rex_wmi_named_path(L"__EventFilter", name, L'"', &filter_path);
+    if (FAILED(result))
         goto cleanup;
-    }
+    result = rex_wmi_named_path(L"CommandLineEventConsumer", name, L'"',
+                                &consumer_path);
+    if (FAILED(result))
+        goto cleanup;
     result = rex_wmi_spawn(session, L"__FilterToConsumerBinding", &instance);
     if (FAILED(result))
         goto cleanup;
@@ -998,6 +994,10 @@ HRESULT rex_wmi_subscription_create(rex_wmi_session *session,
 cleanup:
     if (instance != NULL)
         IWbemClassObject_Release(instance);
+    if (consumer_path != NULL)
+        OLEAUT32$SysFreeString(consumer_path);
+    if (filter_path != NULL)
+        OLEAUT32$SysFreeString(filter_path);
     return result;
 }
 

@@ -7,6 +7,10 @@ Rex creates a named `__EventFilter`, `CommandLineEventConsumer`, and
 `root\cimv2`; every matching event starts the supplied command until the
 subscription is removed.
 
+Subscription names may contain multilingual Windows text. Rex rejects control
+characters and malformed UTF-16 and escapes the name in the filter, consumer,
+and binding object paths.
+
 ```mermaid
 sequenceDiagram
     participant B as Rex BOF
