@@ -64,6 +64,9 @@ the role registration:
 - `wmi-method-provider` creates `__MethodProviderRegistration`.
 
 Rex does not create class, property, event, or event-consumer provider roles.
+Provider names may contain multilingual Windows text and are limited to 255
+UTF-16 code units. Rex rejects control characters and malformed UTF-16 and
+escapes the name when it constructs WMI object paths and provider references.
 
 ## Managed-class schema
 

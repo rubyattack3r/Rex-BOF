@@ -6,6 +6,14 @@ increment the minor version.
 
 ## [Unreleased]
 
+## [0.5.1] - 2026-10-30
+
+### Changed
+
+- Accept multilingual WMI provider and event-subscription names, reject
+  malformed UTF-16 and control characters, and escape names used in WMI
+  object paths.
+
 ## [0.5.0] - 2026-10-30
 
 ### Added

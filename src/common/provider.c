@@ -4,6 +4,7 @@
 #include "provider.h"
 #include "rex.h"
 #include "wmi.h"
+#include "wmi_text.h"
 
 DECLSPEC_IMPORT LSTATUS WINAPI ADVAPI32$RegConnectRegistryW(LPCWSTR, HKEY,
                                                             PHKEY);
@@ -27,19 +28,6 @@ typedef struct {
     wchar_t class_key_path[512];
     wchar_t key_path[512];
 } rex_provider_state;
-
-static BOOL rex_provider_name_valid(const wchar_t *value) {
-    SIZE_T index;
-    if (value == NULL || value[0] == L'\0')
-        return FALSE;
-    for (index = 0; value[index] != L'\0'; index++) {
-        wchar_t c = value[index];
-        if (!((c >= L'a' && c <= L'z') || (c >= L'A' && c <= L'Z') ||
-              (c >= L'0' && c <= L'9') || c == L'_' || c == L'-'))
-            return FALSE;
-    }
-    return TRUE;
-}
 
 static BOOL rex_guid_valid(const wchar_t *value) {
     SIZE_T index;
@@ -82,7 +70,8 @@ static BOOL rex_provider_keys(const wchar_t *class_id, wchar_t class_key[512],
 
 HRESULT rex_provider_decode(const rex_arguments *arguments,
                             rex_request *request, rex_provider_role role) {
-    if (!rex_provider_name_valid(arguments->values[0]) ||
+    if (!rex_wmi_name_valid(arguments->values[0]) ||
+        rex_wcslen(arguments->values[0]) >= 256 ||
         !rex_guid_valid(arguments->values[1]) ||
         arguments->values[2][0] == L'\0')
         return E_INVALIDARG;
@@ -132,10 +121,6 @@ HRESULT rex_provider_preflight(const rex_request *request, rex_state *generic) {
     if (!toWideChar((char *)request->target, target, sizeof(target)) ||
         !rex_provider_keys(request->config.provider.class_id,
                            state->class_key_path, state->key_path)) {
-        result = E_INVALIDARG;
-        goto cleanup;
-    }
-    if (rex_wcslen(request->config.provider.name) >= 256) {
         result = E_INVALIDARG;
         goto cleanup;
     }

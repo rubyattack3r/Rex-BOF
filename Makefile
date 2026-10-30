@@ -34,7 +34,7 @@ BASE_SOURCES := src/common/rex.c src/common/identity.c src/common/lifecycle.c \
 	src/common/registry.c src/common/result.c src/common/runtime.c \
 	src/common/text.c
 COM_SOURCES := src/common/com.c
-WMI_SOURCES := src/common/wmi.c
+WMI_SOURCES := src/common/wmi_text.c src/common/wmi.c
 PROVIDER_SOURCES := src/common/provider.c
 SERVICE_SOURCES := src/common/service.c
 HEADERS := $(wildcard include/*.h src/common/*.h src/techniques/*.h)
@@ -46,7 +46,8 @@ STANDALONE_SOURCES := src/standalone/main.c src/standalone/args.c \
 	src/common/com.c src/common/identity.c src/common/lifecycle.c \
 	src/common/provider.c src/common/registry.c src/common/result.c \
 	src/common/runtime.c src/common/service.c src/common/text.c \
-	src/common/wmi.c $(foreach technique,$(TECHNIQUES),src/techniques/$(technique).c)
+	src/common/wmi_text.c src/common/wmi.c \
+	$(foreach technique,$(TECHNIQUES),src/techniques/$(technique).c)
 STANDALONE_CFLAGS := -O2 -g0 -std=c11 $(WARNINGS) -DNDEBUG \
 	-DUNICODE -D_UNICODE -DCOBJMACROS= -DREX_STANDALONE \
 	-Wno-dollar-in-identifier-extension \
@@ -109,6 +110,10 @@ host-tests:
 		src/standalone/args.c tests/args_test.c \
 		-o $(HOST_TEST_OUTPUT_DIR)/args_test
 	$(HOST_TEST_OUTPUT_DIR)/args_test
+	$(HOST_CC) -std=c11 $(WARNINGS) -Isrc/common \
+		src/common/wmi_text.c tests/wmi_text_test.c \
+		-o $(HOST_TEST_OUTPUT_DIR)/wmi_text_test
+	$(HOST_TEST_OUTPUT_DIR)/wmi_text_test
 
 objects: all
 	LLVM_NM="$(LLVM_NM)" LLVM_OBJDUMP="$(LLVM_OBJDUMP)" \

@@ -3,31 +3,16 @@
 #include "rex.h"
 #include "technique.h"
 #include "wmi.h"
+#include "wmi_text.h"
 
 REX_DEFINE_TECHNIQUE(rex_wmi_event_subscription, "wmi-event-subscription",
                      "wmi_subscription_name_available",
                      "wmi_filter_consumer_binding_created",
                      REX_DISPOSITION_COMPLETED);
 
-static BOOL rex_subscription_name_valid(const wchar_t *value) {
-    SIZE_T index;
-    if (value == NULL || value[0] == L'\0')
-        return FALSE;
-    for (index = 0; value[index] != L'\0'; index++) {
-        wchar_t current = value[index];
-        if (!((current >= L'a' && current <= L'z') ||
-              (current >= L'A' && current <= L'Z') ||
-              (current >= L'0' && current <= L'9') || current == L'_' ||
-              current == L'-')) {
-            return FALSE;
-        }
-    }
-    return TRUE;
-}
-
 static HRESULT rex_wmi_event_subscription_decode(const rex_arguments *arguments,
                                                  rex_request *request) {
-    if (!rex_subscription_name_valid(arguments->values[0]) ||
+    if (!rex_wmi_name_valid(arguments->values[0]) ||
         arguments->values[1][0] == L'\0' || arguments->values[2][0] == L'\0') {
         return E_INVALIDARG;
     }

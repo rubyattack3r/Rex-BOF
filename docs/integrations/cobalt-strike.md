@@ -74,10 +74,12 @@ directories, transfer files, or delete payloads.
 
 The CNA packs the canonical kebab-case selector and target as narrow ASCII and
 technique values as UTF-16. Legacy command aliases are not accepted. Unicode
-command text and Windows paths, including Japanese names, do not depend on the
-target's active code page. Targets accept hostnames or address literals made
-from letters, digits, `.`, `-`, `_`, and `:`. Technique values are limited to
-8,191 UTF-16 code units.
+command text, Windows paths, provider names, and subscription names do not
+depend on the target's active code page. Rex rejects malformed UTF-16 and
+control characters in provider and subscription names and escapes those names
+when it builds WMI object paths. Targets accept hostnames or address literals
+made from letters, digits, `.`, `-`, `_`, and `:`. Technique values are limited
+to 8,191 UTF-16 code units; provider names are limited to 255 code units.
 
 ## Launchers
 

@@ -35,6 +35,12 @@ The CLI accepts the primitive fields listed in the
 launcher selectors. Supply the resulting command, program, and arguments
 directly when using a documented [launcher contract](../launchers/README.md).
 
+Windows passes CLI arguments to Rex as UTF-16. Command text, paths, provider
+names, and subscription names may contain multilingual Windows text. Rex
+rejects malformed UTF-16 and control characters in provider and subscription
+names and escapes those names when it builds WMI object paths. Provider names
+are limited to 255 UTF-16 code units.
+
 ## Authentication
 
 The CLI uses its process identity by default. Supply a down-level or UPN

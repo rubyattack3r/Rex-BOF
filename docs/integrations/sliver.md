@@ -64,6 +64,12 @@ backslash. An unquoted value such as `C:\ProgramData\Example\provider.dll`
 is packed without its backslashes and fails the target-side path check or DLL
 load.
 
+Command text, Windows paths, provider names, and subscription names are passed
+to Rex as UTF-16. Provider and subscription names may contain multilingual
+Windows text. Rex rejects malformed UTF-16 and control characters and escapes
+the names when it builds WMI object paths. Provider names are limited to 255
+UTF-16 code units.
+
 The Sliver manifest exposes primitive command, program, and argument fields.
 It does not reproduce the Cobalt Strike launcher registry. Compose launcher
 commands directly using the [launcher contracts](../launchers/README.md).
