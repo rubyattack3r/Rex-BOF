@@ -25,6 +25,7 @@ Additional references:
 - [Integration guides](integrations/README.md)
 - [Technique reference](techniques/README.md)
 - [Read-only preflight](preflight.md)
+- [Target-side input contracts](contracts/README.md)
 - [Launcher contracts](launchers/README.md)
 - [Transcript output](output.md)
 - [Cleanup](recovery.md)

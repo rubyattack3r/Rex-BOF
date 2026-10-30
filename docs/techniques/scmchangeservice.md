@@ -20,12 +20,22 @@ sequenceDiagram
     B-->>B: Emit original and applied configuration
 ```
 
+## Service executable contract
+
+The replacement must be a Windows service executable, not an ordinary console
+program. It must connect to SCM, implement `ServiceMain`, report service-state
+transitions, and run under the existing service identity. Its architecture
+must be supported by the target but does not need to match the BOF.
+
+See the complete [Windows service executable contract](../contracts/service-executable.md)
+for lifecycle, identity, path, validation, and result requirements.
+
 ## Requirements
 
 - Local administrator on the target
 - SCM RPC, commonly over SMB on TCP 445
 - RPC endpoint mapper on TCP 135 where required
-- Service executable already present on the target
+- Contract-compliant service executable already present on the target
 
 ## Cleanup
 

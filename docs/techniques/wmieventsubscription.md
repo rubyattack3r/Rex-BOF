@@ -21,12 +21,23 @@ sequenceDiagram
     B-->>B: Emit subscription name for removal
 ```
 
+## Command contract
+
+`--command` is stored unchanged as `CommandLineTemplate`; Rex does not insert a
+shell or resolve a launcher. Supply a complete target-side Windows command
+line. It runs in the standard consumer's local-system context whenever the WQL
+query matches.
+
+See the complete [WMI event-consumer command contract](../contracts/wmi-event-command.md)
+for quoting, execution context, query validation, repetition, and result
+boundaries.
+
 ## Requirements
 
 - Local administrator on the target
 - WMI/DCOM via TCP 135 and negotiated dynamic RPC ports
 - A valid WQL event query for `root\cimv2`
-- A complete Windows command line
+- A complete Windows command line satisfying the event-consumer contract
 
 ## Cleanup
 

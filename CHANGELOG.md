@@ -6,6 +6,11 @@ increment the minor version.
 
 ## [Unreleased]
 
+### Changed
+
+- Document the provider DLL, service executable, and WMI event-consumer command
+  contracts used by techniques that do not resolve launchers.
+
 ## [0.4.2] - 2026-10-29
 
 ### Fixed

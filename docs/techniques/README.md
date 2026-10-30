@@ -4,6 +4,10 @@ Each selector has separate x86 and x64 objects. The integration selects the
 matching architecture and uses the active implant token. Each command targets
 one host.
 
+Inputs consumed directly by WMI or SCM must satisfy the applicable
+[target-side input contract](../contracts/README.md). Command-capable
+techniques may instead use the Cobalt Strike [launcher contracts](../launchers/README.md).
+
 | Selector | Required options | Remote API | Success evidence | Recovery context | Platform validation |
 |---|---|---|---|---|---|
 | [`wmi-provider`](wmiprovider.md) | `--provider-name`, `--provider-clsid`, `--remote-path` | WMI and remote registry | Provider loaded | Provider name, CLSID, and DLL path | Windows; Server 2025 validated |
