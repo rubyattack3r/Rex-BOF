@@ -6,6 +6,8 @@ increment the minor version.
 
 ## [Unreleased]
 
+## [0.5.0] - 2026-10-30
+
 ### Added
 
 - Add `wmi-instance-provider` and `wmi-method-provider` as explicit x86 and
