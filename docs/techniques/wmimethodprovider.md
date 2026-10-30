@@ -39,7 +39,7 @@ in that schema.
 
 - Local administrator on the target
 - WMI/DCOM via TCP 135 and negotiated dynamic RPC ports
-- Remote registry access through the active token
+- Remote registry access through the selected command identity
 - Contract-compliant method-provider DLL at an absolute target-local path
 - Compatible managed-class schema already registered in `root\default`
 

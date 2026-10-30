@@ -60,7 +60,7 @@ if cna_names != expected_names:
     fail(f"CNA selectors are {sorted(cna_names)!r}, expected {sorted(expected_names)!r}")
 if "rex_internal_selector" in cna:
     fail("CNA still contains an internal selector translation")
-if '$bid, "zzzZZZ", $action, $target, $selector,' not in cna:
+if '$bid, "zzzZZZZZ", $action, $target, $selector, $principal, $password,' not in cna:
     fail("CNA does not pack the canonical selector directly")
 
 manifest = json.loads(

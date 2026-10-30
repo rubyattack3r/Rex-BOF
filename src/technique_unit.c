@@ -2,6 +2,8 @@
 
 #include "common/registry.c"
 #include "common/result.c"
+#include "common/lifecycle.c"
+#include "common/identity.c"
 #include "common/rex.c"
 #include "common/runtime.c"
 #include "common/text.c"

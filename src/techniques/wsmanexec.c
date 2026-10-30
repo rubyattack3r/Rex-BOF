@@ -9,6 +9,7 @@
 REX_DEFINE_TECHNIQUE(rex_wsman, "wsman-exec", "wsman_shell",
                      "wsman_run_shell_command", REX_DISPOSITION_COMPLETED);
 
+#if !defined(REX_STANDALONE)
 DECLSPEC_IMPORT DWORD WINAPI WSMSVC$WSManInitialize(DWORD, WSMAN_API_HANDLE *);
 DECLSPEC_IMPORT DWORD WINAPI WSMSVC$WSManDeinitialize(WSMAN_API_HANDLE, DWORD);
 DECLSPEC_IMPORT DWORD WINAPI WSMSVC$WSManCreateSession(
@@ -33,6 +34,7 @@ DECLSPEC_IMPORT void WINAPI WSMSVC$WSManCloseCommand(WSMAN_COMMAND_HANDLE,
                                                      WSMAN_SHELL_ASYNC *);
 DECLSPEC_IMPORT void WINAPI WSMSVC$WSManCloseShell(WSMAN_SHELL_HANDLE, DWORD,
                                                    WSMAN_SHELL_ASYNC *);
+#endif
 DECLSPEC_IMPORT HANDLE WINAPI KERNEL32$CreateEventW(LPSECURITY_ATTRIBUTES, BOOL,
                                                     BOOL, LPCWSTR);
 DECLSPEC_IMPORT BOOL WINAPI KERNEL32$SetEvent(HANDLE);

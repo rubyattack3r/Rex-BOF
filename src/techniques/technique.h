@@ -18,10 +18,17 @@
                                     rex_observation *);                        \
     static void prefix##_release(rex_state *)
 
+#if defined(REX_STANDALONE)
+#define REX_TECHNIQUE_LOADER(prefix) prefix##_load_technique
+#else
+#define REX_TECHNIQUE_LOADER(prefix) rex_load_technique
+#endif
+
 #define REX_DEFINE_TECHNIQUE(prefix, selector_value, preflight_value,          \
                              execution_value, disposition_value)               \
     REX_DECLARE_TECHNIQUE(prefix);                                             \
-    REX_NOINLINE void rex_load_technique(rex_technique *technique) {           \
+    REX_NOINLINE void REX_TECHNIQUE_LOADER(prefix)(rex_technique *             \
+                                                   technique) {                \
         technique->selector = selector_value;                                  \
         technique->preflight_evidence_source = preflight_value;                \
         technique->execution_evidence_source = execution_value;                \

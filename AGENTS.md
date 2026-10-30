@@ -3,10 +3,11 @@
 ## Overview
 
 This repository builds twelve Windows remote-execution techniques as native
-Cobalt Strike BOFs. Every technique supports x86 and x64 Beacons. Keep the
-typed runtime and reusable WMI and service code shared, with one selector,
-implementation, descriptor loader, and object per technique. Cobalt Strike and
-Sliver integrations live separately under `integrations/`.
+Cobalt Strike and Sliver BOFs and as a standalone Windows CLI. Every technique
+supports x86 and x64. Keep the typed runtime and reusable identity, WMI, and
+service code shared, with one selector, implementation, descriptor loader, and
+object per technique. Cobalt Strike and Sliver integrations live separately
+under `integrations/`.
 
 ## Architecture
 
@@ -15,7 +16,8 @@ Sliver integrations live separately under `integrations/`.
   Beacon APIs available to the objects.
 - `src/common/rex.c` is the common BOF entry point. `src/common/result.c`,
   `runtime.c`, and `text.c` own typed output, runtime helpers, and UTF-8
-  transcript encoding. `wmi.c`, `provider.c`, and `service.c` provide reusable
+  transcript encoding. `identity.c` and `lifecycle.c` wrap the shared command
+  lifecycle. `wmi.c`, `provider.c`, and `service.c` provide reusable
   capabilities linked only into techniques that need them.
 - `src/techniques/` contains one implementation and one `rex_technique`
   descriptor loader for each canonical stable selector listed in
@@ -37,8 +39,12 @@ Sliver integrations live separately under `integrations/`.
   argument declarations, BOF executor selection, and `amd64`/`386` selection.
   It exposes primitive fields directly and does not reproduce CNA launcher
   resolution.
-- `docs/integrations/` contains the Cobalt Strike and Sliver operator guides;
-  the rest of `docs/` owns shared operator and developer documentation.
+- `src/standalone/` owns the Windows CLI entry point, console adapter, and
+  direct-import mapping. The CLI links every released technique and exposes
+  primitive options rather than CNA launcher resolution.
+- `docs/integrations/` contains the Cobalt Strike, Sliver, and standalone
+  operator guides; the rest of `docs/` owns shared operator and developer
+  documentation.
   `tests/` contains deterministic native tests. `scripts/` contains
   documentation and release checks. `.github/` contains CI, CodeQL, release
   workflows, Dependabot, and community health files.
@@ -46,6 +52,8 @@ Sliver integrations live separately under `integrations/`.
   file, all 24 objects, the offline `docs/` tree, project metadata, the MIT
   license, and acceptable-use guidance. Each bundle keeps its integration file
   and objects together at its root.
+- The standalone release bundle contains both executables, the offline `docs/`
+  tree, project metadata, the MIT license, and acceptable-use guidance.
 
 ## Behavior and Safety Invariants
 
@@ -54,8 +62,10 @@ Sliver integrations live separately under `integrations/`.
   intended. Keep one target per invocation and one object per selector and
   architecture.
 - Each integration and its objects form one versioned request contract. Do not
-  mix builds. Both integrations use the active implant token and must not
-  accept credentials or change token state.
+  mix builds. Every surface uses the current token by default. Optional
+  make-token credentials must remain command-scoped: run the full lifecycle on
+  a joined worker, revert impersonation, close the token, and leave the caller's
+  token state unchanged.
 - Preflight must be read-only and finish before any mutation. It validates the
   exact request that execution would consume. Rex does not stage, inspect, or
   remove referenced payload files.
@@ -65,8 +75,9 @@ Sliver integrations live separately under `integrations/`.
   preflight-only, success, and failure paths. Always release process-local
   handles, interfaces, sessions, and allocations.
 - Record retained remote state in typed recovery context as soon as it exists.
-  Do not retain commands, arguments, credentials, or payload contents. Keep
-  recovery instructions explicit and technique-specific.
+  Do not retain commands, arguments, principals, passwords, or payload
+  contents. Clear mutable password buffers as soon as the logon attempt
+  finishes. Keep recovery instructions explicit and technique-specific.
 - Preserve result semantics: `validated` proves preflight only, `dispatched`
   proves that a remote API accepted work, and `completed` represents a
   synchronous successful outcome. Never equate dispatch with payload success.
@@ -100,11 +111,12 @@ performs clean x86/x64 builds, rejects unsupported x64 relocations and
 unexpected undefined imports, and checks documentation links and required
 technique diagrams. It also verifies that
 each Sliver object defines the manifest entry point with the exact undecorated
-name on both architectures. The release target creates deterministic Cobalt
-Strike and Sliver ZIPs, verifies their exact contents, extracts them and checks
+name on both architectures. It also builds and inspects both standalone PE
+executables. The release target creates deterministic Cobalt Strike, Sliver,
+and standalone ZIPs, verifies their exact contents, extracts them and checks
 their offline documentation, validates the Sliver manifest and entry points,
-and writes SHA-256 checksums. CI also compiles and runs the transcript encoder
-test with MSVC on Windows.
+and writes SHA-256 checksums. CI also compiles and runs the native Windows tests
+with MSVC.
 
 When `boflint.py` is available, run this against every generated object:
 
@@ -135,7 +147,7 @@ Strike, Sliver, and implant versions used.
 2. Run `nix develop -c make verify` and
    `nix develop -c make release VERSION=vX.Y.Z`.
 3. Commit, then tag and push: `git tag vX.Y.Z && git push origin vX.Y.Z`.
-4. The release workflow rebuilds both bundles, publishes the ZIPs and checksums
+4. The release workflow rebuilds all three bundles, publishes the ZIPs and checksums
    using that changelog section as release notes, and attests build provenance.
    It fails when the changelog has no section matching the tag.
 

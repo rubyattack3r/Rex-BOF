@@ -4,8 +4,9 @@ Rex provides native x86 and x64 BOFs for twelve Windows remote-execution
 techniques. Cobalt Strike exposes them through one `rex` command; Sliver uses
 twelve `rex-*` commands.
 
-Commands use the active implant token and operate on one target at a time. Rex
-does not accept credentials or transfer payload files.
+Commands use the current process or implant identity by default and operate on
+one target at a time. Optional make-token credentials apply only while one Rex
+command runs. Rex does not transfer payload files.
 
 | Selector | Input | Privilege | Surface | Outcome and recovery |
 |---|---|---|---|---|

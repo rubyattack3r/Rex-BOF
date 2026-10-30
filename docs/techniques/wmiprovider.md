@@ -47,7 +47,7 @@ validation.
 
 - Local administrator on the target
 - WMI/DCOM via TCP 135 and negotiated dynamic RPC ports
-- Remote registry access through the WMI and registry interfaces used by the active token
+- Remote registry access through the WMI and registry interfaces used by the selected command identity
 - Contract-compliant provider DLL already present at an absolute target-local
   path
 

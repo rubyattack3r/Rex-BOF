@@ -97,7 +97,7 @@ sub rex_general_help {
         "wmi-event-subscription, wmi-service, wmi-exec, " .
         "wsman-exec, task-sched-exec, dcom-ishell-dispatch2, " .
         "scm-change-service, scm-create-service, scm-command\n" .
-        "identity: rex uses the active Beacon token context"
+        "identity: active Beacon token by default; add --make-token <DOMAIN\\user|user@domain> --password <password> for one invocation"
     );
 }
 
@@ -145,7 +145,7 @@ sub rex_technique_help {
     blog($1,
         "usage: " . $usage . "\n" . $launcher_help .
         "preflight: prefix the technique with `preflight` and use the same options\n" .
-        "identity: rex uses the active Beacon token context"
+        "identity: active Beacon token by default; optional --make-token <DOMAIN\\user|user@domain> --password <password> is command-scoped"
     );
 }
 
@@ -173,7 +173,7 @@ sub rex_techniques {
         "wmi-instance-provider: --provider-name, --provider-clsid, --remote-path\n" .
         "wmi-method-provider: --provider-name, --provider-clsid, --remote-path\n" .
         "command-capable selectors also accept an explicit launcher contract\n" .
-        "all selectors: --target; identity is inherited from the active Beacon token"
+        "all selectors: --target; optional --make-token and --password use command-scoped network credentials"
     );
 }
 
@@ -285,7 +285,8 @@ sub rex_known_option {
         $1 eq "--provider-clsid" || $1 eq "--payload-type" || $1 eq "--launcher" ||
         $1 eq "--launcher-program" || $1 eq "--launcher-arguments" ||
         $1 eq "--entry-point" || $1 eq "--process-id" ||
-        $1 eq "--subscription-name" || $1 eq "--query") {
+        $1 eq "--subscription-name" || $1 eq "--query" ||
+        $1 eq "--make-token" || $1 eq "--password") {
         return 1;
     }
     return 0;
@@ -301,7 +302,7 @@ sub rex_launcher_option {
 }
 
 sub rex_option_allowed {
-    if ($2 eq "--target") {
+    if ($2 eq "--target" || $2 eq "--make-token" || $2 eq "--password") {
         return 1;
     }
     if (rex_launcher_technique($1) &&
@@ -356,6 +357,7 @@ sub rex_require_option {
 alias rex {
     local('$action $arch $bid $flag $handle $index $object $object_name $packed');
     local('$primary $secondary $selector $target $tertiary $value');
+    local('$principal $password $identity_text');
     local('$entry_point $expected_type $launcher $launcher_descriptor $launcher_mode');
     local('$launcher_program $launcher_template $payload_type $process_id $resolved_arguments');
     # %request is the normalized operator request DTO. %seen preserves the
@@ -452,6 +454,23 @@ alias rex {
 
     if (!rex_require_option($bid, %seen["--target"], "--target", $selector)) {
         return;
+    }
+    if (%seen["--make-token"] != %seen["--password"]) {
+        berror($bid, "--make-token and --password must be supplied together");
+        return;
+    }
+    $principal = "";
+    $password = "";
+    $identity_text = "using the active token context";
+    if (%seen["--make-token"]) {
+        $principal = %request["--make-token"];
+        $password = %request["--password"];
+        if ($principal eq "" || $password eq "" ||
+            !rex_single_line($principal) || !rex_single_line($password)) {
+            berror($bid, "--make-token and --password must be non-empty single-line values");
+            return;
+        }
+        $identity_text = "using command-scoped network credentials";
     }
     $launcher_mode = %seen["--payload-type"] || %seen["--launcher"] ||
         %seen["--launcher-program"] || %seen["--launcher-arguments"] ||
@@ -708,15 +727,15 @@ alias rex {
     closef($handle);
     $target = %request["--target"];
     $packed = bof_pack(
-        $bid, "zzzZZZ", $action, $target, $selector,
+        $bid, "zzzZZZZZ", $action, $target, $selector, $principal, $password,
         $primary, $secondary, $tertiary
     );
 
     if ($action eq "preflight") {
-        btask($bid, "rex preflight " . $selector . " against " . $target . " using the active token context");
+        btask($bid, "rex preflight " . $selector . " against " . $target . " " . $identity_text);
     }
     else {
-        btask($bid, "rex " . $selector . " against " . $target . " using the active token context");
+        btask($bid, "rex " . $selector . " against " . $target . " " . $identity_text);
     }
     beacon_inline_execute($bid, $object, "go", $packed);
 }

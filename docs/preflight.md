@@ -18,6 +18,10 @@ flowchart LR
 Preflight still authenticates and connects to remote APIs, so it can generate
 network and audit events.
 
+When make-token options are present, Rex creates its temporary local logon
+token before preflight. That process-local token is closed after the command;
+preflight still makes no technique-specific remote mutation.
+
 ## Check-only command
 
 Prefix the ordinary technique invocation with `preflight` and retain the same
@@ -64,10 +68,11 @@ Preflight does not verify:
 - WQL syntax, event frequency, or command-line behavior;
 - launcher and target-process architecture compatibility;
 - payload behavior or completion; or
-- credentials other than the active implant token.
+- whether new-credentials passwords are valid before Windows first uses them
+  for remote access.
 
-Place any artifact on the target, choose the matching BOF architecture, set the
-required token context, and satisfy the applicable
+Place any artifact on the target, choose the matching architecture, select the
+required command identity, and satisfy the applicable
 [target-side input](contracts/README.md) or
 [launcher](launchers/README.md) contract before execution.
 

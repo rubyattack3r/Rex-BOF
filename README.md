@@ -1,7 +1,8 @@
 # Rex BOF
 
 Rex packages twelve Windows remote-execution techniques as native x86 and x64
-Beacon Object Files for Cobalt Strike and Sliver.
+Beacon Object Files for Cobalt Strike and Sliver, plus standalone Windows
+executables built from the same runtime.
 
 <picture>
   <source media="(prefers-color-scheme: light)" srcset="docs/demo/demo-light.svg">
@@ -16,6 +17,8 @@ Download and extract a bundle from
 - `Rex-BOF-<version>.zip`: Cobalt Strike CNA and all x86/x64 objects.
 - `Rex-BOF-Sliver-<version>.zip`: Sliver extension manifest and the same
   x86/x64 objects.
+- `Rex-BOF-Standalone-<version>.zip`: x86 and x64 `rex.exe` command-line
+  executables.
 
 Each bundle includes offline documentation and has a `.sha256` checksum and a
 build provenance attestation:
@@ -42,9 +45,16 @@ rex wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 # Sliver
 rex-wmi-exec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
 rex-wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
+
+# Standalone Windows CLI
+rex.x64.exe preflight wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
+rex.x64.exe wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 ```
 
-Each command targets one host and uses the active implant token. Use
+Each command targets one host and uses the current process or implant identity
+by default. Add `--make-token DOMAIN\user --password <password>` or
+`--make-token user@domain --password <password>` to use command-scoped network
+credentials. The standalone CLI can prompt when `--password` is omitted. Use
 `preflight` to check technique requirements without making the technique's
 remote change. Payload files must already be on the target.
 

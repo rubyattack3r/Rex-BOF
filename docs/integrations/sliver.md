@@ -42,9 +42,14 @@ for the current client process.
 `--action` defaults to `execute`; set it to `preflight` to run the registered
 read-only prerequisite callback and skip mutation.
 
+Every command also accepts optional `--make-token` and `--password` values.
+Supply both to use `DOMAIN\user` or `user@domain` network credentials for that
+invocation. Without them, Rex uses the active implant token.
+
 ```text
 rex-wmi-exec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
 rex-wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
+rex-wmi-exec --target server01 --command "whoami.exe /all" --make-token 'DOMAIN\operator' --password '<password>'
 rex-wsman-exec --target 10.0.0.15 --program cmd.exe --arguments "/c whoami"
 rex-wmi-instance-provider --target server01 --provider-name ExampleProvider --provider-clsid {00000000-0000-0000-0000-000000000000} --remote-path 'C:\ProgramData\Example\provider.dll'
 ```
@@ -66,10 +71,17 @@ The Sliver entry points adapt the manifest arguments and then use the same
 native runtime as Cobalt Strike.
 
 Keep `extension.json` and all objects from the same bundle. The manifest and
-objects are one versioned contract. Each command inherits the active Sliver
-implant token, operates on one target, and emits the same typed transcript and
-recovery records documented in [output](../output.md) and
-[recovery](../recovery.md).
+objects are one versioned contract. Each command uses the active Sliver implant
+token by default and operates on one target. With make-token options, Rex runs
+the complete lifecycle on a joined worker under a temporary
+`LOGON32_LOGON_NEW_CREDENTIALS` token, then reverts and closes it before
+returning. Windows may defer credential validation until remote access.
+
+Sliver cannot prompt inside a BOF, so `--password` is required with
+`--make-token`. The password may remain in client, server, or audit history;
+Rex clears its local packed buffer and omits credentials from transcript and
+recovery output. Results otherwise use the contracts documented in
+[output](../output.md) and [recovery](../recovery.md).
 
 Sliver clients without built-in Reflektor support are rejected rather than
 routed through an unvalidated loader fallback.

@@ -3,7 +3,7 @@
 #include "rex.h"
 
 void rex_zero(void *value, SIZE_T length) {
-    BYTE *bytes = (BYTE *)value;
+    volatile BYTE *bytes = (volatile BYTE *)value;
     SIZE_T index;
     for (index = 0; index < length; index++)
         bytes[index] = 0;

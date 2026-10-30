@@ -1,8 +1,9 @@
 # Technique reference
 
-Each selector has separate x86 and x64 objects. The integration selects the
-matching architecture and uses the active implant token. Each command targets
-one host.
+Each selector has separate x86 and x64 objects and is also linked into both
+standalone executables. The integration selects the matching architecture.
+Each command targets one host and uses the current identity unless
+command-scoped make-token credentials are supplied.
 
 Inputs consumed directly by WMI or SCM must satisfy the applicable
 [target-side input contract](../contracts/README.md). Command-capable

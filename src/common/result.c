@@ -19,10 +19,14 @@ static const char *rex_disposition_name(rex_disposition disposition) {
 static const char *rex_phase_name(rex_phase phase) {
     if (phase == REX_PHASE_INPUT)
         return "input";
+    if (phase == REX_PHASE_IDENTITY)
+        return "identity";
     if (phase == REX_PHASE_PREFLIGHT)
         return "preflight";
     if (phase == REX_PHASE_EXECUTION)
         return "execution";
+    if (phase == REX_PHASE_IDENTITY_RESTORE)
+        return "identity_restore";
     return "none";
 }
 

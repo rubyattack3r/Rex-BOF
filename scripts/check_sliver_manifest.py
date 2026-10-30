@@ -95,7 +95,7 @@ def main() -> None:
             fail(f"{name}: files do not match the x86/x64 objects")
 
         arguments = command.get("arguments", [])
-        expected_count = 2 + len(value_args)
+        expected_count = 4 + len(value_args)
         if len(arguments) != expected_count:
             fail(f"{name}: expected {expected_count} arguments")
         action = arguments[0]
@@ -108,7 +108,13 @@ def main() -> None:
         if (target.get("name"), target.get("type"), target.get("optional")) != (
                 "target", "string", False):
             fail(f"{name}: invalid target argument")
-        for argument, (expected_name, optional) in zip(arguments[2:], value_args):
+        for index, expected_name in enumerate(("make-token", "password"), 2):
+            argument = arguments[index]
+            if (argument.get("name"), argument.get("type"),
+                    argument.get("optional"), argument.get("default")) != (
+                        expected_name, "wstring", True, ""):
+                fail(f"{name}: invalid {expected_name} argument")
+        for argument, (expected_name, optional) in zip(arguments[4:], value_args):
             if (argument.get("name"), argument.get("type"),
                     argument.get("optional")) != (
                         expected_name, "wstring", optional):

@@ -25,7 +25,7 @@ jobs:
         run: nix develop --command make release VERSION=v0.0.0-ci
 
   windows:
-    name: Transcript encoding
+    name: Native Windows tests
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # ratchet:actions/checkout@v7
@@ -39,6 +39,8 @@ jobs:
           "%RUNNER_TEMP%\rex-text-test.exe"
           cl /nologo /W4 /WX /DREX_COM_SECURITY_TEST /Isrc\common src\common\com.c tests\com_security_test.c /Fe:%RUNNER_TEMP%\rex-com-security-test.exe
           "%RUNNER_TEMP%\rex-com-security-test.exe"
+          cl /nologo /W4 /WX /DREX_IDENTITY_TEST /Iinclude src\common\runtime.c src\common\identity.c tests\identity_test.c /Fe:%RUNNER_TEMP%\rex-identity-test.exe
+          "%RUNNER_TEMP%\rex-identity-test.exe"
 
   ratchet:
     name: Pinned actions
