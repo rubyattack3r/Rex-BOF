@@ -2,9 +2,10 @@
 
 ## How it works
 
-Rex uses WMI `Win32_Service` methods to read and reconfigure an existing stopped
-service. Preflight records its binary path and start type and confirms that it
-is stopped.
+Rex uses WMI `Win32_Service` methods to read and reconfigure an existing
+stopped service. Preflight records its binary path and start type and confirms
+that it is stopped. Execution changes `PathName`, preserves the service account
+and start mode, and requests a start.
 
 The replacement executable must already be on the target and implement the
 Windows service lifecycle.
@@ -15,16 +16,26 @@ sequenceDiagram
     participant W as WMI service
     participant S as Existing service
     B->>W: Read service configuration and state
-    B->>W: Change binary path and start type
+    B->>W: Change binary path
     W->>S: Start reconfigured service
     B-->>B: Emit original and applied configuration
 ```
+
+## Service executable contract
+
+The replacement must be a Windows service executable, not an ordinary console
+program. It must connect to SCM, implement `ServiceMain`, report service-state
+transitions, and run under the existing service identity. Its architecture
+must be supported by the target but does not need to match the BOF.
+
+See the complete [Windows service executable contract](../contracts/service-executable.md)
+for lifecycle, identity, path, validation, and result requirements.
 
 ## Requirements
 
 - Local administrator on the target
 - WMI/DCOM via TCP 135 and negotiated dynamic RPC ports
-- Service executable already present on the target
+- Contract-compliant service executable already present on the target
 
 ## Cleanup
 

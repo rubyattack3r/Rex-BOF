@@ -57,14 +57,17 @@ Preflight does not verify:
 
 - that a referenced remote executable or DLL exists;
 - payload hashes, free space, or SMB delivery;
-- native exports, managed metadata, or CPL entry points;
+- provider COM exports and interfaces, service lifecycle behavior, managed
+  metadata, or CPL entry points;
+- WQL syntax, event frequency, or command-line behavior;
 - launcher and target-process architecture compatibility;
 - payload behavior or completion; or
 - credentials other than the active implant token.
 
-Place the artifact on the target, choose the matching BOF architecture, set the
-required token context, and select the correct [launcher](launchers/README.md)
-before execution.
+Place any artifact on the target, choose the matching BOF architecture, set the
+required token context, and satisfy the applicable
+[target-side input](contracts/README.md) or
+[launcher](launchers/README.md) contract before execution.
 
 ## Failure and release behavior
 

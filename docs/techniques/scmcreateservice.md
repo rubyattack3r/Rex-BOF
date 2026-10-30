@@ -16,12 +16,23 @@ sequenceDiagram
     B-->>B: Emit service recovery context
 ```
 
+## Service executable contract
+
+The image must be a Windows service executable, not an ordinary console
+program. It must connect to SCM, implement `ServiceMain`, report service-state
+transitions, and support clean stop handling. Rex creates it as a demand-start
+own-process service under LocalSystem. Its architecture must be supported by
+the target but does not need to match the BOF.
+
+See the complete [Windows service executable contract](../contracts/service-executable.md)
+for lifecycle, identity, path, validation, and result requirements.
+
 ## Requirements
 
 - Local administrator on the target
 - SCM RPC over SMB on TCP 445
 - RPC endpoint mapper on TCP 135 where required
-- Service executable already present on the target
+- Contract-compliant service executable already present on the target
 
 ## Cleanup
 
