@@ -16,6 +16,13 @@ sequenceDiagram
     W-->>B: Return process identifier
 ```
 
+## Identity
+
+The current or make-token identity authenticates the WMI session and is the
+execution identity used by `Win32_Process.Create` in the tested Server 2025
+configuration. The implant's local token does not change. See the
+[identity matrix](../identity.md).
+
 ## Requirements
 
 - Local administrator on the target

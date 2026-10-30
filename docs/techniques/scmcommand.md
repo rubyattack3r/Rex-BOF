@@ -20,6 +20,12 @@ sequenceDiagram
     B-->>B: Emit service name for deletion
 ```
 
+## Identity
+
+The current or make-token identity authenticates the SCM operations. Rex
+creates the command-backed service under `LocalSystem`, so the command does not
+run as the make-token account. See the [identity matrix](../identity.md).
+
 ## Requirements
 
 - Local administrator on the target

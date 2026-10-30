@@ -24,7 +24,6 @@ DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoSetProxyBlanket(IUnknown *, DWORD, DWORD,
                                                        DWORD);
 DECLSPEC_IMPORT BSTR WINAPI OLEAUT32$SysAllocString(const OLECHAR *);
 DECLSPEC_IMPORT void WINAPI OLEAUT32$SysFreeString(BSTR);
-DECLSPEC_IMPORT void WINAPI OLEAUT32$VariantInit(VARIANTARG *);
 DECLSPEC_IMPORT HRESULT WINAPI OLEAUT32$VariantClear(VARIANTARG *);
 DECLSPEC_IMPORT HANDLE WINAPI KERNEL32$GetProcessHeap(void);
 DECLSPEC_IMPORT LPVOID WINAPI KERNEL32$HeapAlloc(HANDLE, DWORD, SIZE_T);
@@ -84,7 +83,7 @@ static HRESULT rex_dispatch_result(IDispatch *source, const wchar_t *name,
     VARIANT result;
     HRESULT status;
     *output = NULL;
-    OLEAUT32$VariantInit(&result);
+    rex_zero(&result, sizeof(result));
     status = rex_dispatch_call(source, name, flags, NULL, 0, &result);
     if (SUCCEEDED(status)) {
         if (V_VT(&result) == VT_DISPATCH && V_DISPATCH(&result) != NULL) {
@@ -202,7 +201,7 @@ static HRESULT rex_dcom_shell_execute(const rex_request *request,
     strings[2] = request->config.shell.arguments;
     strings[3] = request->config.shell.executable;
     for (index = 0; index < 5; index++)
-        OLEAUT32$VariantInit(&values[index]);
+        rex_zero(&values[index], sizeof(values[index]));
     V_VT(&values[0]) = VT_I4;
     V_I4(&values[0]) = 0;
     for (index = 0; index < 4; index++) {

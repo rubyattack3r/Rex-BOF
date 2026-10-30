@@ -17,6 +17,10 @@ HRESULT rex_wmi_service_start(rex_wmi_session *session, const wchar_t *name);
 HRESULT rex_wmi_provider_exists(rex_wmi_session *, const wchar_t *, BOOL *);
 HRESULT rex_wmi_provider_register(rex_wmi_session *, const wchar_t *,
                                   const wchar_t *);
+HRESULT rex_wmi_provider_role_exists(rex_wmi_session *, const wchar_t *,
+                                     rex_provider_role, BOOL *);
+HRESULT rex_wmi_provider_role_register(rex_wmi_session *, const wchar_t *,
+                                       rex_provider_role);
 HRESULT rex_wmi_provider_delete(rex_wmi_session *, const wchar_t *);
 HRESULT rex_wmi_provider_load(rex_wmi_session *, const wchar_t *);
 HRESULT rex_wmi_provider_unload(rex_wmi_session *, const wchar_t *);

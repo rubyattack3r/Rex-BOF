@@ -25,7 +25,7 @@ technique=wmi-exec target=10.0.0.15 status=succeeded disposition=validated sourc
 | `disposition` | Result type: `validated`, `dispatched`, or `completed`. |
 | `source` | Technique-specific evidence source. |
 | `pid` | Remote process identifier when the API provides one. |
-| `phase` | Failure stage: `input`, `preflight`, or `execution`. |
+| `phase` | Failure stage: `input`, `identity`, `preflight`, `execution`, or `identity_restore`. |
 | `hresult` | Native failure code on failed results. |
 
 - `validated`: preflight passed and execution was skipped.
@@ -42,6 +42,13 @@ technique=scm-change-service target=10.0.0.15 status=failed phase=execution hres
 recovery target=10.0.0.15 action=restore_service service=Example original_binary=C:\Windows\System32\example.exe applied_binary=C:\ProgramData\staged-service.exe original_start_type=3 original_state=stopped
 ```
 
+Provider recovery records identify the selected role so role registration can
+be removed before the shared provider and COM registration:
+
+```text
+recovery target=server.example action=remove_wmi_provider provider=ExampleProvider role=instance clsid={01234567-89AB-CDEF-0123-456789ABCDEF} dll=C:\ProgramData\example-provider.dll
+```
+
 ## Transcript encoding
 
 Dynamic values use UTF-8 percent encoding for whitespace, control bytes, `%`,
@@ -52,6 +59,6 @@ drive separators, and non-ASCII UTF-8 remain readable when they do not conflict
 with the grammar. For example, `C:\Program Files\rex.dll` is emitted as
 `C:\Program%20Files\rex.dll`.
 
-Transcripts omit raw commands, launcher arguments, and credentials. See the
-[cleanup guide](recovery.md) for recovery fields.
+Transcripts omit raw commands, launcher arguments, principals, and passwords.
+See the [cleanup guide](recovery.md) for recovery fields.
 

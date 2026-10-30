@@ -18,7 +18,6 @@ DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoCreateInstance(REFCLSID, LPUNKNOWN,
                                                       DWORD, REFIID, LPVOID *);
 DECLSPEC_IMPORT BSTR WINAPI OLEAUT32$SysAllocString(const OLECHAR *);
 DECLSPEC_IMPORT void WINAPI OLEAUT32$SysFreeString(BSTR);
-DECLSPEC_IMPORT void WINAPI OLEAUT32$VariantInit(VARIANTARG *);
 DECLSPEC_IMPORT HRESULT WINAPI OLEAUT32$VariantClear(VARIANTARG *);
 DECLSPEC_IMPORT HANDLE WINAPI KERNEL32$GetProcessHeap(void);
 DECLSPEC_IMPORT LPVOID WINAPI KERNEL32$HeapAlloc(HANDLE, DWORD, SIZE_T);
@@ -49,8 +48,7 @@ typedef struct {
 } rex_task_state;
 
 static void rex_empty_variant(VARIANT *value) {
-    OLEAUT32$VariantInit(value);
-    V_VT(value) = VT_EMPTY;
+    rex_zero(value, sizeof(*value));
 }
 
 static HRESULT rex_task_connect(const rex_request *request,

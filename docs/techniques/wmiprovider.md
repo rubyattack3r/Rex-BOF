@@ -7,6 +7,12 @@ Rex registers COM metadata and a `__Win32Provider` instance, then calls
 BOF architecture, and implement the COM class identified by
 `--provider-clsid`.
 
+This selector is the initialization-only provider role. It does not create an
+instance, method, property, or event-provider registration. Use
+[`wmi-instance-provider`](wmiinstanceprovider.md) or
+[`wmi-method-provider`](wmimethodprovider.md) when the target-side schema and
+DLL implement one of those roles.
+
 The provider host loads the DLL directly; this technique does not use a
 launcher.
 
@@ -34,14 +40,21 @@ status sink, support `ThreadingModel=Both`, and unload cleanly. Rex performs
 the COM registration, so self-registration exports are not required.
 
 See the complete [WMI provider DLL contract](../contracts/wmi-provider.md),
-including exports, interfaces, hosting, validation, and the provider-role
-registrations Rex does not create.
+including exports, interfaces, hosting, role-specific interfaces, schema, and
+validation.
+
+## Identity
+
+The current or make-token identity performs the remote WMI and registry
+operations. The DLL is then loaded by a WMI provider host configured for
+`LocalSystem`; it does not run as the make-token account. See the
+[identity matrix](../identity.md).
 
 ## Requirements
 
 - Local administrator on the target
 - WMI/DCOM via TCP 135 and negotiated dynamic RPC ports
-- Remote registry access through the WMI and registry interfaces used by the active token
+- Remote registry access through the WMI and registry interfaces used by the selected command identity
 - Contract-compliant provider DLL already present at an absolute target-local
   path
 

@@ -7,7 +7,9 @@ interactive Explorer session, and calls `ShellExecute`. Cobalt Strike can
 supply the program through a [launcher contract](../launchers/README.md).
 
 An `explorer.exe` process alone is not enough. Preflight must resolve the Shell
-automation interface in a usable session.
+automation interface in a usable session. During Server 2025 validation, a
+disconnected RDP session returned `0x8000401A`; reactivating that session allowed
+the same request to pass.
 
 ```mermaid
 sequenceDiagram
@@ -21,6 +23,15 @@ sequenceDiagram
     U->>P: Launch program and arguments
     B-->>D: Release COM interfaces
 ```
+
+## Identity
+
+The current or make-token identity is used for DCOM activation. `ShellExecute`
+runs through the target's Explorer session, so the program inherits that
+interactive user's identity rather than the make-token identity. Server 2025
+validation passed with both the same account and a different valid
+administrator. No AppID or machine-wide DCOM permission changed. See the
+[identity matrix](../identity.md) and [tested environments](../platforms.md).
 
 ## Requirements
 

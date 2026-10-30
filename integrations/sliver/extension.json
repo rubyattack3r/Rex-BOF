@@ -19,9 +19,51 @@
       "arguments": [
         {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
         {"name": "provider-name", "type": "wstring", "desc": "WMI provider name", "optional": false},
         {"name": "provider-clsid", "type": "wstring", "desc": "Provider CLSID in braces", "optional": false},
         {"name": "remote-path", "type": "wstring", "desc": "Existing target-side provider DLL path", "optional": false}
+      ]
+    },
+    {
+      "command_name": "rex-wmi-instance-provider",
+      "help": "Register and load a WMI instance provider on one Windows target",
+      "long_help": "Use -action preflight to validate prerequisites without mutation. The provider DLL and compatible managed-class schema must already exist on the target.",
+      "entrypoint": "go_sliver_3",
+      "bof_executor": "reflektor",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_wmiinstanceprovider.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_wmiinstanceprovider.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
+        {"name": "provider-name", "type": "wstring", "desc": "WMI provider name", "optional": false},
+        {"name": "provider-clsid", "type": "wstring", "desc": "Provider CLSID in braces", "optional": false},
+        {"name": "remote-path", "type": "wstring", "desc": "Existing target-side instance-provider DLL path", "optional": false}
+      ]
+    },
+    {
+      "command_name": "rex-wmi-method-provider",
+      "help": "Register and load a WMI method provider on one Windows target",
+      "long_help": "Use -action preflight to validate prerequisites without mutation. The provider DLL and compatible managed-class schema must already exist on the target.",
+      "entrypoint": "go_sliver_3",
+      "bof_executor": "reflektor",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_wmimethodprovider.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_wmimethodprovider.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
+        {"name": "provider-name", "type": "wstring", "desc": "WMI provider name", "optional": false},
+        {"name": "provider-clsid", "type": "wstring", "desc": "Provider CLSID in braces", "optional": false},
+        {"name": "remote-path", "type": "wstring", "desc": "Existing target-side method-provider DLL path", "optional": false}
       ]
     },
     {
@@ -37,6 +79,8 @@
       "arguments": [
         {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
         {"name": "subscription-name", "type": "wstring", "desc": "Unused filter and consumer name", "optional": false},
         {"name": "query", "type": "wstring", "desc": "WQL event query evaluated in root\\cimv2", "optional": false},
         {"name": "command", "type": "wstring", "desc": "Command line run for each matching event", "optional": false}
@@ -55,6 +99,8 @@
       "arguments": [
         {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
         {"name": "service-name", "type": "wstring", "desc": "Existing stopped service name", "optional": false},
         {"name": "remote-path", "type": "wstring", "desc": "Existing target-side service executable and arguments", "optional": false}
       ]
@@ -72,6 +118,8 @@
       "arguments": [
         {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
         {"name": "command", "type": "wstring", "desc": "Complete Windows command line", "optional": false}
       ]
     },
@@ -88,6 +136,8 @@
       "arguments": [
         {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
         {"name": "program", "type": "wstring", "desc": "Target-side executable", "optional": false},
         {"name": "arguments", "type": "wstring", "desc": "Executable arguments", "optional": true, "default": ""},
         {"name": "transport", "type": "wstring", "desc": "http[:port] or https[:port]", "optional": true, "default": ""}
@@ -106,6 +156,8 @@
       "arguments": [
         {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
         {"name": "task-name", "type": "wstring", "desc": "Unused task name", "optional": false},
         {"name": "program", "type": "wstring", "desc": "Target-side executable", "optional": false},
         {"name": "arguments", "type": "wstring", "desc": "Executable arguments", "optional": true, "default": ""}
@@ -124,6 +176,8 @@
       "arguments": [
         {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
         {"name": "program", "type": "wstring", "desc": "Target-side executable", "optional": false},
         {"name": "arguments", "type": "wstring", "desc": "Executable arguments", "optional": true, "default": ""}
       ]
@@ -141,6 +195,8 @@
       "arguments": [
         {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
         {"name": "service-name", "type": "wstring", "desc": "Existing stopped service name", "optional": false},
         {"name": "remote-path", "type": "wstring", "desc": "Existing target-side service executable and arguments", "optional": false}
       ]
@@ -158,6 +214,8 @@
       "arguments": [
         {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
         {"name": "service-name", "type": "wstring", "desc": "Unused service name", "optional": false},
         {"name": "remote-path", "type": "wstring", "desc": "Existing target-side service executable and arguments", "optional": false}
       ]
@@ -175,6 +233,8 @@
       "arguments": [
         {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
         {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "make-token", "type": "wstring", "desc": "DOMAIN\\user or user@domain for command-scoped network credentials", "optional": true, "default": ""},
+        {"name": "password", "type": "wstring", "desc": "Password for --make-token", "optional": true, "default": ""},
         {"name": "service-name", "type": "wstring", "desc": "Unused service name", "optional": false},
         {"name": "command", "type": "wstring", "desc": "Complete Windows command line", "optional": false}
       ]

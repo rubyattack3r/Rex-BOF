@@ -6,7 +6,8 @@ when it contains recovery values.
 
 | Technique | Emitted recovery context | Operator action |
 |---|---|---|
-| `wmi-provider` | Provider name, CLSID, and DLL path | Unload the provider, remove its instance and registration keys, then delete the DLL. |
+| `wmi-provider` | Provider role, name, CLSID, and DLL path | Unload the provider, remove its `__Win32Provider` instance and COM registration, then delete the DLL. |
+| `wmi-instance-provider`, `wmi-method-provider` | Provider role, name, CLSID, and DLL path | Unload the provider, remove its role registration before its `__Win32Provider` instance and COM registration, then delete the DLL. |
 | `wmi-event-subscription` | Filter and consumer name | Remove the binding, consumer, and filter with that name. |
 | `wmi-service`, `scm-change-service` | Service name, original and applied paths, start type, and original stopped state | Stop the service, verify its current state, and restore the recorded configuration. |
 | `scm-create-service` | Created service name and binary path | Stop and delete the service, then verify its absence. |

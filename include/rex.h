@@ -6,14 +6,22 @@
 #define REX_MAX_TARGET 255
 #define REX_MAX_SELECTOR 64
 #define REX_MAX_COMMAND 8191
+#define REX_MAX_PRINCIPAL 511
+#define REX_MAX_PASSWORD 1023
 
 typedef enum { REX_ACTION_EXECUTE = 0, REX_ACTION_PREFLIGHT } rex_action;
+
+typedef struct {
+    const wchar_t *principal;
+    wchar_t *password;
+} rex_identity_config;
 
 typedef struct {
     rex_action action;
     const char *target;
     const char *selector;
     const wchar_t *values[3];
+    rex_identity_config identity;
 } rex_arguments;
 
 typedef struct {
@@ -43,10 +51,17 @@ typedef struct {
     USHORT port;
 } rex_wsman_config;
 
+typedef enum {
+    REX_PROVIDER_ROLE_INITIALIZATION = 0,
+    REX_PROVIDER_ROLE_INSTANCE,
+    REX_PROVIDER_ROLE_METHOD
+} rex_provider_role;
+
 typedef struct {
     const wchar_t *name;
     const wchar_t *class_id;
     const wchar_t *dll_path;
+    rex_provider_role role;
 } rex_provider_config;
 
 typedef struct {
@@ -108,6 +123,7 @@ typedef struct {
     const wchar_t *name;
     const wchar_t *class_id;
     const wchar_t *dll_path;
+    rex_provider_role role;
 } rex_provider_artifact;
 
 typedef struct {
@@ -152,8 +168,10 @@ typedef enum {
 typedef enum {
     REX_PHASE_NONE = 0,
     REX_PHASE_INPUT,
+    REX_PHASE_IDENTITY,
     REX_PHASE_PREFLIGHT,
-    REX_PHASE_EXECUTION
+    REX_PHASE_EXECUTION,
+    REX_PHASE_IDENTITY_RESTORE
 } rex_phase;
 
 typedef struct {
@@ -192,6 +210,10 @@ BOOL rex_valid_selector(const char *selector);
 void rex_zero(void *value, SIZE_T length);
 void rex_copy(void *destination, const void *source, SIZE_T length);
 void rex_result_write(const rex_result *result);
+void rex_invoke(const rex_technique *technique, rex_arguments *arguments,
+                rex_result *result);
+void rex_lifecycle_run(const rex_technique *technique,
+                       const rex_arguments *arguments, rex_result *result);
 
 void rex_load_technique(rex_technique *technique);
 BOOL rex_find_technique(const char *selector, rex_technique *technique);

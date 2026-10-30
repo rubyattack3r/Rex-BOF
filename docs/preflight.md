@@ -18,6 +18,10 @@ flowchart LR
 Preflight still authenticates and connects to remote APIs, so it can generate
 network and audit events.
 
+When make-token options are present, Rex creates its temporary local logon
+token before preflight. That process-local token is closed after the command;
+preflight still makes no technique-specific remote mutation.
+
 ## Check-only command
 
 Prefix the ordinary technique invocation with `preflight` and retain the same
@@ -49,6 +53,8 @@ A normal `rex <technique> ...` command runs the same check before execution.
 | `wsman-exec` | `wsman_shell` | Validates the transport, creates a WSMan session, and opens a temporary shell. |
 | `dcom-ishell-dispatch2` | `ishelldispatch2_interface` | Activates the Shell COM class and resolves `IShellDispatch2` from an interactive Explorer session. |
 | `wmi-provider` | `wmi_provider_and_registry_available` | Opens WMI, confirms the provider and COM registration are unused, and opens the registry view matching the BOF architecture. |
+| `wmi-instance-provider` | `wmi_instance_provider_and_registry_available` | Performs the provider checks and confirms no matching `__InstanceProviderRegistration` exists. |
+| `wmi-method-provider` | `wmi_method_provider_and_registry_available` | Performs the provider checks and confirms no matching `__MethodProviderRegistration` exists. |
 | `wmi-event-subscription` | `wmi_subscription_name_available` | Opens `ROOT\SUBSCRIPTION` and confirms the filter and consumer names are unused. |
 
 ## What preflight does not check
@@ -57,15 +63,16 @@ Preflight does not verify:
 
 - that a referenced remote executable or DLL exists;
 - payload hashes, free space, or SMB delivery;
-- provider COM exports and interfaces, service lifecycle behavior, managed
-  metadata, or CPL entry points;
+- provider COM exports, interfaces, managed-class schema or qualifiers,
+  service lifecycle behavior, managed metadata, or CPL entry points;
 - WQL syntax, event frequency, or command-line behavior;
 - launcher and target-process architecture compatibility;
 - payload behavior or completion; or
-- credentials other than the active implant token.
+- whether new-credentials passwords are valid before Windows first uses them
+  for remote access.
 
-Place any artifact on the target, choose the matching BOF architecture, set the
-required token context, and satisfy the applicable
+Place any artifact on the target, choose the matching architecture, select the
+required command identity, and satisfy the applicable
 [target-side input](contracts/README.md) or
 [launcher](launchers/README.md) contract before execution.
 

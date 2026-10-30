@@ -3,6 +3,7 @@ LLVM_NM ?= llvm-nm
 LLVM_OBJCOPY ?= llvm-objcopy
 LLVM_OBJDUMP ?= llvm-objdump
 CLANG_FORMAT ?= clang-format
+HOST_CC ?= clang
 
 # The win7 targets set _WIN32_WINNT to 0x0601.
 TARGET_x64 := x86_64-windows.win7-gnu
@@ -16,23 +17,48 @@ BOF_CFLAGS := -Oz -g0 -std=c11 $(WARNINGS) -DNDEBUG -fno-addrsig \
 CPPFLAGS := -Iinclude -Isrc/common -Isrc/techniques
 OUTPUT_DIR := integrations/cna
 SLIVER_OUTPUT_DIR := integrations/sliver
+STANDALONE_OUTPUT_DIR := bin
+HOST_TEST_OUTPUT_DIR := .build/tests
 BOFLINT ?= boflint.py
 VERSION ?=
 
-TECHNIQUES := wmiprovider wmieventsubscription wmiservice wmiexec wsmanexec taskschedexec dcomishelldispatch2 scmchangeservice scmcreateservice scmcommand
+TECHNIQUES := wmiprovider wmiinstanceprovider wmimethodprovider \
+	wmieventsubscription wmiservice wmiexec wsmanexec taskschedexec \
+	dcomishelldispatch2 scmchangeservice scmcreateservice scmcommand
 OUTPUTS := $(foreach technique,$(TECHNIQUES),$(OUTPUT_DIR)/rex_$(technique).x64.o $(OUTPUT_DIR)/rex_$(technique).x86.o)
 SLIVER_OUTPUTS := $(foreach technique,$(TECHNIQUES),$(SLIVER_OUTPUT_DIR)/rex_$(technique).x64.o $(SLIVER_OUTPUT_DIR)/rex_$(technique).x86.o)
+STANDALONE_OUTPUTS := $(STANDALONE_OUTPUT_DIR)/rex.x64.exe \
+	$(STANDALONE_OUTPUT_DIR)/rex.x86.exe
 
-BASE_SOURCES := src/common/rex.c src/common/registry.c src/common/result.c src/common/runtime.c src/common/text.c
+BASE_SOURCES := src/common/rex.c src/common/identity.c src/common/lifecycle.c \
+	src/common/registry.c src/common/result.c src/common/runtime.c \
+	src/common/text.c
 COM_SOURCES := src/common/com.c
 WMI_SOURCES := src/common/wmi.c
+PROVIDER_SOURCES := src/common/provider.c
 SERVICE_SOURCES := src/common/service.c
 HEADERS := $(wildcard include/*.h src/common/*.h src/techniques/*.h)
 FORMAT_SOURCES := $(wildcard include/*.h src/common/*.c src/common/*.h \
-	src/techniques/*.c src/techniques/*.h tests/*.c) src/technique_unit.c
+	src/standalone/*.c src/standalone/*.h src/techniques/*.c \
+	src/techniques/*.h tests/*.c) src/technique_unit.c
+STANDALONE_SOURCES := src/standalone/main.c src/standalone/args.c \
+	src/standalone/beacon.c \
+	src/common/com.c src/common/identity.c src/common/lifecycle.c \
+	src/common/provider.c src/common/registry.c src/common/result.c \
+	src/common/runtime.c src/common/service.c src/common/text.c \
+	src/common/wmi.c $(foreach technique,$(TECHNIQUES),src/techniques/$(technique).c)
+STANDALONE_CFLAGS := -O2 -g0 -std=c11 $(WARNINGS) -DNDEBUG \
+	-DUNICODE -D_UNICODE -DCOBJMACROS= -DREX_STANDALONE \
+	-Wno-dollar-in-identifier-extension \
+	-include windows.h -include src/standalone/imports.h
+STANDALONE_LIBS := -ladvapi32 -lole32 -loleaut32 -luuid -lwsmsvc
 
-wmiprovider_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) src/techniques/wmiprovider.c
-wmiprovider_DEFINES := -DREX_WITH_COM_SECURITY -DREX_WITH_WMI
+wmiprovider_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) $(PROVIDER_SOURCES) src/techniques/wmiprovider.c
+wmiprovider_DEFINES := -DREX_WITH_COM_SECURITY -DREX_WITH_WMI -DREX_WITH_PROVIDER
+wmiinstanceprovider_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) $(PROVIDER_SOURCES) src/techniques/wmiinstanceprovider.c
+wmiinstanceprovider_DEFINES := -DREX_WITH_COM_SECURITY -DREX_WITH_WMI -DREX_WITH_PROVIDER
+wmimethodprovider_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) $(PROVIDER_SOURCES) src/techniques/wmimethodprovider.c
+wmimethodprovider_DEFINES := -DREX_WITH_COM_SECURITY -DREX_WITH_WMI -DREX_WITH_PROVIDER
 wmieventsubscription_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) src/techniques/wmieventsubscription.c
 wmieventsubscription_DEFINES := -DREX_WITH_COM_SECURITY -DREX_WITH_WMI
 wmiservice_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) $(SERVICE_SOURCES) src/techniques/wmiservice.c
@@ -54,12 +80,14 @@ scmcreateservice_DEFINES := -DREX_WITH_SERVICE
 scmcommand_SOURCES := $(BASE_SOURCES) $(SERVICE_SOURCES) src/techniques/scmcommand.c
 scmcommand_DEFINES := -DREX_WITH_SERVICE
 
-.PHONY: all clean demo docs format format-check imports lint objects release \
-	sliver-entrypoints sliver-manifest technique-contract verify verify-bof
+.PHONY: all clean demo docs format format-check host-tests imports lint \
+	objects release sliver-entrypoints sliver-manifest standalone standalone-binaries \
+	technique-contract verify verify-bof
 
-all: $(OUTPUTS) $(SLIVER_OUTPUTS)
+all: $(OUTPUTS) $(SLIVER_OUTPUTS) $(STANDALONE_OUTPUTS)
 
-verify: clean lint all objects docs technique-contract sliver-manifest sliver-entrypoints
+verify: clean lint host-tests all objects docs technique-contract sliver-manifest \
+	sliver-entrypoints standalone-binaries
 
 lint: format-check
 	cppcheck --quiet --error-exitcode=1 --std=c11 --inline-suppr \
@@ -74,6 +102,13 @@ format:
 
 format-check:
 	$(CLANG_FORMAT) --dry-run --Werror $(FORMAT_SOURCES)
+
+host-tests:
+	@mkdir -p $(HOST_TEST_OUTPUT_DIR)
+	$(HOST_CC) -std=c11 $(WARNINGS) -Isrc/standalone \
+		src/standalone/args.c tests/args_test.c \
+		-o $(HOST_TEST_OUTPUT_DIR)/args_test
+	$(HOST_TEST_OUTPUT_DIR)/args_test
 
 objects: all
 	LLVM_NM="$(LLVM_NM)" LLVM_OBJDUMP="$(LLVM_OBJDUMP)" \
@@ -93,6 +128,12 @@ sliver-manifest:
 sliver-entrypoints: all
 	LLVM_NM="$(LLVM_NM)" python3 scripts/check_sliver_entrypoints.py integrations/sliver/extension.json
 
+standalone: $(STANDALONE_OUTPUTS)
+
+standalone-binaries: standalone
+	LLVM_OBJDUMP="$(LLVM_OBJDUMP)" sh scripts/verify-standalone-binaries.sh \
+		$(STANDALONE_OUTPUTS)
+
 verify-bof: objects
 	@for object in $(OUTPUTS); do \
 		python3 $(BOFLINT) --loader cs "$$object" || exit 1; \
@@ -102,6 +143,7 @@ release: verify
 	@test -n "$(VERSION)" || { echo "VERSION is required (for example, VERSION=v0.1.0)" >&2; exit 2; }
 	sh scripts/package-release.sh "$(VERSION)"
 	sh scripts/package-sliver-release.sh "$(VERSION)"
+	sh scripts/package-standalone-release.sh "$(VERSION)"
 
 # Render the README demo locally. Generated media is committed so CI and
 # documentation rendering do not depend on beaconcast.
@@ -135,6 +177,19 @@ $(SLIVER_OUTPUT_DIR)/%.o: $(OUTPUT_DIR)/%.o
 	@mkdir -p $(@D)
 	cp $< $@
 
+$(STANDALONE_OUTPUT_DIR)/rex.x64.exe: $(STANDALONE_SOURCES) $(HEADERS) \
+		src/standalone/imports.h Makefile
+	@mkdir -p $(@D)
+	$(ZIG) cc -target $(TARGET_x64) $(CPPFLAGS) $(STANDALONE_CFLAGS) \
+		-municode $(STANDALONE_SOURCES) $(STANDALONE_LIBS) -o $@
+
+$(STANDALONE_OUTPUT_DIR)/rex.x86.exe: $(STANDALONE_SOURCES) $(HEADERS) \
+		src/standalone/imports.h Makefile
+	@mkdir -p $(@D)
+	$(ZIG) cc -target $(TARGET_x86) $(CPPFLAGS) $(STANDALONE_CFLAGS) \
+		-municode $(STANDALONE_SOURCES) $(STANDALONE_LIBS) -o $@
+
 clean:
-	$(RM) -r .build $(OUTPUT_DIR)/rex_*.o $(SLIVER_OUTPUT_DIR)/rex_*.o
+	$(RM) -r .build $(OUTPUT_DIR)/rex_*.o $(SLIVER_OUTPUT_DIR)/rex_*.o \
+		$(STANDALONE_OUTPUTS) $(STANDALONE_OUTPUT_DIR)/rex.*.pdb
 

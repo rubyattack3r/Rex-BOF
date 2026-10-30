@@ -31,8 +31,9 @@ unzip -Z1 "$ARCHIVE" | LC_ALL=C sort > "$ACTUAL"
         "$PACKAGE_NAME/README.md" \
         "$PACKAGE_NAME/VERSION.txt" \
         "$PACKAGE_NAME/rex.cna"
-    for technique in wmiprovider wmieventsubscription wmiservice wmiexec \
-        wsmanexec taskschedexec dcomishelldispatch2 \
+    for technique in wmiprovider wmiinstanceprovider wmimethodprovider \
+        wmieventsubscription wmiservice wmiexec wsmanexec taskschedexec \
+        dcomishelldispatch2 \
         scmchangeservice scmcreateservice scmcommand; do
         printf '%s\n' \
             "$PACKAGE_NAME/rex_$technique.x64.o" \

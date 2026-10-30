@@ -32,6 +32,13 @@ See the complete [WMI event-consumer command contract](../contracts/wmi-event-co
 for quoting, execution context, query validation, repetition, and result
 boundaries.
 
+## Identity
+
+The current or make-token identity creates the subscription. Each later match
+runs the command through WMI's permanent consumer in `LocalSystem` context,
+after Rex has already closed any temporary token. See the
+[identity matrix](../identity.md).
+
 ## Requirements
 
 - Local administrator on the target

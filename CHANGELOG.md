@@ -6,10 +6,32 @@ increment the minor version.
 
 ## [Unreleased]
 
+### Added
+
+- Add `wmi-instance-provider` and `wmi-method-provider` as explicit x86 and
+  x64 Cobalt Strike and Sliver techniques with typed role registration and
+  recovery context.
+- Add optional command-scoped make-token credentials to every Cobalt Strike and
+  Sliver technique. Down-level and UPN principals are supported without
+  changing the implant task thread's token.
+- Add x86 and x64 standalone Windows executables built from the shared
+  technique registry and lifecycle, with inline passwords or an interactive
+  no-echo password prompt.
+- Add built-in general, technique, and selector-list help to the standalone
+  executables, backed by a tested table-driven argument parser.
+
 ### Changed
 
+- Reduce the BOF DFR surface by zero-initializing local `VARIANT` values
+  instead of importing `VariantInit`.
+- Document per-technique make-token validation and distinguish remote
+  authentication identity from target-side execution identity.
 - Document the provider DLL, service executable, and WMI event-consumer command
   contracts used by techniques that do not resolve launchers.
+- Share provider registration and lifecycle code across the initialization,
+  instance, and method provider techniques.
+- Release a verified standalone ZIP alongside the Cobalt Strike and Sliver
+  bundles.
 
 ## [0.4.2] - 2026-10-29
 
