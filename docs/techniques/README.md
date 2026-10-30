@@ -10,7 +10,9 @@ techniques may instead use the Cobalt Strike [launcher contracts](../launchers/R
 
 | Selector | Required options | Remote API | Success evidence | Recovery context | Platform validation |
 |---|---|---|---|---|---|
-| [`wmi-provider`](wmiprovider.md) | `--provider-name`, `--provider-clsid`, `--remote-path` | WMI and remote registry | Provider loaded | Provider name, CLSID, and DLL path | Windows; Server 2025 validated |
+| [`wmi-provider`](wmiprovider.md) | `--provider-name`, `--provider-clsid`, `--remote-path` | WMI and remote registry | Initialization provider loaded | Provider role, name, CLSID, and DLL path | Windows; Server 2025 validated |
+| [`wmi-instance-provider`](wmiinstanceprovider.md) | `--provider-name`, `--provider-clsid`, `--remote-path` | WMI instance-provider registration and remote registry | Instance provider loaded | Provider role, name, CLSID, and DLL path | Windows; Server 2025 Sliver x64 and x86 validated |
+| [`wmi-method-provider`](wmimethodprovider.md) | `--provider-name`, `--provider-clsid`, `--remote-path` | WMI method-provider registration and remote registry | Method provider loaded | Provider role, name, CLSID, and DLL path | Windows; Server 2025 Sliver x64 and x86 validated |
 | [`wmi-event-subscription`](wmieventsubscription.md) | `--subscription-name`, `--query`, `--command` | WMI permanent event consumer | Filter, consumer, and binding created | Subscription name | Windows; Server 2025 x64 validated |
 | [`wmi-service`](wmiservice.md) | `--service-name`, `--remote-path` | WMI `Win32_Service` | Service start requested | Original and applied service configuration | Windows; Server 2025 validated |
 | [`wmi-exec`](wmiexec.md) | `--command` or launcher options | WMI `Win32_Process.Create` | Process created with PID | None | Windows; Server 2025 validated |

@@ -7,6 +7,12 @@ Rex registers COM metadata and a `__Win32Provider` instance, then calls
 BOF architecture, and implement the COM class identified by
 `--provider-clsid`.
 
+This selector is the initialization-only provider role. It does not create an
+instance, method, property, or event-provider registration. Use
+[`wmi-instance-provider`](wmiinstanceprovider.md) or
+[`wmi-method-provider`](wmimethodprovider.md) when the target-side schema and
+DLL implement one of those roles.
+
 The provider host loads the DLL directly; this technique does not use a
 launcher.
 
@@ -34,8 +40,8 @@ status sink, support `ThreadingModel=Both`, and unload cleanly. Rex performs
 the COM registration, so self-registration exports are not required.
 
 See the complete [WMI provider DLL contract](../contracts/wmi-provider.md),
-including exports, interfaces, hosting, validation, and the provider-role
-registrations Rex does not create.
+including exports, interfaces, hosting, role-specific interfaces, schema, and
+validation.
 
 ## Requirements
 

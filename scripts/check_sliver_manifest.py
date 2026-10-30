@@ -11,6 +11,14 @@ EXPECTED = {
         ("provider-name", False), ("provider-clsid", False),
         ("remote-path", False),
     ]),
+    "rex-wmi-instance-provider": ("wmiinstanceprovider", "go_sliver_3", [
+        ("provider-name", False), ("provider-clsid", False),
+        ("remote-path", False),
+    ]),
+    "rex-wmi-method-provider": ("wmimethodprovider", "go_sliver_3", [
+        ("provider-name", False), ("provider-clsid", False),
+        ("remote-path", False),
+    ]),
     "rex-wmi-event-subscription": ("wmieventsubscription", "go_sliver_3", [
         ("subscription-name", False), ("query", False), ("command", False),
     ]),

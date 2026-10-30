@@ -21,6 +21,8 @@ the technique. Supply the same options as an execution command.
 | Command | Technique options |
 |---|---|
 | `wmi-provider` | `--provider-name`, `--provider-clsid`, `--remote-path` |
+| `wmi-instance-provider` | `--provider-name`, `--provider-clsid`, `--remote-path` |
+| `wmi-method-provider` | `--provider-name`, `--provider-clsid`, `--remote-path` |
 | `wmi-event-subscription` | `--subscription-name`, `--query`, `--command` |
 | `wmi-service` | `--service-name`, `--remote-path` |
 | `wmi-exec` | `--command` or launcher options |
@@ -63,8 +65,8 @@ rex wmi-exec --target 10.0.0.15 --payload-type dll \
   --launcher rundll32.exe --entry-point Run
 ```
 
-Service techniques require a service executable. `wmi-provider` loads its DLL
-directly and does not accept launcher options. See the
+Service techniques require a service executable. The three WMI provider
+techniques load their DLL directly and do not accept launcher options. See the
 [target-side input contracts](../contracts/README.md) for direct inputs and the
 [launcher reference](../launchers/README.md) for launcher-resolved payloads.
 
@@ -73,8 +75,10 @@ directly and does not accept launcher options. See the
 `wsman-exec` defaults to `http:5985`. Accepted `--transport` values are `http`,
 `https`, `http:<port>`, and `https:<port>`; HTTPS defaults to port 5986.
 
-`wmi-provider` requires a DLL matching the BOF architecture. An x64 object uses
-the 64-bit COM registry view; an x86 object uses the 32-bit view.
+The three WMI provider techniques require a DLL matching the BOF architecture.
+An x64 object uses the 64-bit COM registry view; an x86 object uses the 32-bit
+view. Instance and method providers also require a compatible managed-class
+schema in `root\default`.
 `dcom-ishell-dispatch2` requires an interactive Explorer shell.
 Existing-service techniques require a stopped service.
 

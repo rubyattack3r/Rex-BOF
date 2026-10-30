@@ -9,6 +9,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED = {
     "wmiprovider": "wmi-provider",
+    "wmiinstanceprovider": "wmi-instance-provider",
+    "wmimethodprovider": "wmi-method-provider",
     "wmieventsubscription": "wmi-event-subscription",
     "wmiservice": "wmi-service",
     "wmiexec": "wmi-exec",

@@ -27,6 +27,8 @@ for the current client process.
 | Sliver command | Required technique values | Optional technique values |
 |---|---|---|
 | `rex-wmi-provider` | `--target`, `--provider-name`, `--provider-clsid`, `--remote-path` | `--action` |
+| `rex-wmi-instance-provider` | `--target`, `--provider-name`, `--provider-clsid`, `--remote-path` | `--action` |
+| `rex-wmi-method-provider` | `--target`, `--provider-name`, `--provider-clsid`, `--remote-path` | `--action` |
 | `rex-wmi-event-subscription` | `--target`, `--subscription-name`, `--query`, `--command` | `--action` |
 | `rex-wmi-service` | `--target`, `--service-name`, `--remote-path` | `--action` |
 | `rex-wmi-exec` | `--target`, `--command` | `--action` |
@@ -44,7 +46,13 @@ read-only prerequisite callback and skip mutation.
 rex-wmi-exec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
 rex-wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 rex-wsman-exec --target 10.0.0.15 --program cmd.exe --arguments "/c whoami"
+rex-wmi-instance-provider --target server01 --provider-name ExampleProvider --provider-clsid {00000000-0000-0000-0000-000000000000} --remote-path 'C:\ProgramData\Example\provider.dll'
 ```
+
+Single-quote Windows paths so Sliver's command lexer preserves each
+backslash. An unquoted value such as `C:\ProgramData\Example\provider.dll`
+is packed without its backslashes and fails the target-side path check or DLL
+load.
 
 The Sliver manifest exposes primitive command, program, and argument fields.
 It does not reproduce the Cobalt Strike launcher registry. Compose launcher

@@ -93,7 +93,8 @@ sub rex_general_help {
         "       rex techniques\n" .
         "       rex launchers\n" .
         "       rex help <technique>\n" .
-        "techniques: wmi-provider, wmi-event-subscription, wmi-service, wmi-exec, " .
+        "techniques: wmi-provider, wmi-instance-provider, wmi-method-provider, " .
+        "wmi-event-subscription, wmi-service, wmi-exec, " .
         "wsman-exec, task-sched-exec, dcom-ishell-dispatch2, " .
         "scm-change-service, scm-create-service, scm-command\n" .
         "identity: rex uses the active Beacon token context"
@@ -121,8 +122,9 @@ sub rex_technique_help {
     else if ($2 eq "dcom-ishell-dispatch2") {
         $usage = "rex " . $2 . " --target <host> (--program <executable> [--arguments <arguments>] | <launcher options>)";
     }
-    else if ($2 eq "wmi-provider") {
-        $usage = "rex wmi-provider --target <host> --provider-name <name> --provider-clsid <{GUID}> --remote-path <provider-dll>";
+    else if ($2 eq "wmi-provider" || $2 eq "wmi-instance-provider" ||
+        $2 eq "wmi-method-provider") {
+        $usage = "rex " . $2 . " --target <host> --provider-name <name> --provider-clsid <{GUID}> --remote-path <provider-dll>";
     }
     else if ($2 eq "wmi-event-subscription") {
         $usage = "rex wmi-event-subscription --target <host> --subscription-name <name> --query <WQL> --command <command-line>";
@@ -168,6 +170,8 @@ sub rex_techniques {
         "wsman-exec: --program, optional --arguments and --transport\n" .
         "dcom-ishell-dispatch2: --program, optional --arguments\n" .
         "wmi-provider: --provider-name, --provider-clsid, --remote-path\n" .
+        "wmi-instance-provider: --provider-name, --provider-clsid, --remote-path\n" .
+        "wmi-method-provider: --provider-name, --provider-clsid, --remote-path\n" .
         "command-capable selectors also accept an explicit launcher contract\n" .
         "all selectors: --target; identity is inherited from the active Beacon token"
     );
@@ -193,7 +197,8 @@ sub rex_launchers {
 }
 
 sub rex_known_technique {
-    if ($1 eq "wmi-provider" || $1 eq "wmi-event-subscription" ||
+    if ($1 eq "wmi-provider" || $1 eq "wmi-instance-provider" ||
+        $1 eq "wmi-method-provider" || $1 eq "wmi-event-subscription" ||
         $1 eq "wmi-service" || $1 eq "wmi-exec" ||
         $1 eq "wsman-exec" || $1 eq "task-sched-exec" ||
         $1 eq "dcom-ishell-dispatch2" || $1 eq "scm-change-service" ||
@@ -205,6 +210,8 @@ sub rex_known_technique {
 
 sub rex_object_name {
     if ($1 eq "wmi-provider") { return "wmiprovider"; }
+    if ($1 eq "wmi-instance-provider") { return "wmiinstanceprovider"; }
+    if ($1 eq "wmi-method-provider") { return "wmimethodprovider"; }
     if ($1 eq "wmi-event-subscription") { return "wmieventsubscription"; }
     if ($1 eq "wmi-service") { return "wmiservice"; }
     if ($1 eq "wmi-exec") { return "wmiexec"; }
@@ -321,7 +328,8 @@ sub rex_option_allowed {
         if ($2 eq "--program" || $2 eq "--arguments") { return 1; }
         return 0;
     }
-    if ($1 eq "wmi-provider") {
+    if ($1 eq "wmi-provider" || $1 eq "wmi-instance-provider" ||
+        $1 eq "wmi-method-provider") {
         if ($2 eq "--provider-name" || $2 eq "--provider-clsid" || $2 eq "--remote-path") { return 1; }
         return 0;
     }
@@ -669,7 +677,9 @@ alias rex {
             if (%seen["--arguments"]) { $secondary = %request["--arguments"]; }
         }
     }
-    else if ($selector eq "wmi-provider") {
+    else if ($selector eq "wmi-provider" ||
+        $selector eq "wmi-instance-provider" ||
+        $selector eq "wmi-method-provider") {
         if (!rex_require_option($bid, %seen["--provider-name"], "--provider-name", $selector)) { return; }
         if (!rex_require_option($bid, %seen["--provider-clsid"], "--provider-clsid", $selector)) { return; }
         if (!rex_require_option($bid, %seen["--remote-path"], "--remote-path", $selector)) { return; }

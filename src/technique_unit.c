@@ -14,6 +14,10 @@
 #include "common/wmi.c"
 #endif
 
+#if defined(REX_WITH_PROVIDER)
+#include "common/provider.c"
+#endif
+
 #if defined(REX_WITH_SERVICE)
 #include "common/service.c"
 #endif

@@ -9,8 +9,8 @@ not add another OS-specific column to every table.
 | Environment ID | Operating system | Host architecture | Integration and runtime | Last validated |
 |---|---|---|---|---|
 | `ws2025-26100-cs` | Windows Server 2025 Standard Evaluation, build 26100 | x64 | Cobalt Strike Beacon; x64 and x86 BOFs | 2026-10-29 |
-| `ws2025-26100-sliver179-x64` | Windows Server 2025 Standard Evaluation, build 26100 | x64 | Sliver v1.7.9 x64 implant; built-in Reflektor | 2026-10-29 |
-| `ws2025-26100-sliver179-x86` | Windows Server 2025 Standard Evaluation, build 26100 | x64 | Sliver v1.7.9 x86 implant; built-in Reflektor | 2026-10-29 |
+| `ws2025-26100-sliver179-x64` | Windows Server 2025 Standard Evaluation, build 26100 | x64 | Sliver v1.7.9 x64 implant; built-in Reflektor | 2026-10-30 |
+| `ws2025-26100-sliver179-x86` | Windows Server 2025 Standard Evaluation, build 26100 | x64 | Sliver v1.7.9 x86 implant; built-in Reflektor | 2026-10-30 |
 | `ws2025-26100-local` | Windows Server 2025 Standard Evaluation, build 26100 | x64 | Target-local launcher contract fixtures | 2026-10-29 |
 
 Other Windows releases and builds have not been tested.
@@ -20,6 +20,10 @@ Other Windows releases and builds have not been tested.
 | Technique | Environment | BOF architecture | Status | Observed evidence |
 |---|---|---|---|---|
 | [`wmi-provider`](techniques/wmiprovider.md) | `ws2025-26100-cs` | x64, x86 | Passed | Provider loaded with an architecture-matched DLL. |
+| [`wmi-instance-provider`](techniques/wmiinstanceprovider.md) | `ws2025-26100-sliver179-x64` | x64 | Passed | Preflight left no WMI or registry state; execute loaded the architecture-matched DLL, and a class enumeration reached its instance-provider callback. |
+| [`wmi-instance-provider`](techniques/wmiinstanceprovider.md) | `ws2025-26100-sliver179-x86` | x86 | Passed | Preflight left no WMI or registry state; execute loaded the architecture-matched DLL through the 32-bit registry view, and a class enumeration reached its callback. |
+| [`wmi-method-provider`](techniques/wmimethodprovider.md) | `ws2025-26100-sliver179-x64` | x64 | Passed | Preflight left no WMI or registry state; execute loaded the architecture-matched DLL, and a class method call reached its method-provider callback. |
+| [`wmi-method-provider`](techniques/wmimethodprovider.md) | `ws2025-26100-sliver179-x86` | x86 | Passed | Preflight left no WMI or registry state; execute loaded the architecture-matched DLL through the 32-bit registry view, and a class method call reached its callback. |
 | [`wmi-event-subscription`](techniques/wmieventsubscription.md) | `ws2025-26100-sliver179-x64` | x64 | Passed | Preflight left no subscription; execute created the filter, consumer, and binding, the event wrote its exact marker, and all three objects were removed. |
 | [`wmi-service`](techniques/wmiservice.md) | `ws2025-26100-cs` | x64, x86 | Passed | Service start requested and original configuration recorded. |
 | [`wmi-exec`](techniques/wmiexec.md) | `ws2025-26100-cs` | x64, x86 | Passed | Process creation returned a PID and the benign marker appeared. |
@@ -56,7 +60,7 @@ does not count as a validated launcher contract.
   both Windows architectures.
 - Sliver v1.7.9 parsed that manifest, resolved all 16 original objects and
   entry points, and built Reflektor requests.
-- The release bundle registers ten commands and resolves 20 objects. Technique
+- The release bundle registers twelve commands and resolves 24 objects. Technique
   rows above record live execution separately from registration.
 - COFFLoader v1.0.16 registered under Sliver v1.7.9, but `LoadAndRun` returned
   `ERROR_BAD_ENVIRONMENT` or `ERROR_INVALID_PARAMETER` before the BOF ran. The
@@ -69,5 +73,6 @@ UTF-16. `dcom-ishell-dispatch2` requires a usable interactive shell.
 The withheld `dcom-shell-browser-window` candidate additionally requires the
 target platform to allow remote activation of that class; an active Explorer
 process did not satisfy that condition on Server 2025 build 26100.
-`wmi-provider` needs a provider DLL with the same architecture as the BOF and
-requested CLSID.
+The three WMI provider techniques need a provider DLL with the same
+architecture as the BOF and requested CLSID. Instance and method roles also
+need a compatible managed-class schema in `root\default`.

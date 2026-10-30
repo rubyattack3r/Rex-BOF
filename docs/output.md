@@ -42,6 +42,13 @@ technique=scm-change-service target=10.0.0.15 status=failed phase=execution hres
 recovery target=10.0.0.15 action=restore_service service=Example original_binary=C:\Windows\System32\example.exe applied_binary=C:\ProgramData\staged-service.exe original_start_type=3 original_state=stopped
 ```
 
+Provider recovery records identify the selected role so role registration can
+be removed before the shared provider and COM registration:
+
+```text
+recovery target=server.example action=remove_wmi_provider provider=ExampleProvider role=instance clsid={01234567-89AB-CDEF-0123-456789ABCDEF} dll=C:\ProgramData\example-provider.dll
+```
+
 ## Transcript encoding
 
 Dynamic values use UTF-8 percent encoding for whitespace, control bytes, `%`,

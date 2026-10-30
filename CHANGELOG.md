@@ -6,10 +6,18 @@ increment the minor version.
 
 ## [Unreleased]
 
+### Added
+
+- Add `wmi-instance-provider` and `wmi-method-provider` as explicit x86 and
+  x64 Cobalt Strike and Sliver techniques with typed role registration and
+  recovery context.
+
 ### Changed
 
 - Document the provider DLL, service executable, and WMI event-consumer command
   contracts used by techniques that do not resolve launchers.
+- Share provider registration and lifecycle code across the initialization,
+  instance, and method provider techniques.
 
 ## [0.4.2] - 2026-10-29
 

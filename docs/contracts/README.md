@@ -1,12 +1,12 @@
 # Target-side input contracts
 
-Five stable techniques use target-side inputs directly instead of resolving a
+Seven stable techniques use target-side inputs directly instead of resolving a
 launcher. The input must already satisfy the Windows interface that consumes
 it; Rex does not transfer, inspect, or adapt it.
 
 | Techniques | Required contract |
 | --- | --- |
-| [`wmi-provider`](../techniques/wmiprovider.md) | [WMI provider COM DLL](wmi-provider.md) |
+| [`wmi-provider`](../techniques/wmiprovider.md), [`wmi-instance-provider`](../techniques/wmiinstanceprovider.md), [`wmi-method-provider`](../techniques/wmimethodprovider.md) | [WMI provider COM DLL and role](wmi-provider.md) |
 | [`wmi-event-subscription`](../techniques/wmieventsubscription.md) | [WMI event-consumer command line](wmi-event-command.md) |
 | [`wmi-service`](../techniques/wmiservice.md), [`scm-change-service`](../techniques/scmchangeservice.md), [`scm-create-service`](../techniques/scmcreateservice.md) | [Windows service executable](service-executable.md) |
 

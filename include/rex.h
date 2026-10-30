@@ -43,10 +43,17 @@ typedef struct {
     USHORT port;
 } rex_wsman_config;
 
+typedef enum {
+    REX_PROVIDER_ROLE_INITIALIZATION = 0,
+    REX_PROVIDER_ROLE_INSTANCE,
+    REX_PROVIDER_ROLE_METHOD
+} rex_provider_role;
+
 typedef struct {
     const wchar_t *name;
     const wchar_t *class_id;
     const wchar_t *dll_path;
+    rex_provider_role role;
 } rex_provider_config;
 
 typedef struct {
@@ -108,6 +115,7 @@ typedef struct {
     const wchar_t *name;
     const wchar_t *class_id;
     const wchar_t *dll_path;
+    rex_provider_role role;
 } rex_provider_artifact;
 
 typedef struct {

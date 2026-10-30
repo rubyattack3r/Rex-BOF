@@ -26,6 +26,14 @@ static const char *rex_phase_name(rex_phase phase) {
     return "none";
 }
 
+static const char *rex_provider_role_name(rex_provider_role role) {
+    if (role == REX_PROVIDER_ROLE_INSTANCE)
+        return "instance";
+    if (role == REX_PROVIDER_ROLE_METHOD)
+        return "method";
+    return "initialization";
+}
+
 static void rex_recovery_write(const rex_recovery *recovery,
                                const char *target) {
     char *name;
@@ -83,9 +91,10 @@ static void rex_recovery_write(const rex_recovery *recovery,
         dll_path = rex_text_encode_wide(recovery->value.provider.dll_path);
         BeaconPrintf(CALLBACK_OUTPUT_UTF8,
                      "recovery target=%s action=remove_wmi_provider "
-                     "provider=%s clsid=%s dll=%s\n",
-                     rex_value(target), rex_value(name), rex_value(class_id),
-                     rex_value(dll_path));
+                     "provider=%s role=%s clsid=%s dll=%s\n",
+                     rex_value(target), rex_value(name),
+                     rex_provider_role_name(recovery->value.provider.role),
+                     rex_value(class_id), rex_value(dll_path));
         rex_text_free(dll_path);
         rex_text_free(class_id);
         rex_text_free(name);

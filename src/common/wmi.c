@@ -776,6 +776,133 @@ static HRESULT rex_wmi_spawn(rex_wmi_session *session,
     return result;
 }
 
+static const wchar_t *rex_wmi_provider_role_class(rex_provider_role role) {
+    if (role == REX_PROVIDER_ROLE_INSTANCE)
+        return L"__InstanceProviderRegistration";
+    if (role == REX_PROVIDER_ROLE_METHOD)
+        return L"__MethodProviderRegistration";
+    return NULL;
+}
+
+static BOOL rex_wmi_provider_reference(const wchar_t *name, wchar_t quote,
+                                       wchar_t output[512]) {
+    wchar_t delimiter[2] = {quote, L'\0'};
+    int offset = 0;
+    output[0] = L'\0';
+    return rex_append_wide(output, 512, &offset, L"__Win32Provider.Name=") &&
+           rex_append_wide(output, 512, &offset, delimiter) &&
+           rex_append_wide(output, 512, &offset, name) &&
+           rex_append_wide(output, 512, &offset, delimiter);
+}
+
+HRESULT rex_wmi_provider_role_exists(rex_wmi_session *session,
+                                     const wchar_t *name,
+                                     rex_provider_role role, BOOL *exists) {
+    const wchar_t *class_name = rex_wmi_provider_role_class(role);
+    BSTR language = NULL, query = NULL;
+    IEnumWbemClassObject *enumerator = NULL;
+    IWbemClassObject *instance = NULL;
+    VARIANT provider;
+    wchar_t query_text[128], double_reference[512], single_reference[512];
+    int offset = 0;
+    ULONG returned = 0;
+    HRESULT result;
+    *exists = FALSE;
+    if (class_name == NULL ||
+        !rex_wmi_provider_reference(name, L'"', double_reference) ||
+        !rex_wmi_provider_reference(name, L'\'', single_reference))
+        return E_INVALIDARG;
+    query_text[0] = L'\0';
+    if (!rex_append_wide(query_text, 128, &offset, L"SELECT * FROM ") ||
+        !rex_append_wide(query_text, 128, &offset, class_name))
+        return E_INVALIDARG;
+    language = OLEAUT32$SysAllocString(L"WQL");
+    query = OLEAUT32$SysAllocString(query_text);
+    if (language == NULL || query == NULL) {
+        result = E_OUTOFMEMORY;
+        goto cleanup;
+    }
+    result = IWbemServices_ExecQuery(session->services, language, query,
+                                     WBEM_FLAG_FORWARD_ONLY |
+                                         WBEM_FLAG_RETURN_IMMEDIATELY,
+                                     NULL, &enumerator);
+    if (FAILED(result))
+        goto cleanup;
+    for (;;) {
+        OLEAUT32$VariantInit(&provider);
+        result = IEnumWbemClassObject_Next(enumerator, WBEM_INFINITE, 1,
+                                           &instance, &returned);
+        if (FAILED(result) || returned == 0) {
+            OLEAUT32$VariantClear(&provider);
+            break;
+        }
+        result = IWbemClassObject_Get(instance, L"Provider", 0, &provider, NULL,
+                                      NULL);
+        if (SUCCEEDED(result) && V_VT(&provider) == VT_BSTR &&
+            (rex_wmi_value_equal(V_BSTR(&provider), double_reference) ||
+             rex_wmi_value_equal(V_BSTR(&provider), single_reference))) {
+            *exists = TRUE;
+        }
+        IWbemClassObject_Release(instance);
+        instance = NULL;
+        OLEAUT32$VariantClear(&provider);
+        if (FAILED(result) || *exists)
+            break;
+    }
+    if (SUCCEEDED(result))
+        result = S_OK;
+cleanup:
+    if (instance != NULL)
+        IWbemClassObject_Release(instance);
+    if (enumerator != NULL)
+        IEnumWbemClassObject_Release(enumerator);
+    if (query != NULL)
+        OLEAUT32$SysFreeString(query);
+    if (language != NULL)
+        OLEAUT32$SysFreeString(language);
+    return result;
+}
+
+static HRESULT rex_wmi_put_bool(IWbemClassObject *instance,
+                                const wchar_t *property, BOOL enabled) {
+    VARIANT value;
+    OLEAUT32$VariantInit(&value);
+    V_VT(&value) = VT_BOOL;
+    V_BOOL(&value) = enabled ? VARIANT_TRUE : VARIANT_FALSE;
+    return IWbemClassObject_Put(instance, property, 0, &value, 0);
+}
+
+HRESULT rex_wmi_provider_role_register(rex_wmi_session *session,
+                                       const wchar_t *name,
+                                       rex_provider_role role) {
+    const wchar_t *class_name = rex_wmi_provider_role_class(role);
+    IWbemClassObject *instance = NULL;
+    wchar_t provider_reference[512];
+    HRESULT result;
+    if (class_name == NULL ||
+        !rex_wmi_provider_reference(name, L'"', provider_reference))
+        return E_INVALIDARG;
+    result = rex_wmi_spawn(session, class_name, &instance);
+    if (FAILED(result))
+        goto cleanup;
+    result = rex_wmi_put_string(instance, L"Provider", provider_reference);
+    if (role == REX_PROVIDER_ROLE_INSTANCE && SUCCEEDED(result))
+        result = rex_wmi_put_bool(instance, L"SupportsPut", FALSE);
+    if (role == REX_PROVIDER_ROLE_INSTANCE && SUCCEEDED(result))
+        result = rex_wmi_put_bool(instance, L"SupportsGet", TRUE);
+    if (role == REX_PROVIDER_ROLE_INSTANCE && SUCCEEDED(result))
+        result = rex_wmi_put_bool(instance, L"SupportsDelete", FALSE);
+    if (role == REX_PROVIDER_ROLE_INSTANCE && SUCCEEDED(result))
+        result = rex_wmi_put_bool(instance, L"SupportsEnumeration", TRUE);
+    if (SUCCEEDED(result))
+        result = IWbemServices_PutInstance(session->services, instance,
+                                           WBEM_FLAG_CREATE_ONLY, NULL, NULL);
+cleanup:
+    if (instance != NULL)
+        IWbemClassObject_Release(instance);
+    return result;
+}
+
 HRESULT rex_wmi_subscription_preflight(rex_wmi_session *session,
                                        const wchar_t *name) {
     BOOL exists = FALSE;

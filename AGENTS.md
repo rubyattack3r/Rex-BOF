@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository builds ten Windows remote-execution techniques as native
+This repository builds twelve Windows remote-execution techniques as native
 Cobalt Strike BOFs. Every technique supports x86 and x64 Beacons. Keep the
 typed runtime and reusable WMI and service code shared, with one selector,
 implementation, descriptor loader, and object per technique. Cobalt Strike and
@@ -15,8 +15,8 @@ Sliver integrations live separately under `integrations/`.
   Beacon APIs available to the objects.
 - `src/common/rex.c` is the common BOF entry point. `src/common/result.c`,
   `runtime.c`, and `text.c` own typed output, runtime helpers, and UTF-8
-  transcript encoding. `wmi.c` and `service.c` provide reusable capabilities
-  linked only into techniques that need them.
+  transcript encoding. `wmi.c`, `provider.c`, and `service.c` provide reusable
+  capabilities linked only into techniques that need them.
 - `src/techniques/` contains one implementation and one `rex_technique`
   descriptor loader for each canonical stable selector listed in
   `docs/techniques/README.md`.
@@ -43,13 +43,13 @@ Sliver integrations live separately under `integrations/`.
   documentation and release checks. `.github/` contains CI, CodeQL, release
   workflows, Dependabot, and community health files.
 - The Cobalt Strike and Sliver release bundles each contain their integration
-  file, all 20 objects, the offline `docs/` tree, project metadata, the MIT
+  file, all 24 objects, the offline `docs/` tree, project metadata, the MIT
   license, and acceptable-use guidance. Each bundle keeps its integration file
   and objects together at its root.
 
 ## Behavior and Safety Invariants
 
-- Preserve the ten public kebab-case command names, internal stable
+- Preserve the twelve public kebab-case command names, internal stable
   selectors, and documented named options unless a user-facing change is
   intended. Keep one target per invocation and one object per selector and
   architecture.

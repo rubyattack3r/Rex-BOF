@@ -1,15 +1,17 @@
 # Rex BOF documentation
 
-Rex provides native x86 and x64 BOFs for ten Windows remote-execution
+Rex provides native x86 and x64 BOFs for twelve Windows remote-execution
 techniques. Cobalt Strike exposes them through one `rex` command; Sliver uses
-ten `rex-*` commands.
+twelve `rex-*` commands.
 
 Commands use the active implant token and operate on one target at a time. Rex
 does not accept credentials or transfer payload files.
 
 | Selector | Input | Privilege | Surface | Outcome and recovery |
 |---|---|---|---|---|
-| [`wmi-provider`](techniques/wmiprovider.md) | Provider DLL | Local administrator | WMI/DCOM, remote registry | Provider loaded; registration remains |
+| [`wmi-provider`](techniques/wmiprovider.md) | Initialization provider DLL | Local administrator | WMI/DCOM, remote registry | Provider loaded; registration remains |
+| [`wmi-instance-provider`](techniques/wmiinstanceprovider.md) | Instance-provider DLL and schema | Local administrator | WMI/DCOM, remote registry | Instance role loaded; registration remains |
+| [`wmi-method-provider`](techniques/wmimethodprovider.md) | Method-provider DLL and schema | Local administrator | WMI/DCOM, remote registry | Method role loaded; registration remains |
 | [`wmi-event-subscription`](techniques/wmieventsubscription.md) | WQL query and command | Local administrator | WMI/DCOM | Permanent filter, consumer, and binding remain |
 | [`wmi-service`](techniques/wmiservice.md) | Service executable | Local administrator | WMI/DCOM | Service start requested; configuration changed |
 | [`wmi-exec`](techniques/wmiexec.md) | Command or launcher | Local administrator | WMI/DCOM | Process created; PID returned |

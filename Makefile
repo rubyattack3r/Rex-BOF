@@ -19,20 +19,27 @@ SLIVER_OUTPUT_DIR := integrations/sliver
 BOFLINT ?= boflint.py
 VERSION ?=
 
-TECHNIQUES := wmiprovider wmieventsubscription wmiservice wmiexec wsmanexec taskschedexec dcomishelldispatch2 scmchangeservice scmcreateservice scmcommand
+TECHNIQUES := wmiprovider wmiinstanceprovider wmimethodprovider \
+	wmieventsubscription wmiservice wmiexec wsmanexec taskschedexec \
+	dcomishelldispatch2 scmchangeservice scmcreateservice scmcommand
 OUTPUTS := $(foreach technique,$(TECHNIQUES),$(OUTPUT_DIR)/rex_$(technique).x64.o $(OUTPUT_DIR)/rex_$(technique).x86.o)
 SLIVER_OUTPUTS := $(foreach technique,$(TECHNIQUES),$(SLIVER_OUTPUT_DIR)/rex_$(technique).x64.o $(SLIVER_OUTPUT_DIR)/rex_$(technique).x86.o)
 
 BASE_SOURCES := src/common/rex.c src/common/registry.c src/common/result.c src/common/runtime.c src/common/text.c
 COM_SOURCES := src/common/com.c
 WMI_SOURCES := src/common/wmi.c
+PROVIDER_SOURCES := src/common/provider.c
 SERVICE_SOURCES := src/common/service.c
 HEADERS := $(wildcard include/*.h src/common/*.h src/techniques/*.h)
 FORMAT_SOURCES := $(wildcard include/*.h src/common/*.c src/common/*.h \
 	src/techniques/*.c src/techniques/*.h tests/*.c) src/technique_unit.c
 
-wmiprovider_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) src/techniques/wmiprovider.c
-wmiprovider_DEFINES := -DREX_WITH_COM_SECURITY -DREX_WITH_WMI
+wmiprovider_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) $(PROVIDER_SOURCES) src/techniques/wmiprovider.c
+wmiprovider_DEFINES := -DREX_WITH_COM_SECURITY -DREX_WITH_WMI -DREX_WITH_PROVIDER
+wmiinstanceprovider_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) $(PROVIDER_SOURCES) src/techniques/wmiinstanceprovider.c
+wmiinstanceprovider_DEFINES := -DREX_WITH_COM_SECURITY -DREX_WITH_WMI -DREX_WITH_PROVIDER
+wmimethodprovider_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) $(PROVIDER_SOURCES) src/techniques/wmimethodprovider.c
+wmimethodprovider_DEFINES := -DREX_WITH_COM_SECURITY -DREX_WITH_WMI -DREX_WITH_PROVIDER
 wmieventsubscription_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) src/techniques/wmieventsubscription.c
 wmieventsubscription_DEFINES := -DREX_WITH_COM_SECURITY -DREX_WITH_WMI
 wmiservice_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) $(WMI_SOURCES) $(SERVICE_SOURCES) src/techniques/wmiservice.c

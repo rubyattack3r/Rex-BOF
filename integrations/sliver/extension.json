@@ -25,6 +25,42 @@
       ]
     },
     {
+      "command_name": "rex-wmi-instance-provider",
+      "help": "Register and load a WMI instance provider on one Windows target",
+      "long_help": "Use -action preflight to validate prerequisites without mutation. The provider DLL and compatible managed-class schema must already exist on the target.",
+      "entrypoint": "go_sliver_3",
+      "bof_executor": "reflektor",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_wmiinstanceprovider.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_wmiinstanceprovider.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "provider-name", "type": "wstring", "desc": "WMI provider name", "optional": false},
+        {"name": "provider-clsid", "type": "wstring", "desc": "Provider CLSID in braces", "optional": false},
+        {"name": "remote-path", "type": "wstring", "desc": "Existing target-side instance-provider DLL path", "optional": false}
+      ]
+    },
+    {
+      "command_name": "rex-wmi-method-provider",
+      "help": "Register and load a WMI method provider on one Windows target",
+      "long_help": "Use -action preflight to validate prerequisites without mutation. The provider DLL and compatible managed-class schema must already exist on the target.",
+      "entrypoint": "go_sliver_3",
+      "bof_executor": "reflektor",
+      "files": [
+        {"os": "windows", "arch": "amd64", "path": "rex_wmimethodprovider.x64.o"},
+        {"os": "windows", "arch": "386", "path": "rex_wmimethodprovider.x86.o"}
+      ],
+      "arguments": [
+        {"name": "action", "type": "string", "desc": "execute or preflight", "optional": true, "default": "execute", "choices": ["execute", "preflight"]},
+        {"name": "target", "type": "string", "desc": "Target hostname or address", "optional": false},
+        {"name": "provider-name", "type": "wstring", "desc": "WMI provider name", "optional": false},
+        {"name": "provider-clsid", "type": "wstring", "desc": "Provider CLSID in braces", "optional": false},
+        {"name": "remote-path", "type": "wstring", "desc": "Existing target-side method-provider DLL path", "optional": false}
+      ]
+    },
+    {
       "command_name": "rex-wmi-event-subscription",
       "help": "Create a permanent WMI event subscription on one Windows target",
       "long_help": "Use -action preflight to validate the subscription name and WMI namespace without mutation. The query is evaluated in root\\cimv2.",
