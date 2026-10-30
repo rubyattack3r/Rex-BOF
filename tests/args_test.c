@@ -4,6 +4,17 @@
 
 static unsigned int failures;
 
+static FILE *temporary_file(void) {
+#ifdef _MSC_VER
+    FILE *output = NULL;
+    if (tmpfile_s(&output) != 0)
+        return NULL;
+    return output;
+#else
+    return tmpfile();
+#endif
+}
+
 static rex_cli_arguments parse(int argc, wchar_t **argv,
                                rex_cli_parse_status expected) {
     rex_cli_arguments arguments;
@@ -83,7 +94,7 @@ int main(void) {
     if (arguments.error != REX_CLI_ERROR_PASSWORD_WITHOUT_PRINCIPAL)
         failures++;
 
-    output = tmpfile();
+    output = temporary_file();
     if (output == NULL) {
         failures++;
     } else {
