@@ -31,8 +31,9 @@ flowchart LR
 - `integrations/sliver/extension.json` exposes twelve primitive commands, selects
   `amd64` or `386` objects, and uses dedicated argument-count adapters before
   entering the shared runtime.
-- `src/standalone/` provides the Windows CLI entrypoint, console output adapter,
-  and direct-import mapping used to link all released techniques into one PE.
+- `src/standalone/` provides the table-driven argument and help parser, Windows
+  CLI entrypoint, console output adapter, and direct-import mapping used to
+  link all released techniques into one PE.
 
 The build uses Zig to compile one translation unit per technique and
 architecture. `src/technique_unit.c` includes the shared runtime, the common

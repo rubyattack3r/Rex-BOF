@@ -22,6 +22,13 @@ sequenceDiagram
     B-->>B: Emit task recovery context
 ```
 
+## Identity
+
+The current or make-token identity authenticates to Task Scheduler and
+registers the task. Rex explicitly configures the task to run as `SYSTEM`, so
+the launched program does not run as the make-token account. See the
+[identity matrix](../identity.md).
+
 ## Requirements
 
 - Local administrator on the target

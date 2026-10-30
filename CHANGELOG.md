@@ -17,9 +17,15 @@ increment the minor version.
 - Add x86 and x64 standalone Windows executables built from the shared
   technique registry and lifecycle, with inline passwords or an interactive
   no-echo password prompt.
+- Add built-in general, technique, and selector-list help to the standalone
+  executables, backed by a tested table-driven argument parser.
 
 ### Changed
 
+- Reduce the BOF DFR surface by zero-initializing local `VARIANT` values
+  instead of importing `VariantInit`.
+- Document per-technique make-token validation and distinguish remote
+  authentication identity from target-side execution identity.
 - Document the provider DLL, service executable, and WMI event-consumer command
   contracts used by techniques that do not resolve launchers.
 - Share provider registration and lifecycle code across the initialization,

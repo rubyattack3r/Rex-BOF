@@ -3,6 +3,7 @@ LLVM_NM ?= llvm-nm
 LLVM_OBJCOPY ?= llvm-objcopy
 LLVM_OBJDUMP ?= llvm-objdump
 CLANG_FORMAT ?= clang-format
+HOST_CC ?= clang
 
 # The win7 targets set _WIN32_WINNT to 0x0601.
 TARGET_x64 := x86_64-windows.win7-gnu
@@ -17,6 +18,7 @@ CPPFLAGS := -Iinclude -Isrc/common -Isrc/techniques
 OUTPUT_DIR := integrations/cna
 SLIVER_OUTPUT_DIR := integrations/sliver
 STANDALONE_OUTPUT_DIR := bin
+HOST_TEST_OUTPUT_DIR := .build/tests
 BOFLINT ?= boflint.py
 VERSION ?=
 
@@ -39,7 +41,8 @@ HEADERS := $(wildcard include/*.h src/common/*.h src/techniques/*.h)
 FORMAT_SOURCES := $(wildcard include/*.h src/common/*.c src/common/*.h \
 	src/standalone/*.c src/standalone/*.h src/techniques/*.c \
 	src/techniques/*.h tests/*.c) src/technique_unit.c
-STANDALONE_SOURCES := src/standalone/main.c src/standalone/beacon.c \
+STANDALONE_SOURCES := src/standalone/main.c src/standalone/args.c \
+	src/standalone/beacon.c \
 	src/common/com.c src/common/identity.c src/common/lifecycle.c \
 	src/common/provider.c src/common/registry.c src/common/result.c \
 	src/common/runtime.c src/common/service.c src/common/text.c \
@@ -77,13 +80,13 @@ scmcreateservice_DEFINES := -DREX_WITH_SERVICE
 scmcommand_SOURCES := $(BASE_SOURCES) $(SERVICE_SOURCES) src/techniques/scmcommand.c
 scmcommand_DEFINES := -DREX_WITH_SERVICE
 
-.PHONY: all clean demo docs format format-check imports lint objects release \
-	sliver-entrypoints sliver-manifest standalone standalone-binaries \
+.PHONY: all clean demo docs format format-check host-tests imports lint \
+	objects release sliver-entrypoints sliver-manifest standalone standalone-binaries \
 	technique-contract verify verify-bof
 
 all: $(OUTPUTS) $(SLIVER_OUTPUTS) $(STANDALONE_OUTPUTS)
 
-verify: clean lint all objects docs technique-contract sliver-manifest \
+verify: clean lint host-tests all objects docs technique-contract sliver-manifest \
 	sliver-entrypoints standalone-binaries
 
 lint: format-check
@@ -99,6 +102,13 @@ format:
 
 format-check:
 	$(CLANG_FORMAT) --dry-run --Werror $(FORMAT_SOURCES)
+
+host-tests:
+	@mkdir -p $(HOST_TEST_OUTPUT_DIR)
+	$(HOST_CC) -std=c11 $(WARNINGS) -Isrc/standalone \
+		src/standalone/args.c tests/args_test.c \
+		-o $(HOST_TEST_OUTPUT_DIR)/args_test
+	$(HOST_TEST_OUTPUT_DIR)/args_test
 
 objects: all
 	LLVM_NM="$(LLVM_NM)" LLVM_OBJDUMP="$(LLVM_OBJDUMP)" \

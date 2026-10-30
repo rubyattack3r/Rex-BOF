@@ -19,7 +19,6 @@ DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoSetProxyBlanket(IUnknown *, DWORD, DWORD,
                                                        DWORD);
 DECLSPEC_IMPORT BSTR WINAPI OLEAUT32$SysAllocString(const OLECHAR *);
 DECLSPEC_IMPORT void WINAPI OLEAUT32$SysFreeString(BSTR);
-DECLSPEC_IMPORT void WINAPI OLEAUT32$VariantInit(VARIANTARG *);
 DECLSPEC_IMPORT HRESULT WINAPI OLEAUT32$VariantClear(VARIANTARG *);
 DECLSPEC_IMPORT HANDLE WINAPI KERNEL32$GetProcessHeap(void);
 DECLSPEC_IMPORT LPVOID WINAPI KERNEL32$HeapAlloc(HANDLE, DWORD, SIZE_T);
@@ -94,7 +93,7 @@ static HRESULT rex_wmi_method_result(IWbemClassObject *output) {
     VARIANT return_value;
     DWORD method_result = 0;
     HRESULT result;
-    OLEAUT32$VariantInit(&return_value);
+    rex_zero(&return_value, sizeof(return_value));
     result = IWbemClassObject_Get(output, L"ReturnValue", 0, &return_value,
                                   NULL, NULL);
     if (SUCCEEDED(result)) {
@@ -216,9 +215,9 @@ HRESULT rex_wmi_process_create(rex_wmi_session *session,
     VARIANT pid_value;
     DWORD method_result = 0;
 
-    OLEAUT32$VariantInit(&command_value);
-    OLEAUT32$VariantInit(&return_value);
-    OLEAUT32$VariantInit(&pid_value);
+    rex_zero(&command_value, sizeof(command_value));
+    rex_zero(&return_value, sizeof(return_value));
+    rex_zero(&pid_value, sizeof(pid_value));
 
     if (session->create_input_definition == NULL) {
         process_path = OLEAUT32$SysAllocString(L"Win32_Process");
@@ -320,7 +319,7 @@ HRESULT rex_wmi_service_change(rex_wmi_session *session, const wchar_t *name,
     VARIANT path;
     HRESULT result;
 
-    OLEAUT32$VariantInit(&path);
+    rex_zero(&path, sizeof(path));
     class_path = OLEAUT32$SysAllocString(L"Win32_Service");
     if (class_path == NULL) {
         result = E_OUTOFMEMORY;
@@ -449,7 +448,7 @@ HRESULT rex_wmi_provider_register(rex_wmi_session *session, const wchar_t *name,
     wchar_t hosting[512];
     int offset = 0;
     HRESULT result;
-    OLEAUT32$VariantInit(&value);
+    rex_zero(&value, sizeof(value));
     hosting[0] = L'\0';
     if (!rex_append_wide(hosting, 512, &offset, L"LocalSystemHost:") ||
         !rex_append_wide(hosting, 512, &offset, name))
@@ -519,7 +518,7 @@ static HRESULT rex_wmi_provider_control(rex_wmi_session *session,
     IWbemClassObject *input = NULL, *output = NULL;
     VARIANT value;
     HRESULT result;
-    OLEAUT32$VariantInit(&value);
+    rex_zero(&value, sizeof(value));
     class_path = OLEAUT32$SysAllocString(L"MSFT_Providers");
     method_value = OLEAUT32$SysAllocString(method);
     namespace_value = OLEAUT32$SysAllocString(L"root\\default");
@@ -632,9 +631,9 @@ HRESULT rex_wmi_provider_unload(rex_wmi_session *session, const wchar_t *name) {
     if (FAILED(result))
         goto cleanup;
     for (;;) {
-        OLEAUT32$VariantInit(&provider);
-        OLEAUT32$VariantInit(&namespace_value);
-        OLEAUT32$VariantInit(&path);
+        rex_zero(&provider, sizeof(provider));
+        rex_zero(&namespace_value, sizeof(namespace_value));
+        rex_zero(&path, sizeof(path));
         result = IEnumWbemClassObject_Next(enumerator, WBEM_INFINITE, 1,
                                            &instance, &returned);
         if (FAILED(result) || returned == 0)
@@ -745,7 +744,7 @@ static HRESULT rex_wmi_put_string(IWbemClassObject *instance,
     BSTR value_text = OLEAUT32$SysAllocString(text);
     VARIANT value;
     HRESULT result;
-    OLEAUT32$VariantInit(&value);
+    rex_zero(&value, sizeof(value));
     if (value_text == NULL)
         return E_OUTOFMEMORY;
     V_VT(&value) = VT_BSTR;
@@ -829,7 +828,7 @@ HRESULT rex_wmi_provider_role_exists(rex_wmi_session *session,
     if (FAILED(result))
         goto cleanup;
     for (;;) {
-        OLEAUT32$VariantInit(&provider);
+        rex_zero(&provider, sizeof(provider));
         result = IEnumWbemClassObject_Next(enumerator, WBEM_INFINITE, 1,
                                            &instance, &returned);
         if (FAILED(result) || returned == 0) {
@@ -866,7 +865,7 @@ cleanup:
 static HRESULT rex_wmi_put_bool(IWbemClassObject *instance,
                                 const wchar_t *property, BOOL enabled) {
     VARIANT value;
-    OLEAUT32$VariantInit(&value);
+    rex_zero(&value, sizeof(value));
     V_VT(&value) = VT_BOOL;
     V_BOOL(&value) = enabled ? VARIANT_TRUE : VARIANT_FALSE;
     return IWbemClassObject_Put(instance, property, 0, &value, 0);
@@ -983,7 +982,7 @@ HRESULT rex_wmi_subscription_create(rex_wmi_session *session,
     result = rex_wmi_put_string(instance, L"Filter", filter_path);
     if (SUCCEEDED(result))
         result = rex_wmi_put_string(instance, L"Consumer", consumer_path);
-    OLEAUT32$VariantInit(&synchronous);
+    rex_zero(&synchronous, sizeof(synchronous));
     if (SUCCEEDED(result)) {
         V_VT(&synchronous) = VT_BOOL;
         V_BOOL(&synchronous) = VARIANT_FALSE;

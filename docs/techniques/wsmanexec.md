@@ -23,6 +23,13 @@ sequenceDiagram
     B-->>W: Close command, shell, and session
 ```
 
+## Identity
+
+The current or make-token identity authenticates the WinRM session. The tested
+Server 2025 endpoint ran the command as that supplied account; endpoint policy
+can impose additional authorization or session configuration. See the
+[identity matrix](../identity.md).
+
 ## Requirements
 
 - Local administrator accepted by the target's WinRM policy

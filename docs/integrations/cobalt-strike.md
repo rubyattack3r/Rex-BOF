@@ -41,14 +41,18 @@ invocation, add both options:
 ```text
 rex preflight wmi-exec --target server01 --command "whoami.exe /all" \
   --make-token DOMAIN\operator --password <password>
+
+rex preflight wmi-exec --target server01 --command "whoami.exe /all" \
+  --make-token operator@example.com --password <password>
 ```
 
-UPN syntax such as `operator@example.com` is also accepted. Rex obtains a
-`LOGON32_LOGON_NEW_CREDENTIALS` token while preserving the task thread's current
-local identity. A joined worker impersonates it, runs preflight and execution,
-and reverts; the task thread closes the token before writing the result. Rex
-does not replace Beacon's task-thread token. Windows may defer validation of
-new-credentials passwords until the first remote access.
+The first command uses down-level syntax; the second uses UPN syntax. Rex
+obtains a `LOGON32_LOGON_NEW_CREDENTIALS` token while preserving the task
+thread's current local identity. A joined worker impersonates it, runs
+preflight and execution, and reverts; the task thread closes the token before
+writing the result. Rex does not replace Beacon's task-thread token. Windows
+may defer validation of new-credentials passwords until the first remote
+access.
 
 Cobalt Strike has no secure password prompt for a BOF command. The password is
 part of operator input and tasking and may remain in console, team-server, or
@@ -57,7 +61,11 @@ the credential to transcript or recovery output. Prefer the active token when
 credential retention is unacceptable.
 
 The effective token needs the privileges required by the technique. The remote
-API must be reachable and allowed by target policy.
+API must be reachable and allowed by target policy. Make-token controls remote
+authentication; it does not necessarily become the identity of the launched
+process, provider, task, or service. See
+[identity and command-scoped credentials](../identity.md) for the
+per-technique behavior and Server 2025 results.
 
 ## Paths and text
 

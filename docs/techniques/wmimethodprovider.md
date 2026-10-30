@@ -35,6 +35,12 @@ served by the provider must already exist in `root\default` with compatible
 `Dynamic` and `Provider` qualifiers; its implemented methods must be declared
 in that schema.
 
+## Identity
+
+The current or make-token identity performs the remote WMI and registry
+operations. The provider callbacks run in the `LocalSystem` WMI provider host,
+not as the make-token account. See the [identity matrix](../identity.md).
+
 ## Requirements
 
 - Local administrator on the target

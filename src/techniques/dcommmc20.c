@@ -23,7 +23,6 @@ DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoSetProxyBlanket(IUnknown *, DWORD, DWORD,
 DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoEnableCallCancellation(LPVOID);
 DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoDisableCallCancellation(LPVOID);
 DECLSPEC_IMPORT HRESULT WINAPI OLE32$CoCancelCall(DWORD, DWORD);
-DECLSPEC_IMPORT void WINAPI OLEAUT32$VariantInit(VARIANTARG *);
 DECLSPEC_IMPORT HRESULT WINAPI OLEAUT32$VariantClear(VARIANTARG *);
 DECLSPEC_IMPORT BSTR WINAPI OLEAUT32$SysAllocString(const OLECHAR *);
 DECLSPEC_IMPORT HANDLE WINAPI KERNEL32$GetProcessHeap(void);
@@ -103,7 +102,7 @@ static HRESULT rex_mmc20_dispatch_result(IDispatch *source, const wchar_t *name,
     VARIANT value;
     HRESULT result;
     *output = NULL;
-    OLEAUT32$VariantInit(&value);
+    rex_zero(&value, sizeof(value));
     result = rex_mmc20_dispatch_call(source, name, DISPATCH_PROPERTYGET, NULL,
                                      0, &value);
     if (SUCCEEDED(result)) {
@@ -131,7 +130,7 @@ static HRESULT rex_mmc20_execute_command(IDispatch *view,
     strings[2] = L"C:\\";
     strings[3] = state->executable;
     for (index = 0; index < 4; index++)
-        OLEAUT32$VariantInit(&values[index]);
+        rex_zero(&values[index], sizeof(values[index]));
     for (index = 0; index < 4; index++) {
         V_VT(&values[index]) = VT_BSTR;
         V_BSTR(&values[index]) = OLEAUT32$SysAllocString(strings[index]);

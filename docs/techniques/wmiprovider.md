@@ -43,6 +43,13 @@ See the complete [WMI provider DLL contract](../contracts/wmi-provider.md),
 including exports, interfaces, hosting, role-specific interfaces, schema, and
 validation.
 
+## Identity
+
+The current or make-token identity performs the remote WMI and registry
+operations. The DLL is then loaded by a WMI provider host configured for
+`LocalSystem`; it does not run as the make-token account. See the
+[identity matrix](../identity.md).
+
 ## Requirements
 
 - Local administrator on the target

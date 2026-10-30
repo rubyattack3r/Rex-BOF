@@ -43,7 +43,6 @@
 #define OLEAUT32$SysAllocString SysAllocString
 #define OLEAUT32$SysFreeString SysFreeString
 #define OLEAUT32$VariantClear VariantClear
-#define OLEAUT32$VariantInit VariantInit
 
 #define WSMSVC$WSManCloseCommand WSManCloseCommand
 #define WSMSVC$WSManCloseOperation WSManCloseOperation

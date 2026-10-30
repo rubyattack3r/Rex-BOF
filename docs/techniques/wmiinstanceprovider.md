@@ -34,6 +34,12 @@ instance-provider operations it advertises through `IWbemServices`, and match
 the BOF architecture. A class served by the provider must already exist in
 `root\default` with compatible `Dynamic` and `Provider` qualifiers.
 
+## Identity
+
+The current or make-token identity performs the remote WMI and registry
+operations. The provider callbacks run in the `LocalSystem` WMI provider host,
+not as the make-token account. See the [identity matrix](../identity.md).
+
 ## Requirements
 
 - Local administrator on the target

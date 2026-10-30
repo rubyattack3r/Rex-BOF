@@ -27,6 +27,7 @@ Additional references:
 
 - [Integration guides](integrations/README.md)
 - [Technique reference](techniques/README.md)
+- [Identity and command-scoped credentials](identity.md)
 - [Read-only preflight](preflight.md)
 - [Target-side input contracts](contracts/README.md)
 - [Launcher contracts](launchers/README.md)

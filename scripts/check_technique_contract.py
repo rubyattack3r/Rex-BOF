@@ -74,6 +74,28 @@ if sliver_names != expected_sliver_names:
         f"expected {sorted(expected_sliver_names)!r}"
     )
 
+standalone = (ROOT / "src" / "standalone" / "args.c").read_text()
+standalone_table = re.search(
+    r"static const rex_cli_technique rex_cli_techniques\[\] = \{"
+    r"(?P<body>.*?)\n\};",
+    standalone,
+    re.DOTALL,
+)
+if standalone_table is None:
+    fail("could not find the standalone technique table")
+standalone_names = set(
+    re.findall(
+        r'^    \{L"([a-z0-9-]+)",\n     L"',
+        standalone_table.group("body"),
+        re.MULTILINE,
+    )
+)
+if standalone_names != expected_names:
+    fail(
+        f"standalone selectors are {sorted(standalone_names)!r}, "
+        f"expected {sorted(expected_names)!r}"
+    )
+
 runtime = (ROOT / "src" / "common" / "rex.c").read_text()
 if "output.technique = technique->selector;" not in runtime:
     fail("runtime does not emit the canonical descriptor selector")
@@ -97,6 +119,6 @@ for page in pages:
         fail(f"legacy transcript selector remains in {page.relative_to(ROOT)}")
 
 print(
-    f"checked {len(EXPECTED)} native, Cobalt Strike, Sliver, and transcript "
-    "technique names"
+    f"checked {len(EXPECTED)} native, Cobalt Strike, Sliver, standalone, and "
+    "transcript technique names"
 )

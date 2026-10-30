@@ -42,6 +42,10 @@ for the current client process.
 `--action` defaults to `execute`; set it to `preflight` to run the registered
 read-only prerequisite callback and skip mutation.
 
+Use the named options shown in the table and examples. Sliver's generated
+usage heading also lists the manifest fields as positional placeholders, but
+Rex requires the corresponding `--option` names.
+
 Every command also accepts optional `--make-token` and `--password` values.
 Supply both to use `DOMAIN\user` or `user@domain` network credentials for that
 invocation. Without them, Rex uses the active implant token.
@@ -50,6 +54,7 @@ invocation. Without them, Rex uses the active implant token.
 rex-wmi-exec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
 rex-wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 rex-wmi-exec --target server01 --command "whoami.exe /all" --make-token 'DOMAIN\operator' --password '<password>'
+rex-wmi-exec --target server01 --command "whoami.exe /all" --make-token 'operator@example.com' --password '<password>'
 rex-wsman-exec --target 10.0.0.15 --program cmd.exe --arguments "/c whoami"
 rex-wmi-instance-provider --target server01 --provider-name ExampleProvider --provider-clsid {00000000-0000-0000-0000-000000000000} --remote-path 'C:\ProgramData\Example\provider.dll'
 ```
@@ -81,7 +86,9 @@ Sliver cannot prompt inside a BOF, so `--password` is required with
 `--make-token`. The password may remain in client, server, or audit history;
 Rex clears its local packed buffer and omits credentials from transcript and
 recovery output. Results otherwise use the contracts documented in
-[output](../output.md) and [recovery](../recovery.md).
+[output](../output.md) and [recovery](../recovery.md). See
+[identity and command-scoped credentials](../identity.md) for the distinction
+between remote authentication and target-side execution identity.
 
 Sliver clients without built-in Reflektor support are rejected rather than
 routed through an unvalidated loader fallback.

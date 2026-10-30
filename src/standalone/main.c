@@ -2,86 +2,7 @@
 #include <windows.h>
 
 #include "rex.h"
-
-typedef struct {
-    const wchar_t *selector;
-    const wchar_t *options[3];
-    BOOL required[3];
-} rex_cli_technique;
-
-static const rex_cli_technique rex_cli_techniques[] = {
-    {L"wmi-provider",
-     {L"--provider-name", L"--provider-clsid", L"--remote-path"},
-     {TRUE, TRUE, TRUE}},
-    {L"wmi-instance-provider",
-     {L"--provider-name", L"--provider-clsid", L"--remote-path"},
-     {TRUE, TRUE, TRUE}},
-    {L"wmi-method-provider",
-     {L"--provider-name", L"--provider-clsid", L"--remote-path"},
-     {TRUE, TRUE, TRUE}},
-    {L"wmi-event-subscription",
-     {L"--subscription-name", L"--query", L"--command"},
-     {TRUE, TRUE, TRUE}},
-    {L"wmi-service",
-     {L"--service-name", L"--remote-path", NULL},
-     {TRUE, TRUE, FALSE}},
-    {L"wmi-exec", {L"--command", NULL, NULL}, {TRUE, FALSE, FALSE}},
-    {L"wsman-exec",
-     {L"--program", L"--arguments", L"--transport"},
-     {TRUE, FALSE, FALSE}},
-    {L"task-sched-exec",
-     {L"--task-name", L"--program", L"--arguments"},
-     {TRUE, TRUE, FALSE}},
-    {L"dcom-ishell-dispatch2",
-     {L"--program", L"--arguments", NULL},
-     {TRUE, FALSE, FALSE}},
-    {L"scm-change-service",
-     {L"--service-name", L"--remote-path", NULL},
-     {TRUE, TRUE, FALSE}},
-    {L"scm-create-service",
-     {L"--service-name", L"--remote-path", NULL},
-     {TRUE, TRUE, FALSE}},
-    {L"scm-command",
-     {L"--service-name", L"--command", NULL},
-     {TRUE, TRUE, FALSE}},
-};
-
-static BOOL rex_cli_equal(const wchar_t *left, const wchar_t *right) {
-    SIZE_T index = 0;
-    if (left == NULL || right == NULL)
-        return FALSE;
-    while (left[index] != L'\0' && right[index] != L'\0') {
-        if (left[index] != right[index])
-            return FALSE;
-        index++;
-    }
-    return left[index] == right[index];
-}
-
-static const rex_cli_technique *rex_cli_find(const wchar_t *selector) {
-    SIZE_T index;
-    for (index = 0;
-         index < sizeof(rex_cli_techniques) / sizeof(rex_cli_techniques[0]);
-         index++) {
-        if (rex_cli_equal(selector, rex_cli_techniques[index].selector))
-            return &rex_cli_techniques[index];
-    }
-    return NULL;
-}
-
-static void rex_cli_usage(void) {
-    fputws(L"usage: rex.exe [preflight] <technique> --target <host> "
-           L"[technique options] [--make-token <DOMAIN\\user|user@domain> "
-           L"[--password <password>]]\n"
-           L"techniques: wmi-provider, wmi-instance-provider, "
-           L"wmi-method-provider, wmi-event-subscription, wmi-service, "
-           L"wmi-exec, wsman-exec, task-sched-exec, "
-           L"dcom-ishell-dispatch2, scm-change-service, "
-           L"scm-create-service, scm-command\n"
-           L"omit --password only when an interactive no-echo prompt is "
-           L"available\n",
-           stderr);
-}
+#include "args.h"
 
 static BOOL rex_cli_utf8(const wchar_t *source, char *destination,
                          int capacity) {
@@ -126,121 +47,54 @@ static BOOL rex_cli_password(wchar_t password[REX_MAX_PASSWORD + 1]) {
 }
 
 int wmain(int argc, wchar_t **argv) {
-    const rex_cli_technique *cli;
+    rex_cli_arguments cli;
+    rex_cli_parse_status parse_status;
     const wchar_t *selector;
-    const wchar_t *target = NULL;
-    const wchar_t *principal = L"";
-    const wchar_t *inline_password = NULL;
-    const wchar_t *values[3] = {L"", L"", L""};
-    BOOL seen_values[3] = {FALSE, FALSE, FALSE};
-    BOOL seen_target = FALSE;
-    BOOL seen_principal = FALSE;
-    BOOL seen_password = FALSE;
+    const wchar_t *target;
+    const wchar_t *principal;
+    const wchar_t *inline_password;
     wchar_t password[REX_MAX_PASSWORD + 1] = {0};
     char selector_utf8[REX_MAX_SELECTOR + 1];
     char target_utf8[REX_MAX_TARGET + 1];
-    rex_action action = REX_ACTION_EXECUTE;
+    rex_action action;
     rex_arguments arguments = {0};
     rex_result result = {0};
     rex_technique technique = {0};
-    int selector_index = 1;
-    int index;
     int option_index;
     int exit_code = 2;
 
     (void)SetConsoleOutputCP(CP_UTF8);
-    if (argc > 1 && rex_cli_equal(argv[1], L"preflight")) {
-        action = REX_ACTION_PREFLIGHT;
-        selector_index = 2;
-    }
-    if (argc <= selector_index) {
-        rex_cli_usage();
+    parse_status = rex_cli_parse(argc, argv, &cli);
+    if (parse_status == REX_CLI_PARSE_EXIT) {
+        if (cli.command == REX_CLI_COMMAND_TECHNIQUES)
+            rex_cli_print_techniques(stdout);
+        else if (cli.technique != NULL)
+            rex_cli_print_technique_help(stdout, cli.technique);
+        else
+            rex_cli_print_general_help(stdout);
+        exit_code = 0;
         goto cleanup;
     }
-    selector = argv[selector_index];
-    cli = rex_cli_find(selector);
-    if (cli == NULL) {
-        fwprintf(stderr, L"rex.exe: unknown technique: %ls\n", selector);
-        rex_cli_usage();
+    if (parse_status == REX_CLI_PARSE_ERROR) {
+        rex_cli_print_error(stderr, &cli);
         goto cleanup;
     }
 
-    for (index = selector_index + 1; index < argc; index += 2) {
-        const wchar_t *option = argv[index];
-        const wchar_t *value;
-        if (index + 1 >= argc) {
-            fwprintf(stderr, L"rex.exe: missing value for %ls\n", option);
-            goto cleanup;
-        }
-        value = argv[index + 1];
-        if (rex_cli_equal(option, L"--target")) {
-            if (seen_target) {
-                fputws(L"rex.exe: duplicate --target\n", stderr);
-                goto cleanup;
-            }
-            target = value;
-            seen_target = TRUE;
-            continue;
-        }
-        if (rex_cli_equal(option, L"--make-token")) {
-            if (seen_principal) {
-                fputws(L"rex.exe: duplicate --make-token\n", stderr);
-                goto cleanup;
-            }
-            principal = value;
-            seen_principal = TRUE;
-            continue;
-        }
-        if (rex_cli_equal(option, L"--password")) {
-            if (seen_password) {
-                fputws(L"rex.exe: duplicate --password\n", stderr);
-                goto cleanup;
-            }
-            inline_password = value;
-            seen_password = TRUE;
-            continue;
-        }
-        for (option_index = 0; option_index < 3; option_index++) {
-            if (cli->options[option_index] != NULL &&
-                rex_cli_equal(option, cli->options[option_index])) {
-                break;
-            }
-        }
-        if (option_index == 3) {
-            fwprintf(stderr, L"rex.exe: unknown option for %ls: %ls\n",
-                     selector, option);
-            goto cleanup;
-        }
-        if (seen_values[option_index]) {
-            fwprintf(stderr, L"rex.exe: duplicate option: %ls\n", option);
-            goto cleanup;
-        }
-        values[option_index] = value;
-        seen_values[option_index] = TRUE;
-    }
-
-    if (!seen_target) {
-        fputws(L"rex.exe: --target is required\n", stderr);
-        goto cleanup;
-    }
-    for (option_index = 0; option_index < 3; option_index++) {
-        if (cli->required[option_index] && !seen_values[option_index]) {
-            fwprintf(stderr, L"rex.exe: %ls is required\n",
-                     cli->options[option_index]);
-            goto cleanup;
-        }
-        if (rex_wcslen(values[option_index]) > REX_MAX_COMMAND) {
+    selector = cli.technique->selector;
+    target = cli.target;
+    principal = cli.principal;
+    inline_password = cli.password;
+    action = cli.action == REX_CLI_ACTION_PREFLIGHT ? REX_ACTION_PREFLIGHT
+                                                    : REX_ACTION_EXECUTE;
+    for (option_index = 0; option_index < REX_CLI_VALUE_COUNT; option_index++) {
+        if (rex_wcslen(cli.values[option_index]) > REX_MAX_COMMAND) {
             fputws(L"rex.exe: technique value is too long\n", stderr);
             goto cleanup;
         }
     }
-    if (seen_password && !seen_principal) {
-        fputws(L"rex.exe: --password requires --make-token\n", stderr);
-        goto cleanup;
-    }
-    if (seen_principal) {
+    if (principal[0] != L'\0') {
         SIZE_T length;
-        if (seen_password) {
+        if (inline_password != NULL) {
             length = rex_wcslen(inline_password);
             if (length == 0 || length > REX_MAX_PASSWORD) {
                 fputws(L"rex.exe: invalid password length\n", stderr);
@@ -267,8 +121,8 @@ int wmain(int argc, wchar_t **argv) {
     arguments.selector = selector_utf8;
     arguments.identity.principal = principal;
     arguments.identity.password = password;
-    for (option_index = 0; option_index < 3; option_index++)
-        arguments.values[option_index] = values[option_index];
+    for (option_index = 0; option_index < REX_CLI_VALUE_COUNT; option_index++)
+        arguments.values[option_index] = cli.values[option_index];
     result.technique = technique.selector;
     result.target = target_utf8;
     rex_invoke(&technique, &arguments, &result);

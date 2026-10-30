@@ -5,6 +5,11 @@ standalone executables. The integration selects the matching architecture.
 Each command targets one host and uses the current identity unless
 command-scoped make-token credentials are supplied.
 
+Make-token changes the identity used for remote authentication. It does not
+override the account chosen by WMI, WinRM, Task Scheduler, an existing service,
+SCM, or an interactive shell for target-side execution. See the
+[per-technique identity matrix](../identity.md).
+
 Inputs consumed directly by WMI or SCM must satisfy the applicable
 [target-side input contract](../contracts/README.md). Command-capable
 techniques may instead use the Cobalt Strike [launcher contracts](../launchers/README.md).
@@ -19,7 +24,7 @@ techniques may instead use the Cobalt Strike [launcher contracts](../launchers/R
 | [`wmi-exec`](wmiexec.md) | `--command` or launcher options | WMI `Win32_Process.Create` | Process created with PID | None | Windows; Server 2025 validated |
 | [`wsman-exec`](wsmanexec.md) | `--program`, optional `--arguments` and `--transport`, or launcher options | WSMan/WinRM | Command exit status | None | Windows; Server 2025 validated |
 | [`task-sched-exec`](taskschedexec.md) | `--task-name`, `--program`, optional `--arguments`, or launcher options | Task Scheduler COM client and `ITaskSchedulerService` RPC | Task started | Registered task name and executable | Windows; Server 2025 validated |
-| [`dcom-ishell-dispatch2`](dcomishelldispatch2.md) | `--program`, optional `--arguments`, or launcher options | DCOM `ShellWindows` automation | Program started | None | Windows; Server 2025 validated |
+| [`dcom-ishell-dispatch2`](dcomishelldispatch2.md) | `--program`, optional `--arguments`, or launcher options | DCOM `ShellWindows` automation | Program started | None | Windows; Server 2025 active-token and make-token validated |
 | [`scm-change-service`](scmchangeservice.md) | `--service-name`, `--remote-path` | SCM RPC | Service start requested | Original and applied service configuration | Windows; Server 2025 validated |
 | [`scm-create-service`](scmcreateservice.md) | `--service-name`, `--remote-path` | SCM RPC | Service start requested | Created service name and binary path | Windows; Server 2025 validated |
 | [`scm-command`](scmcommand.md) | `--service-name`, `--command` or launcher options | SCM RPC | Service start requested | Created service name | Windows; Server 2025 x64 validated |

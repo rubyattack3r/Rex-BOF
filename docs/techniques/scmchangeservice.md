@@ -30,6 +30,13 @@ must be supported by the target but does not need to match the BOF.
 See the complete [Windows service executable contract](../contracts/service-executable.md)
 for lifecycle, identity, path, validation, and result requirements.
 
+## Identity
+
+The current or make-token identity authenticates the SCM operations. Starting
+the service does not change its configured account; the replacement executable
+runs as that existing service identity. See the
+[identity matrix](../identity.md).
+
 ## Requirements
 
 - Local administrator on the target

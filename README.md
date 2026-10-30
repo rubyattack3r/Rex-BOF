@@ -47,6 +47,9 @@ rex-wmi-exec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
 rex-wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 
 # Standalone Windows CLI
+rex.x64.exe help
+rex.x64.exe techniques
+rex.x64.exe help wmi-exec
 rex.x64.exe preflight wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 rex.x64.exe wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
 ```
@@ -56,11 +59,13 @@ by default. Add `--make-token DOMAIN\user --password <password>` or
 `--make-token user@domain --password <password>` to use command-scoped network
 credentials. The standalone CLI can prompt when `--password` is omitted. Use
 `preflight` to check technique requirements without making the technique's
-remote change. Payload files must already be on the target.
+remote change. Payload files must already be on the target. The standalone
+executables include general and per-technique help.
 
 See the [operator documentation](docs/README.md),
 [integration guides](docs/integrations/README.md),
 [technique reference](docs/techniques/README.md),
+[identity and command-scoped credentials](docs/identity.md),
 [tested platforms](docs/platforms.md), and [cleanup guide](docs/recovery.md).
 
 ## Build from source
