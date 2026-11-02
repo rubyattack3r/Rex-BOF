@@ -36,8 +36,25 @@ Most techniques report `dispatched` after the remote API accepts the request.
 `wsman-exec` waits for the command and reports `completed` when it exits with
 status 0. See [transcript output](../output.md).
 
-See [tested environments](../platforms.md) for the integration, loader,
-architecture, date, and observed evidence behind each platform claim.
+## Verified existing-object vectors
+
+The following paths reuse a scheduled task or service already present on the
+target. They are documented operator workflows, not Rex selectors or release
+objects. Each row names the exact Windows object that reached a controlled
+callback in testing; do not assume that a similarly named object will behave
+the same way. See the [vector reference](../vectors/README.md) for the complete
+steps and payload requirements.
+
+| Verified vector | What must match | Find it | Start it | Execution proof | Restore |
+|---|---|---|---|---|---|
+| [`Server Initial Configuration Task` + AppDomain manager](../vectors/appdomain-manager.md) | Task has the verified `srvinitconfig.exe` action | [`schtasksenum`, `schtasksquery`](https://github.com/trustedsec/CS-Situational-Awareness-BOF) | Change the configuration, enable the task, and run it | Manager executes in `srvinitconfig.exe` | Restore configuration and task state; remove the assembly |
+| [`NetTcpPortSharing` + AppDomain manager](../vectors/appdomain-manager.md) | Stopped and disabled service has the verified `SMSvcHost.exe` host | [`sc_enum`, `sc_qc`, `sc_query`](https://github.com/trustedsec/CS-Situational-Awareness-BOF) | Change the configuration, switch to demand start, and start it | Manager executes in `SMSvcHost.exe` | Restore configuration, stopped/disabled state, and assembly |
+| [`MoProfileManagement` + COM-handler redirection](../vectors/task-com-handler.md) | Ready task has the verified CLSID and `SYSTEM` principal | [`schtasksenum`, `schtasksquery`](https://github.com/trustedsec/CS-Situational-Awareness-BOF) | Redirect 64-bit `InProcServer32` and run the task | `ITaskHandler::Start` executes; task result `0` | Restore the COM server registration and remove the DLL |
+| [`tzautoupdate` + ServiceDll redirection](../vectors/service-dll.md) | Stopped and disabled service has the verified `LocalService` host | [`sc_enum`, `sc_qc`, `sc_query`](https://github.com/trustedsec/CS-Situational-Awareness-BOF) | Redirect `ServiceDll`, switch to demand start, and start it | `ServiceMain` executes in the service host | Restore `ServiceDll`, stopped/disabled state, and remove the DLL |
+
+See [tested environments](../platforms.md) for the evidence behind each Rex
+technique claim. Existing-object results are recorded separately in the
+[vector test results](../vectors/validation.md).
 
 ## Withheld candidates
 
