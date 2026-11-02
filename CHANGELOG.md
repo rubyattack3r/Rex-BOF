@@ -6,6 +6,14 @@ increment the minor version.
 
 ## [Unreleased]
 
+### Added
+
+- Add an evidence-only vector catalog for four reproduced Windows Server 2025
+  paths: scheduled-task and service AppDomain managers, scheduled-task
+  COM-handler redirection, and ServiceDll redirection. For each path, explain
+  in operator-facing language what must already exist, what changes, how it is
+  started, what proves execution, and what must be restored.
+
 ## [0.5.1] - 2026-10-30
 
 ### Changed

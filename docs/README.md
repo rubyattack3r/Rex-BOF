@@ -31,6 +31,7 @@ Additional references:
 - [Read-only preflight](preflight.md)
 - [Target-side input contracts](contracts/README.md)
 - [Launcher contracts](launchers/README.md)
+- [Verified execution vectors](vectors/README.md)
 - [Transcript output](output.md)
 - [Cleanup](recovery.md)
 - [Tested platforms](platforms.md)
