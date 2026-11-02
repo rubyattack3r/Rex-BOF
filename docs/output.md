@@ -3,7 +3,8 @@
 Each invocation writes space-delimited transcript records from the BOF's typed
 result and recovery structures. The output is not JSON.
 
-Successful execution emits one result line. Techniques that expose a remote process identifier include it:
+A successful execution prints one result line. When the technique returns a
+remote process identifier, the line includes it:
 
 ```text
 technique=wmi-exec target=10.0.0.15 status=succeeded disposition=dispatched source=win32_process_create pid=4280
@@ -22,14 +23,15 @@ technique=wmi-exec target=10.0.0.15 status=succeeded disposition=validated sourc
 | `technique` | Canonical lowercase kebab-case public technique name. |
 | `target` | Hostname or address supplied to the invocation. |
 | `status` | `succeeded` or `failed`. |
-| `disposition` | Result type: `validated`, `dispatched`, or `completed`. |
+| `disposition` | What the result proves: `validated`, `dispatched`, or `completed`. |
 | `source` | Technique-specific evidence source. |
 | `pid` | Remote process identifier when the API provides one. |
 | `phase` | Failure stage: `input`, `identity`, `preflight`, `execution`, or `identity_restore`. |
 | `hresult` | Native failure code on failed results. |
 
 - `validated`: preflight passed and execution was skipped.
-- `dispatched`: the remote API accepted the work.
+- `dispatched`: the remote API accepted the work. This does not show that the
+  payload ran; confirm the effect on the target.
 - `completed`: a synchronous command returned exit status 0.
 
 ## Failures and partial mutation

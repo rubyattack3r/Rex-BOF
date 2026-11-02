@@ -1,9 +1,8 @@
 # Sliver integration
 
-The Sliver bundle exposes each Rex primitive as a separate command through one
-multi-command `extension.json`. The manifest selects `amd64` or `386` objects
-for the active Windows target and calls the integration-specific entry point
-that matches the technique's argument count.
+The Sliver bundle provides one command per technique through a single
+`extension.json`. The manifest picks the `amd64` or `386` object that matches
+the implant's architecture.
 
 The manifest targets the Sliver v1.7.9 schema and requires built-in
 `reflektor`. See [tested platforms](../platforms.md) for client, parser, and
@@ -39,12 +38,12 @@ for the current client process.
 | `rex-scm-create-service` | `--target`, `--service-name`, `--remote-path` | `--action` |
 | `rex-scm-command` | `--target`, `--service-name`, `--command` | `--action` |
 
-`--action` defaults to `execute`; set it to `preflight` to run the registered
-read-only prerequisite callback and skip mutation.
+`--action` defaults to `execute`. Set it to `preflight` to run only the
+read-only checks and make no changes.
 
-Use the named options shown in the table and examples. Sliver's generated
-usage heading also lists the manifest fields as positional placeholders, but
-Rex requires the corresponding `--option` names.
+Always pass values as the named options shown in the table and examples.
+Sliver's usage heading lists the fields as positional placeholders, but Rex
+requires the `--option` form.
 
 Every command also accepts optional `--make-token` and `--password` values.
 Supply both to use `DOMAIN\user` or `user@domain` network credentials for that
@@ -96,5 +95,5 @@ recovery output. Results otherwise use the contracts documented in
 [identity and command-scoped credentials](../identity.md) for the distinction
 between remote authentication and target-side execution identity.
 
-Sliver clients without built-in Reflektor support are rejected rather than
-routed through an unvalidated loader fallback.
+Sliver clients without built-in Reflektor cannot load these commands. Rex does
+not fall back to an untested loader.

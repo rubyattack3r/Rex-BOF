@@ -14,6 +14,12 @@ increment the minor version.
   in operator-facing language what must already exist, what changes, how it is
   started, what proves execution, and what must be restored.
 
+### Changed
+
+- Clarify the Cobalt Strike and Sliver operator guides, preflight behavior, and
+  transcript result meanings. Emphasize that `dispatched` proves remote API
+  acceptance rather than payload execution.
+
 ## [0.5.1] - 2026-10-30
 
 ### Changed
