@@ -84,8 +84,8 @@ to 8,191 UTF-16 code units; provider names are limited to 255 code units.
 ## Launchers
 
 `wmi-exec`, `wsman-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`, and
-`scm-command` support built-in and custom launchers. Launcher mode requires `--payload-type`,
-an absolute `--remote-path`, and `--launcher`.
+`scm-command` support built-in and custom launchers. Launcher mode requires
+`--payload-type`, an absolute `--remote-path`, and `--launcher`.
 
 ```text
 rex wmi-exec --target 10.0.0.15 --payload-type dll \
@@ -110,6 +110,6 @@ schema in `root\default`.
 `dcom-ishell-dispatch2` requires an interactive Explorer shell.
 Existing-service techniques require a stopped service.
 
-A BOF occupies its Beacon thread until the remote API call returns. Use a
-dedicated session when DCOM calls may take a long time.
+While a command runs, it blocks its Beacon until the remote call returns. Use a
+dedicated session when a DCOM call may take a long time.
 

@@ -1,7 +1,7 @@
-# BOF preflight
+# Preflight
 
-Preflight checks a technique's remote requirements without making its
-persistent change. Execution starts only after preflight succeeds.
+Preflight checks that a technique's remote requirements are met without making
+its persistent change. Execution starts only after preflight succeeds.
 
 ```mermaid
 flowchart LR
