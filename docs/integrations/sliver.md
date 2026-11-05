@@ -24,7 +24,7 @@ for the current client process.
 ## Commands
 
 | Sliver command | Required technique values | Optional technique values |
-|---|---|---|
+| --- | --- | --- |
 | `rex-wmi-provider` | `--target`, `--provider-name`, `--provider-clsid`, `--remote-path` | `--action` |
 | `rex-wmi-instance-provider` | `--target`, `--provider-name`, `--provider-clsid`, `--remote-path` | `--action` |
 | `rex-wmi-method-provider` | `--target`, `--provider-name`, `--provider-clsid`, `--remote-path` | `--action` |
@@ -49,6 +49,8 @@ Every command also accepts optional `--make-token` and `--password` values.
 Supply both to use `DOMAIN\user` or `user@domain` network credentials for that
 invocation. Without them, Rex uses the active implant token.
 
+<!-- markdownlint-disable MD013 -->
+
 ```text
 rex-wmi-exec --action preflight --target 10.0.0.15 --command "whoami.exe /all"
 rex-wmi-exec --target 10.0.0.15 --command "whoami.exe /all"
@@ -57,6 +59,8 @@ rex-wmi-exec --target server01 --command "whoami.exe /all" --make-token 'operato
 rex-wsman-exec --target 10.0.0.15 --program cmd.exe --arguments "/c whoami"
 rex-wmi-instance-provider --target server01 --provider-name ExampleProvider --provider-clsid {00000000-0000-0000-0000-000000000000} --remote-path 'C:\ProgramData\Example\provider.dll'
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 Single-quote Windows paths so Sliver's command lexer preserves each
 backslash. An unquoted value such as `C:\ProgramData\Example\provider.dll`

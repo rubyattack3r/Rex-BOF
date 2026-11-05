@@ -9,7 +9,8 @@ callback ABI.
 #include <cpl.h>
 
 __declspec(dllexport)
-LONG CALLBACK CPlApplet(HWND window, UINT message, LPARAM first, LPARAM second) {
+LONG CALLBACK CPlApplet(HWND window, UINT message, LPARAM first,
+                        LPARAM second) {
     switch (message) {
     case CPL_INIT:
         return TRUE;

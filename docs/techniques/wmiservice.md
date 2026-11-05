@@ -54,4 +54,3 @@ it. See [recovery](../recovery.md).
 
 Relevant telemetry includes WMI administration, service configuration changes,
 image paths, and service starts.
-

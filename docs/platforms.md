@@ -7,7 +7,7 @@ not add another OS-specific column to every table.
 ## Environment registry
 
 | Environment ID | Operating system | Host architecture | Integration and runtime | Last validated |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `ws2025-26100-cs` | Windows Server 2025 Standard Evaluation, build 26100 | x64 | Cobalt Strike Beacon; x64 and x86 BOFs | 2026-10-29 |
 | `ws2025-26100-sliver179-x64` | Windows Server 2025 Standard Evaluation, build 26100 | x64 | Sliver v1.7.9 x64 implant; built-in Reflektor | 2026-10-30 |
 | `ws2025-26100-sliver179-x86` | Windows Server 2025 Standard Evaluation, build 26100 | x64 | Sliver v1.7.9 x86 implant; built-in Reflektor | 2026-10-30 |
@@ -22,7 +22,7 @@ console PEs.
 ## Technique validation
 
 | Technique | Environment | BOF architecture | Status | Observed evidence |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | [`wmi-provider`](techniques/wmiprovider.md) | `ws2025-26100-cs` | x64, x86 | Passed | Provider loaded with an architecture-matched DLL. |
 | [`wmi-provider`](techniques/wmiprovider.md) | `ws2025-26100-sliver179-x64`, `ws2025-26100-sliver179-x86` | x64, x86 | Passed | A mixed-script provider name, including combining and supplementary characters, was preserved exactly in `Name` and `HostingModel`. Both architecture-matched DLLs loaded, and the WMI and registry state was removed. |
 | [`wmi-instance-provider`](techniques/wmiinstanceprovider.md) | `ws2025-26100-sliver179-x64` | x64 | Passed | Preflight left no WMI or registry state; execute loaded the architecture-matched DLL, and a class enumeration reached its instance-provider callback. |
@@ -57,7 +57,7 @@ after the commands. Test fixtures and retained remote state were removed after
 validation.
 
 | Technique | Environment | Make-token status | Observed target-side identity and evidence |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | [`wmi-provider`](techniques/wmiprovider.md) | `ws2025-26100-sliver179-x64` | Validated | Provider initialization callback ran in the `LocalSystem` WMI provider host. |
 | [`wmi-instance-provider`](techniques/wmiinstanceprovider.md) | `ws2025-26100-sliver179-x64` | Validated | Provider initialization and instance-enumeration callbacks ran in the `LocalSystem` WMI provider host. |
 | [`wmi-method-provider`](techniques/wmimethodprovider.md) | `ws2025-26100-sliver179-x64` | Validated | Provider initialization and method callbacks ran in the `LocalSystem` WMI provider host. |
@@ -81,7 +81,7 @@ Launcher evidence uses the same environment registry. A program being present
 does not count as a validated launcher contract.
 
 | Launcher or payload contract | Environment | Technique or harness | Status | Observed evidence |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | Built-in DLL, CPL, managed, and custom launchers | `ws2025-26100-cs` | x64 `wmi-exec` | Passed | Each format-valid fixture ran its expected callback. |
 | `rundll32.exe` DLL contract | `ws2025-26100-cs` | `wsman-exec`, `task-sched-exec`, `dcom-ishell-dispatch2` | Passed | Each technique started the same benign fixture. |
 | `ps1` | `ws2025-26100-local` | `powershell.exe -File` | Passed | Process exited 0 and wrote its exact marker. |

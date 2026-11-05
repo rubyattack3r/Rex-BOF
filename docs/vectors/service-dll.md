@@ -17,7 +17,7 @@ existing service starts
 ## How this differs from changing ImagePath
 
 | Change | Result |
-|---|---|
+| --- | --- |
 | Service `ImagePath` | SCM starts a different service executable |
 | `Parameters\ServiceDll` | The existing `svchost.exe` host loads a different service DLL |
 
@@ -27,7 +27,7 @@ first path. This page documents the second.
 ## Verified target
 
 | Field | Tested value |
-|---|---|
+| --- | --- |
 | Service | `tzautoupdate` |
 | Starting state | Stopped and disabled |
 | Service account | `NT AUTHORITY\LocalService` |

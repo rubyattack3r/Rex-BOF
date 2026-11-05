@@ -49,4 +49,3 @@ executable after the service releases it. See [recovery](../recovery.md).
 
 Relevant telemetry includes service creation, service start activity, the
 service image path, and the separate file-transfer method.
-

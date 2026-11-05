@@ -37,7 +37,7 @@ the implant remained `LocalSystem` before and after the run. See
 coverage.
 
 | Technique | Make-token result | Remote operation authenticated by the supplied account | Target-side execution identity |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | [`wmi-provider`](techniques/wmiprovider.md) | Validated | WMI and remote registry registration | `LocalSystem` WMI provider host |
 | [`wmi-instance-provider`](techniques/wmiinstanceprovider.md) | Validated | WMI and remote registry registration | `LocalSystem` WMI provider host |
 | [`wmi-method-provider`](techniques/wmimethodprovider.md) | Validated | WMI and remote registry registration | `LocalSystem` WMI provider host |

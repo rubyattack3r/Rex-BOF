@@ -49,4 +49,3 @@ changes made by the program. See [recovery](../recovery.md).
 
 Relevant telemetry includes DCOM activation, `ShellExecute`, and the resulting
 process.
-

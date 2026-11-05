@@ -6,7 +6,7 @@ A task or service start request alone was not counted as execution.
 ## Test environment
 
 | Field | Value |
-|---|---|
+| --- | --- |
 | Operating system | Windows Server 2025 Standard Evaluation |
 | Build | 26100, Desktop Experience |
 | Architecture | x64 |
@@ -15,7 +15,7 @@ A task or service start request alone was not counted as execution.
 ## Results
 
 | Vector | Existing target | Starting state | What changed | How it was started | Execution proof | Cleanup checked |
-|---|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- | --- |
 | AppDomain manager | `\Microsoft\Windows\Server Initial Configuration Task` | Disabled | `srvinitconfig.exe.config` and manager assembly | Task enabled and run | Manager ran inside `srvinitconfig.exe` as `SYSTEM` | Yes |
 | AppDomain manager | `NetTcpPortSharing` | Stopped and disabled | `SMSvcHost.exe.config` and manager assembly | Changed to demand start and started | Manager ran inside `SMSvcHost.exe` as `NT AUTHORITY\LocalService` | Yes |
 | COM task handler | `\Microsoft\Windows\WlanSvc\MoProfileManagement` | Ready | Existing CLSID's 64-bit `InProcServer32` | Existing task run | `ITaskHandler::Start` ran; task result `0` | Yes |

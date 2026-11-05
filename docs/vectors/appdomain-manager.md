@@ -20,7 +20,7 @@ again.
 ## Verified targets
 
 | Existing object | .NET host | Start action | Execution proof |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | `\Microsoft\Windows\Server Initial Configuration Task` | `srvinitconfig.exe` | Enable and run the task | Manager ran inside `srvinitconfig.exe` as `SYSTEM` |
 | `NetTcpPortSharing` | `SMSvcHost.exe` | Change to demand start and start the service | Manager ran inside `SMSvcHost.exe` as `NT AUTHORITY\LocalService` |
 

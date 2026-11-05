@@ -44,4 +44,3 @@ release it. See [recovery](../recovery.md).
 
 Relevant telemetry includes task registration, task execution, RPC activity,
 and process creation.
-

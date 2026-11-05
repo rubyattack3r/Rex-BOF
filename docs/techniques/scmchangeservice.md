@@ -54,4 +54,3 @@ it. See [recovery](../recovery.md).
 
 Relevant telemetry includes SCM configuration changes, service starts, and
 image paths.
-

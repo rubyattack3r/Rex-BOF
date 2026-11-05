@@ -38,4 +38,3 @@ other changes made by the command. See [recovery](../recovery.md).
 
 Relevant telemetry includes the WMI process-creation call and the resulting
 process and command line.
-

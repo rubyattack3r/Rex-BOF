@@ -42,7 +42,9 @@ unzip -Z1 "$ARCHIVE" | LC_ALL=C sort > "$ACTUAL"
 diff -u "$EXPECTED" "$ACTUAL"
 
 unzip -q "$ARCHIVE" -d "$EXTRACTED"
-python3 "$PROJECT_DIR/scripts/check_docs.py" "$EXTRACTED/$PACKAGE_NAME"
+lychee --offline --include-fragments --no-progress \
+    "$EXTRACTED/$PACKAGE_NAME/*.md" \
+    "$EXTRACTED/$PACKAGE_NAME/docs/**/*.md"
 LLVM_OBJDUMP=${LLVM_OBJDUMP:-llvm-objdump}
 LLVM_OBJDUMP="$LLVM_OBJDUMP" sh \
     "$PROJECT_DIR/scripts/verify-standalone-binaries.sh" \

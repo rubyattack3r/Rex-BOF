@@ -16,6 +16,8 @@ increment the minor version.
 
 ### Changed
 
+- Replace the custom Markdown link parser with Markdownlint and Lychee checks,
+  including offline validation of documentation links in release bundles.
 - Clarify the Cobalt Strike and Sliver operator guides, preflight behavior, and
   transcript result meanings. Emphasize that `dispatched` proves remote API
   acceptance rather than payload execution.
@@ -134,8 +136,10 @@ increment the minor version.
 - The `rex` Cobalt Strike integration with technique-aware options,
   active-token identity, launcher contracts, Unicode arguments, and a
   read-only `preflight` action.
-- Typed transcript results and explicit recovery context without automatic remote restoration or raw command retention.
-- Repository-native technique, launcher, configuration, output, recovery, platform, and architecture documentation.
+- Typed transcript results and explicit recovery context without automatic
+  remote restoration or raw command retention.
+- Repository-native technique, launcher, configuration, output, recovery,
+  platform, and architecture documentation.
 - Reproducible Nix development shell, verified release packaging, checksums,
   build provenance, offline operator documentation, and tag-driven GitHub
   releases.
@@ -146,4 +150,3 @@ increment the minor version.
 
 - Export the Sliver adapter entry points without x86 symbol decoration so
   Reflektor can resolve the exact manifest names on both architectures.
-
