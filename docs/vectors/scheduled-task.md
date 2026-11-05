@@ -7,7 +7,7 @@ is proven when the expected payload callback runs.
 ## Verified task pairings
 
 | Task | Starting state | What changes | Start action | Execution proof |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `\Microsoft\Windows\Server Initial Configuration Task` | Disabled; runs as `SYSTEM` with highest privileges | AppDomain-manager settings and assembly for `srvinitconfig.exe` | Enable, then run the task | Manager ran inside `srvinitconfig.exe` |
 | `\Microsoft\Windows\WlanSvc\MoProfileManagement` | Ready; runs as `SYSTEM` | 64-bit COM server for the task's existing handler CLSID | Run the task | `ITaskHandler::Start` ran; task result was `0` |
 

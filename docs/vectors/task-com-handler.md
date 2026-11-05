@@ -18,7 +18,7 @@ The task definition, task name, principal, and handler CLSID remain unchanged.
 ## Verified target
 
 | Field | Tested value |
-|---|---|
+| --- | --- |
 | Task | `\Microsoft\Windows\WlanSvc\MoProfileManagement` |
 | Principal | `SYSTEM` |
 | Handler CLSID | `{085EDA12-CF4A-4944-8222-8ADCADE137CB}` |

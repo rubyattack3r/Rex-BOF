@@ -15,7 +15,7 @@ Inputs consumed directly by WMI or SCM must satisfy the applicable
 techniques may instead use the Cobalt Strike [launcher contracts](../launchers/README.md).
 
 | Selector | Required options | Remote API | Success evidence | Recovery context | Platform validation |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | [`wmi-provider`](wmiprovider.md) | `--provider-name`, `--provider-clsid`, `--remote-path` | WMI and remote registry | Initialization provider loaded | Provider role, name, CLSID, and DLL path | Windows; Server 2025 validated |
 | [`wmi-instance-provider`](wmiinstanceprovider.md) | `--provider-name`, `--provider-clsid`, `--remote-path` | WMI instance-provider registration and remote registry | Instance provider loaded | Provider role, name, CLSID, and DLL path | Windows; Server 2025 Sliver x64 and x86 validated |
 | [`wmi-method-provider`](wmimethodprovider.md) | `--provider-name`, `--provider-clsid`, `--remote-path` | WMI method-provider registration and remote registry | Method provider loaded | Provider role, name, CLSID, and DLL path | Windows; Server 2025 Sliver x64 and x86 validated |
@@ -46,7 +46,7 @@ the same way. See the [vector reference](../vectors/README.md) for the complete
 steps and payload requirements.
 
 | Verified vector | What must match | Find it | Start it | Execution proof | Restore |
-|---|---|---|---|---|---|
+| --- | --- | --- | --- | --- | --- |
 | [`Server Initial Configuration Task` + AppDomain manager](../vectors/appdomain-manager.md) | Task has the verified `srvinitconfig.exe` action | [`schtasksenum`, `schtasksquery`](https://github.com/trustedsec/CS-Situational-Awareness-BOF) | Change the configuration, enable the task, and run it | Manager executes in `srvinitconfig.exe` | Restore configuration and task state; remove the assembly |
 | [`NetTcpPortSharing` + AppDomain manager](../vectors/appdomain-manager.md) | Stopped and disabled service has the verified `SMSvcHost.exe` host | [`sc_enum`, `sc_qc`, `sc_query`](https://github.com/trustedsec/CS-Situational-Awareness-BOF) | Change the configuration, switch to demand start, and start it | Manager executes in `SMSvcHost.exe` | Restore configuration, stopped/disabled state, and assembly |
 | [`MoProfileManagement` + COM-handler redirection](../vectors/task-com-handler.md) | Ready task has the verified CLSID and `SYSTEM` principal | [`schtasksenum`, `schtasksquery`](https://github.com/trustedsec/CS-Situational-Awareness-BOF) | Redirect 64-bit `InProcServer32` and run the task | `ITaskHandler::Start` executes; task result `0` | Restore the COM server registration and remove the DLL |
@@ -62,4 +62,3 @@ technique claim. Existing-object results are recorded separately in the
 [`dcom-shell-browser-window`](dcomshellbrowserwindow.md) are not included in
 the Cobalt Strike or Sliver command surfaces. Their Server 2025 tests did not
 produce successful execution evidence.
-

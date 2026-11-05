@@ -54,7 +54,8 @@ operations. The DLL is then loaded by a WMI provider host configured for
 
 - Local administrator on the target
 - WMI/DCOM via TCP 135 and negotiated dynamic RPC ports
-- Remote registry access through the WMI and registry interfaces used by the selected command identity
+- Remote registry access through the WMI and registry interfaces used by the
+  selected command identity
 - Contract-compliant provider DLL already present at an absolute target-local
   path
 
@@ -68,4 +69,3 @@ provider host releases it. See [recovery](../recovery.md).
 
 Relevant telemetry includes provider registration, registry changes, WMI
 activity, and provider-host DLL loads.
-

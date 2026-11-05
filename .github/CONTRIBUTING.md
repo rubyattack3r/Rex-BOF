@@ -20,4 +20,3 @@ Put shared native API code under `src/common/`. Keep Windows API details out of
 the CNA and Cobalt Strike parsing out of the BOF. Document requirements,
 network ports, results, cleanup, and detection. Test new objects on a disposable
 authorized target; a malformed BOF can terminate its implant process.
-

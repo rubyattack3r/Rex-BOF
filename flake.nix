@@ -26,6 +26,8 @@
             pkgs.cppcheck
             pkgs.gnumake
             pkgs.llvm
+            pkgs.lychee
+            pkgs.markdownlint-cli2
             pkgs.python3
             pkgs.shellcheck
             pkgs.unzip

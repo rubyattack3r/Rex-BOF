@@ -1,8 +1,8 @@
 # Launcher contracts
 
 The Cobalt Strike integration provides launchers for `wmi-exec`, `wsman-exec`,
-`task-sched-exec`, `dcom-ishell-dispatch2`, and `scm-command`. Choose a payload type, launcher,
-and absolute path to a file already on the target.
+`task-sched-exec`, `dcom-ishell-dispatch2`, and `scm-command`. Choose a payload
+type, launcher, and absolute path to a file already on the target.
 
 ```text
 rex launchers
@@ -60,8 +60,8 @@ IDs before execution.
 
 ## Results and cleanup
 
-`wmi-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`, and `scm-command` return after starting
-the launcher. `wsman-exec` waits for its exit code.
+`wmi-exec`, `task-sched-exec`, `dcom-ishell-dispatch2`, and `scm-command` return
+after starting the launcher. `wsman-exec` waits for its exit code.
 
 Delete the remote file after the launcher exits. Clean up files, registry keys,
 services, tasks, or other state created by the payload separately.

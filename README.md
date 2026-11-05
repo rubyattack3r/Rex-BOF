@@ -5,8 +5,10 @@ Beacon Object Files for Cobalt Strike and Sliver, plus standalone Windows
 executables built from the same runtime.
 
 <picture>
-  <source media="(prefers-color-scheme: light)" srcset="docs/demo/demo-light.svg">
-  <img alt="rex dispatching wmi-exec and reporting its remote process identifier" src="docs/demo/demo-dark.svg">
+  <source media="(prefers-color-scheme: light)"
+          srcset="docs/demo/demo-light.svg">
+  <img alt="rex dispatching wmi-exec and reporting its remote process identifier"
+       src="docs/demo/demo-dark.svg">
 </picture>
 
 ## Install

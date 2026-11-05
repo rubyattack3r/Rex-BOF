@@ -50,7 +50,9 @@ unzip -Z1 "$ARCHIVE" | LC_ALL=C sort > "$ACTUAL"
 diff -u "$EXPECTED" "$ACTUAL"
 
 unzip -q "$ARCHIVE" -d "$EXTRACTED"
-python3 "$PROJECT_DIR/scripts/check_docs.py" "$EXTRACTED/$PACKAGE_NAME"
+lychee --offline --include-fragments --no-progress \
+    "$EXTRACTED/$PACKAGE_NAME/*.md" \
+    "$EXTRACTED/$PACKAGE_NAME/docs/**/*.md"
 python3 "$PROJECT_DIR/scripts/check_sliver_manifest.py" \
     "$EXTRACTED/$PACKAGE_NAME/extension.json" "$MANIFEST_VERSION"
 python3 "$PROJECT_DIR/scripts/check_sliver_entrypoints.py" \

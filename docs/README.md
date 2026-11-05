@@ -9,7 +9,7 @@ one target at a time. Optional make-token credentials apply only while one Rex
 command runs. Rex does not transfer payload files.
 
 | Selector | Input | Privilege | Surface | Outcome and recovery |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | [`wmi-provider`](techniques/wmiprovider.md) | Initialization provider DLL | Local administrator | WMI/DCOM, remote registry | Provider loaded; registration remains |
 | [`wmi-instance-provider`](techniques/wmiinstanceprovider.md) | Instance-provider DLL and schema | Local administrator | WMI/DCOM, remote registry | Instance role loaded; registration remains |
 | [`wmi-method-provider`](techniques/wmimethodprovider.md) | Method-provider DLL and schema | Local administrator | WMI/DCOM, remote registry | Method role loaded; registration remains |

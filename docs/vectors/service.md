@@ -7,7 +7,7 @@ payload execution; confirm that the expected payload callback ran.
 ## Verified service pairings
 
 | Service | Starting state | What changes | Start action | Execution proof |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `NetTcpPortSharing` | Stopped and disabled; runs as `NT AUTHORITY\LocalService` | AppDomain-manager settings and assembly for `SMSvcHost.exe` | Change to demand start, then start | Manager ran inside `SMSvcHost.exe` |
 | `tzautoupdate` | Stopped and disabled; runs as `NT AUTHORITY\LocalService` | `Parameters\ServiceDll` | Change to demand start, then start | Replacement `ServiceMain` ran inside the existing service host |
 

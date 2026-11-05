@@ -29,7 +29,7 @@ or registry value. They do not provide a privilege escalation by themselves.
 ## Verified vectors
 
 | Existing Windows object | What changes | How it is started | Execution identity | Proof obtained |
-|---|---|---|---|---|
+| --- | --- | --- | --- | --- |
 | `\Microsoft\Windows\Server Initial Configuration Task` | AppDomain-manager settings for `srvinitconfig.exe` | Enable and run the task | `SYSTEM` | The manager ran inside `srvinitconfig.exe` |
 | `NetTcpPortSharing` | AppDomain-manager settings for `SMSvcHost.exe` | Change to demand start and start the service | `NT AUTHORITY\LocalService` | The manager ran inside `SMSvcHost.exe` |
 | `\Microsoft\Windows\WlanSvc\MoProfileManagement` | The 64-bit COM server for the task's existing CLSID | Run the task | `SYSTEM` | `ITaskHandler::Start` ran and the task returned `0` |
@@ -49,7 +49,7 @@ or registry value. They do not provide a privilege escalation by themselves.
 These are two different ways to change what a service runs:
 
 | Method | Value changed | What Windows runs |
-|---|---|---|
+| --- | --- | --- |
 | Rex [`scm-change-service`](../techniques/scmchangeservice.md) | Service `ImagePath` | A different service executable |
 | [ServiceDll redirection](service-dll.md) | `Parameters\ServiceDll` | A different DLL inside the service's existing `svchost.exe` process |
 

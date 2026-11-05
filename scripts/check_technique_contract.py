@@ -118,6 +118,12 @@ for page in pages:
     if legacy_transcript.search(page.read_text()):
         fail(f"legacy transcript selector remains in {page.relative_to(ROOT)}")
 
+for page in sorted((ROOT / "docs" / "techniques").glob("*.md")):
+    if page.name != "README.md" and "```mermaid" not in page.read_text(
+        encoding="utf-8"
+    ):
+        fail(f"{page.relative_to(ROOT)} is missing a Mermaid diagram")
+
 print(
     f"checked {len(EXPECTED)} native, Cobalt Strike, Sliver, standalone, and "
     "transcript technique names"

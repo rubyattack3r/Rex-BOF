@@ -81,9 +81,9 @@ scmcreateservice_DEFINES := -DREX_WITH_SERVICE
 scmcommand_SOURCES := $(BASE_SOURCES) $(SERVICE_SOURCES) src/techniques/scmcommand.c
 scmcommand_DEFINES := -DREX_WITH_SERVICE
 
-.PHONY: all clean demo docs format format-check host-tests imports lint \
-	objects release sliver-entrypoints sliver-manifest standalone standalone-binaries \
-	technique-contract verify verify-bof
+.PHONY: all clean demo docs docs-links format format-check host-tests imports \
+	lint markdownlint objects release sliver-entrypoints sliver-manifest \
+	standalone standalone-binaries technique-contract verify verify-bof
 
 all: $(OUTPUTS) $(SLIVER_OUTPUTS) $(STANDALONE_OUTPUTS)
 
@@ -121,8 +121,14 @@ objects: all
 
 imports: objects
 
-docs:
-	python3 scripts/check_docs.py
+docs: markdownlint docs-links
+
+markdownlint:
+	markdownlint-cli2
+
+docs-links:
+	lychee --offline --include-fragments --no-progress \
+		"*.md" ".github/*.md" "docs/**/*.md"
 
 technique-contract:
 	python3 scripts/check_technique_contract.py

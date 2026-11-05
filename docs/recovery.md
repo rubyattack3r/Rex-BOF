@@ -5,7 +5,7 @@ does not reverse remote changes or remove payload files. Save the transcript
 when it contains recovery values.
 
 | Technique | Emitted recovery context | Operator action |
-|---|---|---|
+| --- | --- | --- |
 | `wmi-provider` | Provider role, name, CLSID, and DLL path | Unload the provider, remove its `__Win32Provider` instance and COM registration, then delete the DLL. |
 | `wmi-instance-provider`, `wmi-method-provider` | Provider role, name, CLSID, and DLL path | Unload the provider, remove its role registration before its `__Win32Provider` instance and COM registration, then delete the DLL. |
 | `wmi-event-subscription` | Filter and consumer name | Remove the binding, consumer, and filter with that name. |
@@ -24,4 +24,3 @@ accounts created by the payload. Wait for a launcher or host process to release
 a module before deleting it.
 
 Recovery records are informational; Rex does not execute them.
-

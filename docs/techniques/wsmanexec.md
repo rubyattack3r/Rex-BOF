@@ -45,4 +45,3 @@ by the command. See [recovery](../recovery.md).
 
 Relevant telemetry includes WinRM logs, shell creation, command lines, and
 process creation.
-

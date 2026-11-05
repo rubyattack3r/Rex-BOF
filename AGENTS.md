@@ -152,4 +152,3 @@ Strike, Sliver, and implant versions used.
    It fails when the changelog has no section matching the tag.
 
 Pin every GitHub Action to a commit SHA with a `# ratchet:` comment.
-

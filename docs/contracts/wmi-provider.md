@@ -4,7 +4,7 @@ The three WMI provider selectors load a native in-process COM server through
 WMI. They do not invoke a DLL export as a launcher would.
 
 | Selector | Registration created by Rex | DLL responsibility |
-|---|---|---|
+| --- | --- | --- |
 | `wmi-provider` | `__Win32Provider` | Initialize through `IWbemProviderInit` |
 | `wmi-instance-provider` | `__Win32Provider` and `__InstanceProviderRegistration` | Initialize and implement the advertised instance operations |
 | `wmi-method-provider` | `__Win32Provider` and `__MethodProviderRegistration` | Initialize and implement method dispatch |

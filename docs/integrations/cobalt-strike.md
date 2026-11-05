@@ -19,7 +19,7 @@ Prefix a command with `preflight` to check its requirements without executing
 the technique. Supply the same options as an execution command.
 
 | Command | Technique options |
-|---|---|
+| --- | --- |
 | `wmi-provider` | `--provider-name`, `--provider-clsid`, `--remote-path` |
 | `wmi-instance-provider` | `--provider-name`, `--provider-clsid`, `--remote-path` |
 | `wmi-method-provider` | `--provider-name`, `--provider-clsid`, `--remote-path` |
@@ -112,4 +112,3 @@ Existing-service techniques require a stopped service.
 
 While a command runs, it blocks its Beacon until the remote call returns. Use a
 dedicated session when a DCOM call may take a long time.
-

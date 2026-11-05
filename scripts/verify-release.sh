@@ -49,7 +49,9 @@ unzip -Z1 "$ARCHIVE" | LC_ALL=C sort > "$ACTUAL"
 diff -u "$EXPECTED" "$ACTUAL"
 
 unzip -q "$ARCHIVE" -d "$EXTRACTED"
-python3 "$PROJECT_DIR/scripts/check_docs.py" "$EXTRACTED/$PACKAGE_NAME"
+lychee --offline --include-fragments --no-progress \
+    "$EXTRACTED/$PACKAGE_NAME/*.md" \
+    "$EXTRACTED/$PACKAGE_NAME/docs/**/*.md"
 
 if command -v sha256sum >/dev/null 2>&1; then
     (cd "$ARCHIVE_DIR" && sha256sum -c "$CHECKSUM_BASE")

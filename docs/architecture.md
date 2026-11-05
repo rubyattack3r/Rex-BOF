@@ -19,7 +19,8 @@ flowchart LR
 
 ## Source layout
 
-- `include/rex.h` defines the shared request, result, observation, recovery, state, and technique-descriptor contracts.
+- `include/rex.h` defines the shared request, result, observation, recovery,
+  state, and technique-descriptor contracts.
 - `src/common/` contains the Beacon entrypoint, registry guard, lifecycle and
   command-identity handlers, runtime helpers, transcript encoding, COM security
   setup, and reusable WMI and service capabilities.
@@ -109,4 +110,3 @@ map the stable selector and named options in both
 details out of integrations. Add the matching technique page, preflight
 evidence, recovery contract, detection considerations, and x86/x64 validation
 together.
-
