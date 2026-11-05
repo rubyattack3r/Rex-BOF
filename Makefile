@@ -93,8 +93,9 @@ verify: clean lint host-tests all objects docs technique-contract sliver-manifes
 lint: format-check
 	cppcheck --quiet --error-exitcode=1 --std=c11 --inline-suppr \
 		--enable=warning,portability,performance \
-		--suppress=missingIncludeSystem -Iinclude -Isrc/common \
-		-Isrc/techniques src tests
+		--suppress=missingIncludeSystem \
+		'--suppress=syntaxError:tests/*' -Iinclude -Isrc/common \
+		-Isrc/techniques -Itests/vendor src tests
 	shellcheck --severity=warning scripts/*.sh
 	actionlint
 
@@ -106,11 +107,11 @@ format-check:
 
 host-tests:
 	@mkdir -p $(HOST_TEST_OUTPUT_DIR)
-	$(HOST_CC) -std=c11 $(WARNINGS) -Isrc/standalone \
+	$(HOST_CC) -std=c11 $(WARNINGS) -Isrc/standalone -Itests/vendor \
 		src/standalone/args.c tests/args_test.c \
 		-o $(HOST_TEST_OUTPUT_DIR)/args_test
 	$(HOST_TEST_OUTPUT_DIR)/args_test
-	$(HOST_CC) -std=c11 $(WARNINGS) -Isrc/common \
+	$(HOST_CC) -std=c11 $(WARNINGS) -Isrc/common -Itests/vendor \
 		src/common/wmi_text.c tests/wmi_text_test.c \
 		-o $(HOST_TEST_OUTPUT_DIR)/wmi_text_test
 	$(HOST_TEST_OUTPUT_DIR)/wmi_text_test

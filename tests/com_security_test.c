@@ -1,10 +1,10 @@
-#include <stdio.h>
 #include <windows.h>
 
 #include "com.h"
+#include "utest.h"
 
 static HRESULT configured_result;
-static unsigned int failures;
+static BOOL arguments_valid;
 
 HRESULT WINAPI rex_test_CoInitializeSecurity(
     PSECURITY_DESCRIPTOR descriptor, LONG service_count,
@@ -16,29 +16,35 @@ HRESULT WINAPI rex_test_CoInitializeSecurity(
         impersonation_level != RPC_C_IMP_LEVEL_IMPERSONATE ||
         authentication_list != NULL || capabilities != EOAC_DYNAMIC_CLOAKING ||
         reserved3 != NULL) {
-        failures++;
+        arguments_valid = FALSE;
     }
     return configured_result;
 }
 
-static void expect_result(HRESULT configured, HRESULT expected) {
-    HRESULT actual;
+static HRESULT enable_with(HRESULT configured) {
     configured_result = configured;
-    actual = rex_com_enable_dynamic_cloaking();
-    if (actual != expected) {
-        failures++;
-    }
+    arguments_valid = TRUE;
+    return rex_com_enable_dynamic_cloaking();
 }
 
-int main(void) {
-    expect_result(S_OK, S_OK);
-    expect_result(S_FALSE, S_FALSE);
-    expect_result(RPC_E_TOO_LATE, S_OK);
-    expect_result(E_ACCESSDENIED, E_ACCESSDENIED);
-    if (failures != 0) {
-        fprintf(stderr, "COM security tests failed: %u\n", failures);
-        return 1;
-    }
-    puts("COM security tests passed");
-    return 0;
+UTEST(com_security, success) {
+    EXPECT_EQ(S_OK, enable_with(S_OK));
+    EXPECT_TRUE(arguments_valid);
 }
+
+UTEST(com_security, already_initialized) {
+    EXPECT_EQ(S_FALSE, enable_with(S_FALSE));
+    EXPECT_TRUE(arguments_valid);
+}
+
+UTEST(com_security, initialized_too_late) {
+    EXPECT_EQ(S_OK, enable_with(RPC_E_TOO_LATE));
+    EXPECT_TRUE(arguments_valid);
+}
+
+UTEST(com_security, failure) {
+    EXPECT_EQ(E_ACCESSDENIED, enable_with(E_ACCESSDENIED));
+    EXPECT_TRUE(arguments_valid);
+}
+
+UTEST_MAIN()

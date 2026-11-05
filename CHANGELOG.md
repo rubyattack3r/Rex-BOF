@@ -16,6 +16,8 @@ increment the minor version.
 
 ### Changed
 
+- Use a pinned `utest.h` framework for named native test cases and focused
+  assertion diagnostics on both Clang and MSVC.
 - Replace the custom Markdown link parser with Markdownlint and Lychee checks,
   including offline validation of documentation links in release bundles.
 - Clarify the Cobalt Strike and Sliver operator guides, preflight behavior, and

@@ -35,15 +35,15 @@ jobs:
           for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSINSTALL=%%i"
           if not defined VSINSTALL exit /b 1
           call "%VSINSTALL%\VC\Auxiliary\Build\vcvars64.bat"
-          cl /nologo /W4 /WX /DREX_TEXT_TEST /Isrc\common src\common\text.c tests\text_test.c /Fe:%RUNNER_TEMP%\rex-text-test.exe
+          cl /nologo /W4 /WX /DREX_TEXT_TEST /Isrc\common /Itests\vendor src\common\text.c tests\text_test.c /Fe:%RUNNER_TEMP%\rex-text-test.exe
           "%RUNNER_TEMP%\rex-text-test.exe"
-          cl /nologo /W4 /WX /DREX_COM_SECURITY_TEST /Isrc\common src\common\com.c tests\com_security_test.c /Fe:%RUNNER_TEMP%\rex-com-security-test.exe
+          cl /nologo /W4 /WX /DREX_COM_SECURITY_TEST /Isrc\common /Itests\vendor src\common\com.c tests\com_security_test.c /Fe:%RUNNER_TEMP%\rex-com-security-test.exe
           "%RUNNER_TEMP%\rex-com-security-test.exe"
-          cl /nologo /W4 /WX /DREX_IDENTITY_TEST /Iinclude src\common\runtime.c src\common\identity.c tests\identity_test.c /Fe:%RUNNER_TEMP%\rex-identity-test.exe
+          cl /nologo /W4 /WX /DREX_IDENTITY_TEST /Iinclude /Itests\vendor src\common\runtime.c src\common\identity.c tests\identity_test.c /Fe:%RUNNER_TEMP%\rex-identity-test.exe
           "%RUNNER_TEMP%\rex-identity-test.exe"
-          cl /nologo /W4 /WX /Isrc\standalone src\standalone\args.c tests\args_test.c /Fe:%RUNNER_TEMP%\rex-args-test.exe
+          cl /nologo /W4 /WX /Isrc\standalone /Itests\vendor src\standalone\args.c tests\args_test.c /Fe:%RUNNER_TEMP%\rex-args-test.exe
           "%RUNNER_TEMP%\rex-args-test.exe"
-          cl /nologo /W4 /WX /Isrc\common src\common\wmi_text.c tests\wmi_text_test.c /Fe:%RUNNER_TEMP%\rex-wmi-text-test.exe
+          cl /nologo /W4 /WX /Isrc\common /Itests\vendor src\common\wmi_text.c tests\wmi_text_test.c /Fe:%RUNNER_TEMP%\rex-wmi-text-test.exe
           "%RUNNER_TEMP%\rex-wmi-text-test.exe"
 
   ratchet:
