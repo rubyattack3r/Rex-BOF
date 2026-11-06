@@ -1,8 +1,8 @@
 # Rex BOF documentation
 
-Rex provides native x86 and x64 BOFs for twelve Windows remote-execution
-techniques. Cobalt Strike exposes them through one `rex` command; Sliver uses
-twelve `rex-*` commands.
+Rex provides native x86 and x64 BOFs for Windows remote-execution techniques.
+Cobalt Strike exposes them through one `rex` command; Sliver uses one `rex-*`
+command per technique.
 
 Commands use the current process or implant identity by default and operate on
 one target at a time. Optional make-token credentials apply only while one Rex

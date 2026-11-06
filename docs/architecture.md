@@ -29,9 +29,9 @@ flowchart LR
 - `integrations/cna/rex.cna` maps selectors to objects, exposes named options,
   resolves launchers, and chooses x86 or x64 from the active Beacon
   architecture.
-- `integrations/sliver/extension.json` exposes twelve primitive commands, selects
-  `amd64` or `386` objects, and uses dedicated argument-count adapters before
-  entering the shared runtime.
+- `integrations/sliver/extension.json` exposes one primitive command per
+  technique, selects `amd64` or `386` objects, and uses dedicated
+  argument-count adapters before entering the shared runtime.
 - `src/standalone/` provides the table-driven argument and help parser, Windows
   CLI entrypoint, console output adapter, and direct-import mapping used to
   link all released techniques into one PE.
