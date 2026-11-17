@@ -13,15 +13,6 @@ rex wmi-exec --target 10.0.0.15 --payload-type dll \
 
 Selectors containing spaces or parentheses must be quoted.
 
-## Documentation
-
-- [Authoring and validation](authoring.md)
-- [Native DLL launchers](native.md)
-- [Control Panel modules](cpl.md)
-- [Managed .NET launchers](managed.md)
-- [Process-bound injection](injection.md)
-- [Custom launchers](custom.md)
-
 ## Built-in selectors
 
 | Selector | Payload | Resolved invocation | Required payload contract | LOLBAS |
@@ -47,6 +38,41 @@ that contain `{process_id}` require `--process-id`. `--launcher-program` may
 override a built-in executable path, for example to select a 32-bit .NET
 Framework tool or a `SysWOW64` launcher.
 
+The final artifact must implement the exact callback named in the table. Native
+exports must use the required ABI and an undecorated public name. A CPL must be
+a real Control Panel module, not a renamed DLL. Managed selectors require .NET
+Framework assemblies rather than modern .NET-only applications. Match native
+and managed artifacts to the selected launcher architecture and provide every
+dependency on the target.
+
+For `mavinject.exe`, confirm immediately before execution that `--process-id`
+still identifies the intended process and that the DLL, target process, and
+launcher architectures match. The CNA validates only that the value is a
+positive decimal number. A PID returned by `wmi-exec` identifies the new
+`mavinject.exe` process, not the process receiving the DLL.
+
+## Custom selector
+
+`--launcher custom` requires an absolute drive path in `--launcher-program`
+and a single-line `--launcher-arguments` template containing `{remote_path}`.
+The template may also contain `{entry_point}` or `{process_id}` when the
+matching option is supplied.
+
+Unknown or unexpanded placeholders are rejected, and literal braces are not
+supported. The CNA quotes a substituted remote path when it contains spaces or
+tabs; all other parsing behavior belongs to the selected target-resident
+program. Verify that program's payload format, ABI, architecture, dependencies,
+quoting, exit-status meaning, and cleanup separately.
+
+```text
+rex wmi-exec --target 10.0.0.15 --payload-type dll \
+  --remote-path "D:\Approved Staging\payload.dll" \
+  --launcher custom \
+  --launcher-program "D:\Approved Tools\loader-host.exe" \
+  --launcher-arguments "--module {remote_path} --export {entry_point}" \
+  --entry-point Run
+```
+
 ## Invocation format
 
 The CNA resolves a launcher into a program and arguments before the BOF runs.
@@ -54,9 +80,9 @@ The CNA resolves a launcher into a program and arguments before the BOF runs.
 `dcom-ishell-dispatch2` receive separate program and argument values. `scm-command`
 receives the same complete command-line form as `wmi-exec`.
 
-`rex preflight` checks the remote-execution technique, not the launcher or
-payload. Verify file presence, architecture, exports, dependencies, and process
-IDs before execution.
+`rex preflight` checks the remote-execution primitive, not the launcher or
+payload. Verify file presence, architecture, callbacks, dependencies, and
+process IDs before execution.
 
 ## Results and cleanup
 

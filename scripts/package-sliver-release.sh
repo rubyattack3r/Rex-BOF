@@ -50,6 +50,7 @@ cp "$PROJECT_DIR/CHANGELOG.md" "$PACKAGE_ROOT/"
 cp "$PROJECT_DIR/LICENSE" "$PACKAGE_ROOT/"
 cp "$PROJECT_DIR/ACCEPTABLE_USE_POLICY.md" "$PACKAGE_ROOT/"
 cp -R "$PROJECT_DIR/docs" "$PACKAGE_ROOT/"
+rm -f "$PACKAGE_ROOT/docs/demo/demo.toml"
 printf '%s\n' "$VERSION" > "$PACKAGE_ROOT/VERSION.txt"
 
 find "$PACKAGE_ROOT" -exec touch -t 198001010000 {} +

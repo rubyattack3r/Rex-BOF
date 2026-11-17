@@ -70,10 +70,6 @@ wsmanexec_SOURCES := $(BASE_SOURCES) src/techniques/wsmanexec.c
 taskschedexec_SOURCES := $(BASE_SOURCES) src/techniques/taskschedexec.c
 dcomishelldispatch2_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) src/techniques/dcomishelldispatch2.c
 dcomishelldispatch2_DEFINES := -DREX_WITH_COM_SECURITY
-dcommmc20_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) src/techniques/dcommmc20.c
-dcommmc20_DEFINES := -DREX_WITH_COM_SECURITY
-dcomshellbrowserwindow_SOURCES := $(BASE_SOURCES) $(COM_SOURCES) src/techniques/dcomshellbrowserwindow.c
-dcomshellbrowserwindow_DEFINES := -DREX_WITH_COM_SECURITY
 scmchangeservice_SOURCES := $(BASE_SOURCES) $(SERVICE_SOURCES) src/techniques/scmchangeservice.c
 scmchangeservice_DEFINES := -DREX_WITH_SERVICE
 scmcreateservice_SOURCES := $(BASE_SOURCES) $(SERVICE_SOURCES) src/techniques/scmcreateservice.c
@@ -157,14 +153,13 @@ release: verify
 	sh scripts/package-sliver-release.sh "$(VERSION)"
 	sh scripts/package-standalone-release.sh "$(VERSION)"
 
-# Render the README demo locally. Generated media is committed so CI and
+# Render the README demo locally. Generated SVGs are committed so CI and
 # documentation rendering do not depend on beaconcast.
 demo:
 	@command -v beaconcast >/dev/null || { echo "Install beaconcast: go install github.com/rubyattack3r/beaconcast/cmd/beaconcast@v0.1.0" >&2; exit 1; }
 	@for mode in dark light; do \
 		beaconcast render --mode $$mode \
-			--svg docs/demo/demo-$$mode.svg \
-			--gif docs/demo/demo-$$mode.gif docs/demo/demo.toml; \
+			--svg docs/demo/demo-$$mode.svg --gif - docs/demo/demo.toml; \
 	done
 
 define TECHNIQUE_template

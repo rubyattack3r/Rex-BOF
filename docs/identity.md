@@ -27,29 +27,12 @@ runs the target-side program:
 Make-token changes remote authentication. It does not override these
 target-side execution rules.
 
-## Server 2025 validation
+## Validation evidence
 
-The table records an x64 Sliver v1.7.9 run against Windows Server 2025 build
-26100. Every validated row passed preflight and execution with command-scoped
-credentials. Benign target-side fixtures recorded the execution account, and
-the implant remained `LocalSystem` before and after the run. See
-[tested environments](platforms.md) for the complete evidence and architecture
-coverage.
-
-| Technique | Make-token result | Remote operation authenticated by the supplied account | Target-side execution identity |
-| --- | --- | --- | --- |
-| [`wmi-provider`](techniques/wmiprovider.md) | Validated | WMI and remote registry registration | `LocalSystem` WMI provider host |
-| [`wmi-instance-provider`](techniques/wmiinstanceprovider.md) | Validated | WMI and remote registry registration | `LocalSystem` WMI provider host |
-| [`wmi-method-provider`](techniques/wmimethodprovider.md) | Validated | WMI and remote registry registration | `LocalSystem` WMI provider host |
-| [`wmi-event-subscription`](techniques/wmieventsubscription.md) | Validated | WMI subscription creation | `LocalSystem` command-consumer host when an event matches |
-| [`wmi-service`](techniques/wmiservice.md) | Validated | WMI service query, change, and start | Account configured on the existing service; the test service used `LocalSystem` |
-| [`wmi-exec`](techniques/wmiexec.md) | Validated | WMI process-creation request | Supplied account |
-| [`wsman-exec`](techniques/wsmanexec.md) | Validated | WinRM session and command | Supplied account under the tested endpoint policy |
-| [`task-sched-exec`](techniques/taskschedexec.md) | Validated | Task Scheduler connection and registration | `LocalSystem`, as set by Rex's task definition |
-| [`dcom-ishell-dispatch2`](techniques/dcomishelldispatch2.md) | Validated | DCOM activation and shell automation | Interactive Explorer user |
-| [`scm-change-service`](techniques/scmchangeservice.md) | Validated | SCM query, change, and start | Account configured on the existing service; the test service used `LocalSystem` |
-| [`scm-create-service`](techniques/scmcreateservice.md) | Validated | SCM service creation and start | `LocalSystem`, as set by Rex's service configuration |
-| [`scm-command`](techniques/scmcommand.md) | Validated | SCM service creation and start | `LocalSystem`, as set by Rex's service configuration |
+The per-technique command-scoped identity results, environments, and
+architecture coverage are recorded in [tested environments](platforms.md).
+Those tests used benign target-side fixtures to record the execution account
+and confirmed that the implant identity was unchanged after each command.
 
 The DCOM validation used an active domain-user Explorer session on a member
 server. Both the same account and a different valid administrator passed

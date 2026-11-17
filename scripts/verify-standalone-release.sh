@@ -36,7 +36,8 @@ unzip -Z1 "$ARCHIVE" | LC_ALL=C sort > "$ACTUAL"
         cd "$PROJECT_DIR"
         find docs -type d -print |
             sed -e "s|^|$PACKAGE_NAME/|" -e 's|$|/|'
-        find docs -type f -print | sed "s|^|$PACKAGE_NAME/|"
+        find docs -type f ! -path 'docs/demo/demo.toml' -print |
+            sed "s|^|$PACKAGE_NAME/|"
     )
 } | LC_ALL=C sort > "$EXPECTED"
 diff -u "$EXPECTED" "$ACTUAL"

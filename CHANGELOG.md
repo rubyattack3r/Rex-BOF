@@ -6,16 +6,12 @@ increment the minor version.
 
 ## [Unreleased]
 
-### Added
-
-- Add an evidence-only vector catalog for four reproduced Windows Server 2025
-  paths: scheduled-task and service AppDomain managers, scheduled-task
-  COM-handler redirection, and ServiceDll redirection. For each path, explain
-  in operator-facing language what must already exist, what changes, how it is
-  started, what proves execution, and what must be restored.
-
 ### Changed
 
+- Keep Rex focused on supported primitives by removing withheld DCOM candidate
+  implementations, unrelated execution research, stale launcher and loader
+  evidence, duplicate identity results, and unused demo GIFs. Release bundles
+  now omit the demo source configuration.
 - Use a pinned `utest.h` framework for named native test cases and focused
   assertion diagnostics on both Clang and MSVC.
 - Replace the custom Markdown link parser with Markdownlint and Lychee checks,
