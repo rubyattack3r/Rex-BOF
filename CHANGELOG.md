@@ -6,6 +6,8 @@ increment the minor version.
 
 ## [Unreleased]
 
+## [0.5.2] - 2026-11-17
+
 ### Changed
 
 - Keep Rex focused on supported primitives by removing withheld DCOM candidate
