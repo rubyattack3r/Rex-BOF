@@ -31,7 +31,6 @@ Additional references:
 - [Read-only preflight](preflight.md)
 - [Target-side input contracts](contracts/README.md)
 - [Launcher contracts](launchers/README.md)
-- [Verified execution vectors](vectors/README.md)
 - [Transcript output](output.md)
 - [Cleanup](recovery.md)
 - [Tested platforms](platforms.md)
@@ -39,6 +38,3 @@ Additional references:
 - [Acceptable Use Policy](../ACCEPTABLE_USE_POLICY.md)
 
 Keep the integration file and its object files together from the same release.
-The [MMC20](techniques/dcommmc20.md) and
-[ShellBrowserWindow](techniques/dcomshellbrowserwindow.md) candidates are
-documented with their Server 2025 test results but are not release commands.
